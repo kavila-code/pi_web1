@@ -4,6 +4,7 @@ Este repositorio contiene el desarrollo de una aplicación web como **proyecto u
 
 ## Integrantes
 - Kelly Ávila  - 230241031
+- 
 -Cristian Hoyos -230241038
 - Juan Fernando Ramirez - 230241041
 - Juan David Salazar - 230241006
