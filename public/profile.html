@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .profile-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Mi Perfil</h2>
+    <div class="profile-info">
+        <p>Email: <span id="userEmail"></span></p>
+        <p>Nombre: <span id="userName"></span></p>
+    </div>
+    <button onclick="logout()">Cerrar Sesión</button>
+
+    <script>
+        async function loadProfile() {
+            try {
+                const res = await fetch('http://localhost:3000/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (!res.ok) {
+                    throw new Error('No autorizado');
+                }
+                const data = await res.json();
+                
+                document.getElementById('userEmail').textContent = data.email;
+                document.getElementById('userName').textContent = data.name || 'No disponible';
+            } catch (err) {
+                console.error('Error:', err);
+                window.location.href = '/login';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>

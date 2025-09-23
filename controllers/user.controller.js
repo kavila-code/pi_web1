@@ -62,8 +62,11 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ ok: false, msg: 'Server error' });
+    console.log('Error:', error); // Para ver el error específico en los logs
+    return res.status(500).json({
+        ok: false,
+        msg: error.message // Mensaje más específico del error
+    });    return res.status(500).json({ ok: false, msg: 'Server error' });
   }
 };
 

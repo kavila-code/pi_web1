@@ -1,0 +1,177 @@
+/* Estilos personalizados para DomiTulua */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+.hero-section {
+    background-color: #f8f9fa;
+    padding: 3rem 0;
+}
+
+.company-name {
+    color: #e63946; /* Color rojo característico */
+    font-weight: 700;
+    font-size: 2.5rem;
+}
+
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.feature-list li {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.check-icon {
+    color: #2a9d8f;
+    margin-right: 10px;
+}
+
+.services-section {
+    padding: 4rem 0;
+}
+
+.service-card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s;
+    height: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.service-icon {
+    font-size: 2.5rem;
+    color: #e63946;
+    margin-bottom: 1rem;
+}
+
+footer {
+    background-color: #2b2d42;
+    color: white;
+    padding: 3rem 0;
+}
+
+.social-icons a {
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 15px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #e63946;
+}
+
+.contact-info p {
+    margin-bottom: 5px;
+}
+
+/* Estilos adicionales para mejorar la apariencia */
+.navbar-brand {
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: #e63946;
+    border-color: #e63946;
+}
+
+.btn-primary:hover {
+    background-color: #d32f3c;
+    border-color: #d32f3c;
+}
+
+.hero-section img {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.service-card h4 {
+    color: #2b2d42;
+    margin-bottom: 1rem;
+}
+
+.service-card p {
+    color: #6c757d;
+}
+
+footer h4, footer h5 {
+    color: #f8f9fa;
+    margin-bottom: 1rem;
+}
+
+footer a:hover {
+    color: #e63946 !important;
+}
+
+/* Responsividad adicional */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+        text-align: center;
+    }
+    
+    .company-name {
+        font-size: 2rem;
+    }
+    
+    .services-section {
+        padding: 2rem 0;
+    }
+    
+    .service-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    footer {
+        padding: 2rem 0;
+        text-align: center;
+    }
+    
+    .social-icons {
+        justify-content: center;
+        display: flex;
+    }
+}
+
+/* Estilos para páginas de autenticación (login, registro) */
+.login-container, .register-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.login-form input, .register-form input {
+    margin-bottom: 1rem;
+}
+
+.login-form button, .register-form button {
+    width: 100%;
+}
+
+#response {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    white-space: pre-wrap;
+}
+
+/* Estilos para el main en páginas de autenticación */
+.auth-main {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+}

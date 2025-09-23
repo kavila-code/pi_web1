@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { db } from './database/connection.database.js';
 
 import userRouter from './routes/user.route.js';
 import publicRouter from './routes/public.route.js';
@@ -33,6 +34,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
-
-
-
