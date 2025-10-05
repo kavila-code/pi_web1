@@ -7,11 +7,16 @@ import publicRouter from './routes/public.route.js';
 
 const app = express();
 
+// Servir archivos estáticos
+app.use('/frontend', express.static('frontend'));
+app.use('/public', express.static('public'));
+
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(express.static('public'));
+
+
 
 // Rutas
 app.use('/', publicRouter);
