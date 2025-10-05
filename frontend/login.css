@@ -1,0 +1,590 @@
+/* CSS específico para la página de login */
+
+/* Cuerpo de la página de login */
+.login-body {
+  background: linear-gradient(135deg, var(--primary-red) 0%, var(--deep-red) 50%, var(--dark-navy) 100%);
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Navbar simplificado para login */
+.navbar-login {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 0;
+}
+
+.navbar-login .navbar-brand {
+  color: var(--warm-white) !important;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.navbar-login .navbar-brand i {
+  color: var(--orange-accent);
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--warm-white);
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-back:hover {
+  background: var(--orange-accent);
+  color: var(--warm-white);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Contenedor principal del login  */
+.login-container {
+  padding: 1rem 0; /* Reducido de 2rem */
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 80px); /* Ajustado para la navbar */
+}
+
+.login-card {
+  background: var(--warm-white);
+  border-radius: 25px; /* Reducido de 30px */
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.25); /* Sombra más sutil */
+  display: flex;
+  min-height: 600px; /* Reducido de 700px */
+  max-height: 650px; /* Altura máxima */
+  width: 100%;
+  max-width: 1100px; /* Ancho máximo */
+  margin: 0 auto;
+}
+
+/* Lado izquierdo - Información  */
+.login-info {
+  flex: 0 0 45%; /* Ancho fijo más pequeño */
+  background: linear-gradient(135deg, var(--primary-red) 0%, var(--deep-red) 100%);
+  color: var(--warm-white);
+  padding: 40px 30px; /* Reducido padding */
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-info::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+  animation: float 20s infinite linear;
+}
+
+@keyframes float {
+  0% { transform: rotate(0deg) translateX(10px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(10px) rotate(-360deg); }
+}
+
+.info-content {
+  position: relative;
+  z-index: 2;
+}
+
+.info-content h2 {
+  font-size: 2rem; /* Reducido de 2.5rem */
+  font-weight: 700;
+  margin-bottom: 0.8rem; /* Reducido */
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.info-content > p {
+  font-size: 1rem; /* Reducido de 1.2rem */
+  margin-bottom: 1.5rem; /* Reducido */
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Características  */
+.features {
+  margin-bottom: 1.5rem; /* Reducido */
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Reducido */
+  margin-bottom: 15px; /* Reducido */
+  padding: 12px; /* Reducido */
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px; /* Reducido */
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(10px);
+}
+
+.feature-item i {
+  font-size: 1.2rem; /* Reducido */
+  color: var(--orange-accent);
+  min-width: 20px;
+}
+
+.feature-item span {
+  font-weight: 500;
+  font-size: 0.9rem; /* Añadido */
+}
+
+/* Testimonio COMPACTO */
+.testimonial {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px; /* Reducido */
+  padding: 20px; /* Reducido */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.testimonial-content i {
+  font-size: 1.5rem; /* Reducido */
+  color: var(--orange-accent);
+  margin-bottom: 10px; /* Reducido */
+}
+
+.testimonial-content p {
+  font-style: italic;
+  margin-bottom: 12px; /* Reducido */
+  line-height: 1.5;
+  font-size: 0.9rem; /* Añadido */
+}
+
+.testimonial-author strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem; /* Añadido */
+}
+
+.rating {
+  color: var(--orange-accent);
+  font-size: 0.8rem; /* Añadido */
+}
+
+/* Lado derecho - Formularios  */
+.login-form-container {
+  flex: 1;
+  padding: 40px 35px; /* Reducido */
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-wrapper {
+  transition: all 0.3s ease;
+}
+
+.form-wrapper.hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 40px;
+  left: 35px;
+  right: 35px;
+  transform: translateX(100%); /* Añadir esto */
+  transition: all 0.3s ease; /* Añadir esto */
+}
+
+.form-wrapper:not(.hidden) {
+  opacity: 1;
+  pointer-events: all;
+  position: relative;
+  transform: translateX(0); /* Añadir esto */
+  transition: all 0.3s ease; /* Añadir esto */
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 1.5rem; /* Reducido */
+}
+
+.form-header h3 {
+  color: var(--dark-navy);
+  font-size: 1.8rem; /* Reducido */
+  font-weight: 700;
+  margin-bottom: 0.3rem; /* Reducido */
+}
+
+.form-header p {
+  color: var(--text-gray);
+  font-size: 0.95rem; /* Reducido */
+}
+
+/* Formulario */
+.login-form {
+  max-width: 380px; /* Reducido */
+  margin: 0 auto;
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-group {
+  margin-bottom: 1.2rem; /* Reducido */
+  flex: 1;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Reducido */
+  color: var(--dark-navy);
+  font-weight: 600;
+  margin-bottom: 6px; /* Reducido */
+  font-size: 0.85rem; /* Reducido */
+  position: relative;
+  z-index: 2;
+}
+
+.form-group label i {
+  color: var(--primary-red);
+  font-size: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px; /* Reducido */
+  border: 2px solid var(--light-gray);
+  border-radius: 12px; /* Reducido */
+  font-size: 0.95rem; /* Reducido */
+  transition: all 0.3s ease;
+  background: var(--warm-white);
+  position: relative;
+  z-index: 1; 
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+  transform: translateY(-2px);
+}
+
+.form-control::placeholder {
+  color: var(--text-gray);
+  font-weight: 400;
+}
+
+/* Input de contraseña */
+.password-input {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-gray);
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.3s ease;
+}
+
+.password-toggle:hover {
+  color: var(--primary-red);
+}
+
+/* Indicador de fortaleza de contraseña COMPACTO */
+.password-strength {
+  margin-top: 8px; /* Reducido */
+}
+
+.strength-bar {
+  height: 3px; /* Reducido */
+  background: var(--light-gray);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px; /* Reducido */
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.strength-text {
+  font-size: 0.75rem; /* Reducido */
+  font-weight: 500;
+}
+
+/* Opciones del formulario COMPACTAS */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem; /* Reducido */
+  font-size: 0.85rem; /* Reducido */
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-check-input {
+  margin: 0;
+}
+
+.forgot-password {
+  color: var(--primary-red);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.forgot-password:hover {
+  color: var(--orange-accent);
+  text-decoration: underline;
+}
+
+/* Checkbox personalizado COMPACTO */
+.form-check-custom {
+  margin-bottom: 0.8rem; /* Reducido */
+}
+
+.form-check-custom .form-check-label {
+  font-size: 0.85rem; /* Reducido */
+  color: var(--text-gray);
+  line-height: 1.3; /* Reducido */
+}
+
+/* Botón de envío COMPACTO */
+.btn-login-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+  color: var(--warm-white);
+  border: none;
+  padding: 12px 18px; /* Reducido */
+  border-radius: 12px; /* Reducido */
+  font-size: 1rem; /* Reducido */
+  font-weight: 600;
+  margin-bottom: 1.5rem; /* Reducido */
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-login-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: all 0.5s ease;
+}
+
+.btn-login-submit:hover::before {
+  left: 100%;
+}
+
+.btn-login-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(231, 76, 60, 0.4);
+}
+
+/* Login social COMPACTO */
+.social-login {
+  margin-bottom: 1.5rem; /* Reducido */
+}
+
+.divider {
+  text-align: center;
+  position: relative;
+  margin-bottom: 1.2rem; /* Reducido */
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--light-gray);
+}
+
+.divider span {
+  background: var(--warm-white);
+  color: var(--text-gray);
+  padding: 0 15px; /* Reducido */
+  font-size: 0.85rem; /* Reducido */
+  position: relative;
+  z-index: 1;
+}
+
+.social-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-social {
+  flex: 1;
+  background: var(--warm-white);
+  border: 2px solid var(--light-gray);
+  color: var(--text-gray);
+  padding: 10px 16px; /* Reducido */
+  border-radius: 10px; /* Reducido */
+  font-weight: 500;
+  font-size: 0.9rem; /* Reducido */
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Reducido */
+}
+
+.btn-social:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.btn-social.google:hover {
+  border-color: #4285f4;
+  color: #4285f4;
+}
+
+.btn-social.facebook:hover {
+  border-color: #1877f2;
+  color: #1877f2;
+}
+
+/* Footer del formulario COMPACTO */
+.form-footer {
+  text-align: center;
+}
+
+.form-footer p {
+  color: var(--text-gray);
+  margin: 0;
+  font-size: 0.9rem; /* Reducido */
+}
+
+.form-footer a {
+  color: var(--primary-red);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.form-footer a:hover {
+  color: var(--orange-accent);
+  text-decoration: underline;
+}
+
+/* Responsive ACTUALIZADO */
+@media (max-width: 992px) {
+  .login-card {
+    flex-direction: column;
+    min-height: auto;
+    max-height: none;
+  }
+  
+  .login-info {
+    order: 2;
+    padding: 30px 25px; /* Reducido */
+    flex: none;
+  }
+  
+  .login-form-container {
+    order: 1;
+    padding: 30px 25px; /* Reducido */
+  }
+  
+  .info-content h2 {
+    font-size: 1.8rem; /* Reducido */
+  }
+  
+  .features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px; /* Reducido */
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    padding: 0.5rem; /* Reducido */
+  }
+  
+  .login-card {
+    border-radius: 20px;
+    margin: 0.5rem;
+  }
+  
+  .login-info,
+  .login-form-container {
+    padding: 25px 20px; /* Reducido */
+  }
+  
+  .login-form {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .info-content h2 {
+    font-size: 1.6rem; /* Reducido */
+  }
+  
+  .form-header h3 {
+    font-size: 1.5rem; /* Reducido */
+  }
+  
+  .features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.feature-item {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.feature-item:nth-child(1) { animation-delay: 0.1s; }
+.feature-item:nth-child(2) { animation-delay: 0.2s; }
+.feature-item:nth-child(3) { animation-delay: 0.3s; }
+.feature-item:nth-child(4) { animation-delay: 0.4s; }

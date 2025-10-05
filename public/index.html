@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DomiTulua 🍴 | Tu comida favorita a domicilio</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <!--  CSS foodie -->
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <!-- Brand a la izquierda -->
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <i class="bi bi-truck me-2"></i>
+          <span>DomiTulua</span>
+        </a>
+
+        <!-- Toggler para móvil -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Todo el contenido a la derecha -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <div class="d-flex align-items-center w-100 justify-content-end">
+            <!-- Links de navegación -->
+            <ul class="navbar-nav me-0">
+              <li class="nav-item">
+                <a class="nav-link" href="#inicio">
+                  <i class="bi bi-house me-1"></i>Inicio
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#servicios">
+                  <i class="bi bi-grid-3x3-gap me-1"></i>Servicios
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#menu">
+                  <i class="bi bi-collection me-1"></i>Menú
+                </a>
+              </li>
+            </ul>
+
+            <!-- Acciones del navbar -->
+            <div class="navbar-actions">
+              <button class="btn-cart" title="Carrito">
+                <i class="bi bi-bag"></i>
+                <span class="cart-count">0</span>
+              </button>
+              <a href="/login" class="btn-login">
+                <i class="bi bi-person me-1"></i>
+                Iniciar Sesión
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero-section">
+      <div class="container">
+        <h1>Tu comida favorita, donde estés</h1>
+        <p>Rápido, confiable y delicioso. ¡Pide ya en DomiTulua!</p>
+
+        <!-- Buscador Principal -->
+        <div class="search-container">
+          <div class="search-box">
+            <i class="bi bi-search search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="¿Qué quieres pedir hoy? Pizza, hamburguesa, sushi..."
+              id="mainSearch"
+            />
+            <button class="search-btn">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- Sugerencias rápidas -->
+          <div class="quick-suggestions">
+            <span class="suggestion-label">Popular:</span>
+            <button class="suggestion-tag">🍕 Pizza</button>
+            <button class="suggestion-tag">🍔 Hamburguesa</button>
+            <button class="suggestion-tag">🍣 Sushi</button>
+            <button class="suggestion-tag">🌮 Tacos</button>
+            <button class="suggestion-tag">🍝 Pasta</button>
+          </div>
+        </div>
+
+        <div class="hero-buttons">
+          <a href="#" class="btn btn-lg btn-primary-custom">Ordena Ahora</a>
+          <a href="#servicios" class="btn btn-lg btn-outline-custom"
+            >Ver Servicios</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicios -->
+    <section class="services-section">
+      <div class="container">
+        <h2 class="text-center">🍕 Nuestros Servicios</h2>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="service-card text-center">
+              <i class="bi bi-lightning-charge service-icon"></i>
+              <h3>Entrega Rápida</h3>
+              <p>
+                Recibe tu pedido en 30 minutos o menos. Garantizamos velocidad
+                sin comprometer la calidad.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="service-card text-center">
+              <i class="bi bi-heart-fill service-icon"></i>
+              <h3>Comida Fresca</h3>
+              <p>
+                Ingredientes frescos y de calidad premium. Cada plato preparado
+                con amor y dedicación.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="service-card text-center">
+              <i class="bi bi-shield-check service-icon"></i>
+              <h3>Pago Seguro</h3>
+              <p>
+                Múltiples métodos de pago seguros. Tu información protegida en
+                cada transacción.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menú Section -->
+    <section class="menu-section" id="menu">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2>Nuestro Menú</h2>
+          <p class="section-subtitle">
+            Explora nuestra deliciosa variedad de platos
+          </p>
+        </div>
+
+        <!-- Filtros de categorías -->
+        <div class="menu-filters text-center mb-5">
+          <button class="filter-btn active" data-filter="all">
+            <i class="bi bi-grid-3x3-gap me-2"></i>Todo
+          </button>
+          <button class="filter-btn" data-filter="pizza">
+            <i class="bi bi-circle me-2"></i>Pizza
+          </button>
+          <button class="filter-btn" data-filter="burger">
+            <i class="bi bi-list me-2"></i>Hamburguesas
+          </button>
+          <button class="filter-btn" data-filter="sushi">
+            <i class="bi bi-star me-2"></i>Sushi
+          </button>
+          <button class="filter-btn" data-filter="dessert">
+            <i class="bi bi-heart me-2"></i>Postres
+          </button>
+          <button class="filter-btn" data-filter="drink">
+            <i class="bi bi-cup-straw me-2"></i>Bebidas
+          </button>
+        </div>
+
+        <!-- Grid de productos -->
+        <div class="row menu-grid">
+          <!-- Pizza -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Pizza Margherita"
+                />
+                <div class="menu-badge">Popular</div>
+              </div>
+              <div class="menu-content">
+                <h4>Pizza Margherita</h4>
+                <p>Deliciosa pizza con tomate, mozzarella fresca y albahaca</p>
+                <div class="menu-footer">
+                  <span class="price">$25.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hamburguesa -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Hamburguesa Clásica"
+                />
+                <div class="menu-badge new">Nuevo</div>
+              </div>
+              <div class="menu-content">
+                <h4>Hamburguesa Clásica</h4>
+                <p>
+                  Carne de res, lechuga, tomate, cebolla y nuestra salsa
+                  especial
+                </p>
+                <div class="menu-footer">
+                  <span class="price">$18.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sushi -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="sushi">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Sushi Roll"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Sushi California Roll</h4>
+                <p>Rollo de sushi con cangrejo, aguacate y pepino</p>
+                <div class="menu-footer">
+                  <span class="price">$32.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Más productos... -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="dessert">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="https://images.unsplash.com/photo-1551024506-0bccd828d307?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Cheesecake"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Cheesecake de Fresa</h4>
+                <p>Cremoso cheesecake con salsa de fresas frescas</p>
+                <div class="menu-footer">
+                  <span class="price">$12.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="https://images.unsplash.com/photo-1544145945-f90425340c7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Smoothie"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Smoothie Tropical</h4>
+                <p>Refrescante batido de mango, piña y maracuyá</p>
+                <div class="menu-footer">
+                  <span class="price">$8.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Pizza Pepperoni"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Pizza Pepperoni</h4>
+                <p>Pizza clásica con pepperoni y queso mozzarella</p>
+                <div class="menu-footer">
+                  <span class="price">$28.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-5">
+          <a href="#" class="btn btn-primary-custom">
+            <i class="bi bi-eye me-2"></i>Ver Menú Completo
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Restaurantes Section -->
+    <section class="restaurants-section" id="restaurantes">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2>Restaurantes Afiliados</h2>
+          <p class="section-subtitle">
+            Descubre los mejores restaurantes de Tuluá
+          </p>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="restaurant-card">
+              <div class="restaurant-image">
+                <img
+                  src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Restaurante Italiano"
+                />
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.8</span>
+                </div>
+              </div>
+              <div class="restaurant-content">
+                <h4>La Bella Italia</h4>
+                <p class="restaurant-category">Comida Italiana</p>
+                <p class="restaurant-description">
+                  Auténtica cocina italiana con ingredientes frescos
+                </p>
+                <div class="restaurant-info">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i>30-45 min
+                  </span>
+                  <span class="delivery-cost">
+                    <i class="bi bi-truck"></i>$3.000
+                  </span>
+                </div>
+                <button class="btn-view-restaurant">Ver Menú</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="restaurant-card">
+              <div class="restaurant-image">
+                <img
+                  src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Restaurante Japonés"
+                />
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.9</span>
+                </div>
+              </div>
+              <div class="restaurant-content">
+                <h4>Sakura Sushi</h4>
+                <p class="restaurant-category">Comida Japonesa</p>
+                <p class="restaurant-description">
+                  Los mejores sushi y rolls de la ciudad
+                </p>
+                <div class="restaurant-info">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i>25-40 min
+                  </span>
+                  <span class="delivery-cost">
+                    <i class="bi bi-truck"></i>$2.500
+                  </span>
+                </div>
+                <button class="btn-view-restaurant">Ver Menú</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="restaurant-card">
+              <div class="restaurant-image">
+                <img
+                  src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Hamburguesas"
+                />
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.7</span>
+                </div>
+              </div>
+              <div class="restaurant-content">
+                <h4>Burger Master</h4>
+                <p class="restaurant-category">Hamburguesas Gourmet</p>
+                <p class="restaurant-description">
+                  Las hamburguesas más jugosas y sabrosas
+                </p>
+                <div class="restaurant-info">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i>20-35 min
+                  </span>
+                  <span class="delivery-cost">
+                    <i class="bi bi-truck"></i>$3.500
+                  </span>
+                </div>
+                <button class="btn-view-restaurant">Ver Menú</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="restaurant-card">
+              <div class="restaurant-image">
+                <img
+                  src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Comida Mexicana"
+                />
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.6</span>
+                </div>
+              </div>
+              <div class="restaurant-content">
+                <h4>Azteca Mexicana</h4>
+                <p class="restaurant-category">Comida Mexicana</p>
+                <p class="restaurant-description">
+                  Sabores auténticos de México
+                </p>
+                <div class="restaurant-info">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i>35-50 min
+                  </span>
+                  <span class="delivery-cost">
+                    <i class="bi bi-truck"></i>$4.000
+                  </span>
+                </div>
+                <button class="btn-view-restaurant">Ver Menú</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="restaurant-card">
+              <div class="restaurant-image">
+                <img
+                  src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Comida Saludable"
+                />
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.8</span>
+                </div>
+              </div>
+              <div class="restaurant-content">
+                <h4>Green Life</h4>
+                <p class="restaurant-category">Comida Saludable</p>
+                <p class="restaurant-description">
+                  Ensaladas frescas y platos nutritivos
+                </p>
+                <div class="restaurant-info">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i>15-30 min
+                  </span>
+                  <span class="delivery-cost">
+                    <i class="bi bi-truck"></i>$2.000
+                  </span>
+                </div>
+                <button class="btn-view-restaurant">Ver Menú</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="restaurant-card">
+              <div class="restaurant-image">
+                <img
+                  src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Comida Colombiana"
+                />
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.9</span>
+                </div>
+              </div>
+              <div class="restaurant-content">
+                <h4>Sabor Valluno</h4>
+                <p class="restaurant-category">Comida Tradicional</p>
+                <p class="restaurant-description">
+                  Lo mejor de la gastronomía vallecaucana
+                </p>
+                <div class="restaurant-info">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i>40-55 min
+                  </span>
+                  <span class="delivery-cost">
+                    <i class="bi bi-truck"></i>$3.000
+                  </span>
+                </div>
+                <button class="btn-view-restaurant">Ver Menú</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-5">
+          <a href="#" class="btn btn-outline-custom">
+            <i class="bi bi-building me-2"></i>Ver Todos los Restaurantes
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Promociones Section -->
+    <section class="promotions-section" id="promociones">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2>Promociones Especiales</h2>
+          <p class="section-subtitle">
+            ¡No te pierdas nuestras ofertas increíbles!
+          </p>
+        </div>
+
+        <div class="row">
+          <!-- Promoción destacada -->
+          <div class="col-lg-8 mb-4">
+            <div class="promo-card featured">
+              <div class="promo-content">
+                <div class="promo-badge">🔥 OFERTA ESPECIAL</div>
+                <h3>¡50% OFF en tu Primera Orden!</h3>
+                <p>
+                  Descuento especial para nuevos usuarios. Válido en pedidos
+                  mayores a $30.000
+                </p>
+                <div class="promo-code">
+                  <span>Código: <strong>BIENVENIDO50</strong></span>
+                  <button
+                    class="btn-copy-code"
+                    onclick="copyPromoCode('BIENVENIDO50')"
+                  >
+                    <i class="bi bi-copy"></i>
+                  </button>
+                </div>
+                <div class="promo-timer">
+                  <i class="bi bi-clock"></i>
+                  <span>Válido hasta: 31 de Diciembre</span>
+                </div>
+              </div>
+              <div class="promo-image">
+                <img
+                  src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                  alt="Promoción 50% OFF"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Promociones secundarias -->
+          <div class="col-lg-4">
+            <div class="promo-card small mb-4">
+              <div class="promo-content">
+                <h4>🍕 Pizza Doble</h4>
+                <p>Compra 1 pizza y llévate la segunda al 50%</p>
+                <div class="promo-code">
+                  <span>PIZZA2X1</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="promo-card small">
+              <div class="promo-content">
+                <h4>🚚 Envío Gratis</h4>
+                <p>En pedidos mayores a $25.000</p>
+                <div class="promo-code">
+                  <span>ENVIOGRATIS</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid de promociones adicionales -->
+        <div class="row mt-4">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="promo-card">
+              <div class="promo-header">
+                <span class="promo-discount">30% OFF</span>
+              </div>
+              <div class="promo-content">
+                <h4>Combo Familiar</h4>
+                <p>2 hamburguesas + papas grandes + 2 bebidas</p>
+                <div class="promo-price">
+                  <span class="old-price">$45.000</span>
+                  <span class="new-price">$31.500</span>
+                </div>
+                <button class="btn-claim-promo">Reclamar Oferta</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="promo-card">
+              <div class="promo-header">
+                <span class="promo-discount">25% OFF</span>
+              </div>
+              <div class="promo-content">
+                <h4>Sushi Night</h4>
+                <p>Todos los rolls de sushi con descuento especial</p>
+                <div class="promo-price">
+                  <span class="old-price">$40.000</span>
+                  <span class="new-price">$30.000</span>
+                </div>
+                <button class="btn-claim-promo">Reclamar Oferta</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="promo-card">
+              <div class="promo-header">
+                <span class="promo-discount">2x1</span>
+              </div>
+              <div class="promo-content">
+                <h4>Happy Hour</h4>
+                <p>2 cócteles por el precio de 1, de 5 PM a 7 PM</p>
+                <div class="promo-price">
+                  <span class="old-price">$20.000</span>
+                  <span class="new-price">$10.000</span>
+                </div>
+                <button class="btn-claim-promo">Reclamar Oferta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+      <div class="container">
+        <!-- Sección principal del footer -->
+        <div class="row footer-main">
+          <!-- Información de la empresa -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-brand">
+              <h3><i class="bi bi-truck me-2"></i>DomiTulua</h3>
+              <p class="footer-description">
+                Tu plataforma favorita de delivery en Tuluá. Conectamos tu
+                apetito con la mejor comida local, rápido y confiable.
+              </p>
+              <div class="footer-stats">
+                <div class="stat-item">
+                  <span class="stat-number">200+</span>
+                  <span class="stat-label">Restaurantes</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">15K+</span>
+                  <span class="stat-label">Pedidos entregados</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">5K+</span>
+                  <span class="stat-label">Clientes felices</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enlaces rápidos -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-link-45deg me-2"></i>Enlaces</h5>
+              <ul class="footer-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#menu">Menú</a></li>
+                <li><a href="#restaurantes">Restaurantes</a></li>
+                <li><a href="#promociones">Promociones</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Soporte -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-headset me-2"></i>Soporte</h5>
+              <ul class="footer-links">
+                <li><a href="#ayuda">Centro de ayuda</a></li>
+                <li><a href="#contacto">Contactanos</a></li>
+                <li><a href="#terminos">Términos de uso</a></li>
+                <li><a href="#privacidad">Política de privacidad</a></li>
+                <li><a href="#faq">Preguntas frecuentes</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Contacto -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-geo-alt me-2"></i>Contacto</h5>
+              <div class="contact-info">
+                <div class="contact-item">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  <div>
+                    <strong>Dirección</strong>
+                    <p>Tuluá, Valle del Cauca, Colombia</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-telephone-fill"></i>
+                  <div>
+                    <strong>Teléfono</strong>
+                    <p>+57 300 123 4567</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-envelope-fill"></i>
+                  <div>
+                    <strong>Email</strong>
+                    <p>info@domitulua.com</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-clock-fill"></i>
+                  <div>
+                    <strong>Horario</strong>
+                    <p>24/7 - Siempre disponible</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del desarrollador -->
+        <div class="developer-section">
+          <div class="developers-header">
+            <h4>Desarrollado Por el Equipo:</h4>
+            <p>Ingeniería de Sistemas - UCEVA</p>
+          </div>
+
+          <div class="developers-grid">
+            <!-- Desarrollador 1 - Kelly Ávila -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>KA</span>
+              </div>
+              <div class="developer-info">
+                <h5>Kelly Ávila</h5>
+                <p>Project Manager | Full Stack Developer</p>
+                <div class="developer-links">
+                  <a
+                    href="https://github.com/kavila-code"
+                    target="_blank"
+                    class="dev-link"
+                    title="GitHub"
+                  >
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/kelly-ávila-91290b387"
+                    target="_blank"
+                    class="dev-link"
+                    title="LinkedIn"
+                  >
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                 </a>
+                  <a href="mailto:kellyavila3010@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>     
+
+            <!-- Desarrollador 2 - Juan Fernando Ramírez -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>JR</span>
+              </div>
+              <div class="developer-info">
+                <h5>Juan Fernando Ramírez</h5>
+                <p>Backend Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/juanfer2806" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/juan-fernando-ram%C3%ADrez-delgado-5bb537388" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:juanfernandoramirezdelgado2006@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 3 - Cristian Hoyos -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>CH</span>
+              </div>
+              <div class="developer-info">
+                <h5>Cristian Hoyos</h5>
+                <p>Frontend Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/USUARIO_PENDIENTE" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://linkedin.com/in/PERFIL_PENDIENTE" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:cristian@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 4 - Juan David Salazar -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>JS</span>
+              </div>
+              <div class="developer-info">
+                <h5>Juan David Salazar</h5>
+                <p>UI/UX Designer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/juansalazar10" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/juan-david-salazar-riascos-8aa928388/" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:judasari69@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer bottom -->
+        <div class="footer-bottom">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p>&copy; 2025 DomiTulua. Todos los derechos reservados.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p>Hecho con <span class="heart">💖</span> en Tuluá, Colombia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para efecto navbar scroll -->
+    <script>
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        const scrollPosition = window.scrollY;
+
+        if (scrollPosition > 100) {
+          navbar.classList.add("scrolled");
+        } else {
+          navbar.classList.remove("scrolled");
+        }
+      });
+
+      // Scroll suave para los enlaces del navbar
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Añadir IDs a las secciones para el scroll suave
+      document.addEventListener("DOMContentLoaded", function () {
+        // Añadir ID a la sección hero
+        const heroSection = document.querySelector(".hero-section");
+        if (heroSection && !heroSection.id) {
+          heroSection.id = "inicio";
+        }
+
+        // Añadir ID a la sección de servicios
+        const servicesSection = document.querySelector(".services-section");
+        if (servicesSection && !servicesSection.id) {
+          servicesSection.id = "servicios";
+        }
+      });
+
+      // Funcionalidad del buscador
+      const searchInput = document.getElementById("mainSearch");
+      const searchBtn = document.querySelector(".search-btn");
+      const suggestionTags = document.querySelectorAll(".suggestion-tag");
+
+      // Función de búsqueda
+      function performSearch() {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+          // Aquí puedes agregar la lógica de búsqueda real
+          console.log("Buscando:", searchTerm);
+          alert(
+            `Buscando: "${searchTerm}"\n¡Pronto tendremos resultados reales!`
+          );
+        }
+      }
+
+      // Event listeners
+      searchBtn.addEventListener("click", performSearch);
+
+      searchInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          performSearch();
+        }
+      });
+
+      // Funcionalidad de sugerencias
+      suggestionTags.forEach((tag) => {
+        tag.addEventListener("click", function () {
+          const suggestion = this.textContent.trim();
+          searchInput.value = suggestion;
+          searchInput.focus();
+        });
+      });
+
+      // Efecto de foco en el input
+      searchInput.addEventListener("focus", function () {
+        this.parentElement.style.transform = "scale(1.02)";
+      });
+
+      searchInput.addEventListener("blur", function () {
+        this.parentElement.style.transform = "scale(1)";
+      });
+
+      // Funcionalidad del sidebar
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+
+        // Prevenir scroll del body cuando sidebar está abierto
+        if (sidebar.classList.contains("active")) {
+          document.body.style.overflow = "hidden";
+        } else {
+          document.body.style.overflow = "auto";
+        }
+      }
+
+      // Cerrar sidebar con ESC
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          const sidebar = document.getElementById("sidebar");
+          const overlay = document.getElementById("sidebarOverlay");
+
+          if (sidebar.classList.contains("active")) {
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+            document.body.style.overflow = "auto";
+          }
+        }
+      });
+
+      // Contador del carrito (funcionalidad básica)
+      let cartCount = 0;
+      function updateCartCount() {
+        document.querySelector(".cart-count").textContent = cartCount;
+      }
+
+      // Ejemplo: agregar al carrito (puedes usar esto más tarde)
+      function addToCart() {
+        cartCount++;
+        updateCartCount();
+      }
+    </script>
+    <script>
+      // Funcionalidad de filtros del menú
+      document.addEventListener("DOMContentLoaded", function () {
+        const filterBtns = document.querySelectorAll(".filter-btn");
+        const menuItems = document.querySelectorAll(".menu-item");
+
+        filterBtns.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            // Remover clase active de todos los botones
+            filterBtns.forEach((b) => b.classList.remove("active"));
+            // Agregar clase active al botón clickeado
+            this.classList.add("active");
+
+            const filter = this.getAttribute("data-filter");
+
+            menuItems.forEach((item) => {
+              const category = item.getAttribute("data-category");
+
+              if (filter === "all" || category === filter) {
+                item.style.display = "block";
+                setTimeout(() => {
+                  item.style.opacity = "1";
+                  item.style.transform = "scale(1)";
+                }, 100);
+              } else {
+                item.style.opacity = "0";
+                item.style.transform = "scale(0.8)";
+                setTimeout(() => {
+                  item.style.display = "none";
+                }, 300);
+              }
+            });
+          });
+        });
+
+        // Función para copiar código promocional
+        window.copyPromoCode = function (code) {
+          navigator.clipboard.writeText(code).then(() => {
+            alert(`¡Código ${code} copiado al portapapeles!`);
+          });
+        };
+
+        // Funcionalidad de agregar al carrito
+        const addToCartBtns = document.querySelectorAll(".btn-add-cart");
+        addToCartBtns.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            cartCount++;
+            updateCartCount();
+
+            // Efecto visual
+            this.style.transform = "scale(1.2)";
+            setTimeout(() => {
+              this.style.transform = "scale(1)";
+            }, 200);
+
+            // Notificación
+            const notification = document.createElement("div");
+            notification.innerHTML = "¡Producto agregado al carrito!";
+            notification.style.cssText = `
+              position: fixed;
+              top: 100px;
+              right: 20px;
+              background: var(--primary-red);
+              color: white;
+              padding: 15px 25px;
+              border-radius: 10px;
+              z-index: 10000;
+              font-weight: 600;
+              box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+              animation: slideInRight 0.3s ease;
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+              notification.remove();
+            }, 3000);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
