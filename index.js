@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import userRouter from './routes/user.route.js';
 import adminRouter from './routes/admin.route.js';
@@ -9,9 +11,14 @@ import deliveryApplicationsRouter from './routes/delivery-applications.route.js'
 
 const app = express();
 
+// Obtener __dirname en ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Servir archivos estáticos
 app.use('/frontend', express.static('frontend'));
 app.use('/public', express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Servir archivos subidos
 
 // Middlewares
 app.use(express.json());

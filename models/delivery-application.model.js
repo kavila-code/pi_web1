@@ -1,8 +1,8 @@
 import { db as pool } from '../database/connection.database.js';
 
 class DeliveryApplicationModel {
-  // Crear nueva solicitud
-  static async create(userId) {
+  // Crear nueva solicitud con información extendida
+  static async create(userId, applicationData = {}) {
     try {
       // Verificar si ya existe una solicitud activa
       const existingQuery = `
@@ -20,12 +20,57 @@ class DeliveryApplicationModel {
         }
       }
 
+      // Si no hay datos adicionales, crear solicitud básica (compatibilidad)
+      if (Object.keys(applicationData).length === 0) {
+        const query = `
+          INSERT INTO delivery_applications (user_id)
+          VALUES ($1)
+          RETURNING *
+        `;
+        const result = await pool.query(query, [userId]);
+        return result.rows[0];
+      }
+
+      // Crear solicitud con datos completos
+      const {
+        fullName,
+        phone,
+        address,
+        birthDate,
+        documentId,
+        vehicleType,
+        hasLicense,
+        licenseNumber,
+        workZones,
+        availabilitySchedule,
+        previousExperience,
+        whyDelivery,
+        customerServiceExperience,
+        cvFilePath,
+        idDocumentPath,
+        licensePhotoPath
+      } = applicationData;
+
       const query = `
-        INSERT INTO delivery_applications (user_id)
-        VALUES ($1)
+        INSERT INTO delivery_applications (
+          user_id, full_name, phone, address, birth_date, document_id,
+          vehicle_type, has_license, license_number, work_zones, availability_schedule,
+          previous_experience, why_delivery, customer_service_experience,
+          cv_file_path, id_document_path, license_photo_path
+        ) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) 
         RETURNING *
       `;
-      const result = await pool.query(query, [userId]);
+      
+      const values = [
+        userId, fullName, phone, address, birthDate, documentId,
+        vehicleType, hasLicense, licenseNumber, workZones, 
+        availabilitySchedule ? JSON.stringify(availabilitySchedule) : null, 
+        previousExperience, whyDelivery, customerServiceExperience, 
+        cvFilePath, idDocumentPath, licensePhotoPath
+      ];
+
+      const result = await pool.query(query, values);
       return result.rows[0];
     } catch (error) {
       throw error;

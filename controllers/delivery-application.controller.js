@@ -5,9 +5,10 @@ class DeliveryApplicationController {
   static async createApplication(req, res) {
     try {
       console.log('req.user:', req.user); // Debug log
-      console.log('req headers:', req.headers.authorization); // Debug log
+      console.log('req.body:', req.body); // Debug log
+      console.log('req.files:', req.files); // Debug log
       
-      const userId = req.user.uid; // Usar uid en lugar de id
+      const userId = req.user.uid;
 
       // Verificar que el usuario no sea ya domiciliario o admin
       if (req.user.role === 'domiciliario') {
@@ -24,7 +25,34 @@ class DeliveryApplicationController {
         });
       }
 
-      const application = await DeliveryApplicationModel.create(userId);
+      // Preparar datos de la aplicación
+      const applicationData = {
+        fullName: req.body.fullName,
+        phone: req.body.phone,
+        address: req.body.address,
+        birthDate: req.body.birthDate,
+        documentId: req.body.documentId,
+        vehicleType: req.body.vehicleType,
+        hasLicense: req.body.hasLicense === 'true',
+        licenseNumber: req.body.licenseNumber,
+        workZones: req.body.workZones ? JSON.parse(req.body.workZones) : [],
+        availabilitySchedule: req.body.availabilitySchedule ? JSON.parse(req.body.availabilitySchedule) : null,
+        previousExperience: req.body.previousExperience,
+        whyDelivery: req.body.whyDelivery,
+        customerServiceExperience: req.body.customerServiceExperience,
+        cvFilePath: req.files?.cv ? req.files.cv[0].path : null,
+        idDocumentPath: req.files?.id_document ? req.files.id_document[0].path : null,
+        licensePhotoPath: req.files?.license_photo ? req.files.license_photo[0].path : null
+      };
+
+      // Si no hay datos del formulario, crear solicitud básica
+      const hasFormData = Object.values(applicationData).some(value => 
+        value !== null && value !== undefined && value !== ''
+      );
+
+      const application = hasFormData 
+        ? await DeliveryApplicationModel.create(userId, applicationData)
+        : await DeliveryApplicationModel.create(userId);
 
       res.status(201).json({
         success: true,

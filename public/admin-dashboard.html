@@ -97,6 +97,15 @@
 
     <!-- Main Content -->
     <div class="main-content">
+      <!-- Contenedor de notificaciones -->
+      <div
+        id="notificationContainer"
+        class="position-fixed top-0 end-0 p-3"
+        style="z-index: 9999"
+      >
+        <!-- Las notificaciones se insertarán aquí -->
+      </div>
+
       <!-- Top Navigation -->
       <nav class="top-navbar">
         <div class="navbar-left">
@@ -455,13 +464,48 @@
           <div class="table-card">
             <div class="table-header">
               <h5>Lista de Solicitudes</h5>
-              <div class="table-actions">
+              <div class="table-actions d-flex gap-2">
+                <!-- Filtro por estado -->
+                <select
+                  class="form-select"
+                  id="statusFilter"
+                  style="width: auto"
+                >
+                  <option value="">Todos los estados</option>
+                  <option value="pendiente">Pendientes</option>
+                  <option value="aprobada">Aprobadas</option>
+                  <option value="rechazada">Rechazadas</option>
+                </select>
+
+                <!-- Filtro por vehículo -->
+                <select
+                  class="form-select"
+                  id="vehicleFilter"
+                  style="width: auto"
+                >
+                  <option value="">Todos los vehículos</option>
+                  <option value="a_pie">A pie</option>
+                  <option value="bicicleta">Bicicleta</option>
+                  <option value="moto">Motocicleta</option>
+                  <option value="carro">Automóvil</option>
+                </select>
+
+                <!-- Búsqueda -->
                 <input
                   type="text"
                   placeholder="Buscar por nombre o email..."
                   class="form-control search-input"
                   id="searchApplications"
                 />
+
+                <!-- Botón de limpiar filtros -->
+                <button
+                  class="btn btn-outline-secondary"
+                  onclick="clearFilters()"
+                  title="Limpiar filtros"
+                >
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
               </div>
             </div>
             <div class="table-responsive">
@@ -470,9 +514,10 @@
                   <tr>
                     <th>Usuario</th>
                     <th>Contacto</th>
+                    <th>Vehículo</th>
                     <th>Fecha Solicitud</th>
                     <th>Estado</th>
-                    <th>Fecha Revisión</th>
+                    <th>Documentos</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -886,17 +931,41 @@
           <tr>
             <td>
               <div class="user-info">
-                <strong>${app.nombre}</strong>
+                <strong>${app.full_name || app.nombre}</strong>
+                <small class="text-muted d-block">${app.email}</small>
                 <small class="text-muted d-block">ID: ${app.user_id}</small>
               </div>
             </td>
             <td>
               <div>
-                <i class="bi bi-envelope"></i> ${app.email}
                 ${
-                  app.telefono
-                    ? `<br><i class="bi bi-telephone"></i> ${app.telefono}`
+                  app.phone
+                    ? `<i class="bi bi-telephone"></i> ${app.phone}<br>`
                     : ""
+                }
+                ${
+                  app.document_id
+                    ? `<i class="bi bi-card-text"></i> ${app.document_id}`
+                    : "Sin datos de contacto"
+                }
+              </div>
+            </td>
+            <td>
+              <div>
+                ${
+                  app.vehicle_type
+                    ? `
+                  <span class="badge bg-secondary">
+                    <i class="bi bi-${getVehicleIcon(app.vehicle_type)}"></i>
+                    ${getVehicleTypeText(app.vehicle_type)}
+                  </span>
+                  ${
+                    app.has_license
+                      ? '<br><small class="text-success"><i class="bi bi-check-circle"></i> Con licencia</small>'
+                      : ""
+                  }
+                `
+                    : '<span class="text-muted">No especificado</span>'
                 }
               </div>
             </td>
@@ -907,18 +976,42 @@
               <span class="badge ${getStatusBadgeClass(app.status)}">
                 ${getStatusText(app.status)}
               </span>
-            </td>
-            <td>
               ${
                 app.fecha_revision
-                  ? `<small>${formatDate(app.fecha_revision)}</small>`
-                  : '<span class="text-muted">-</span>'
+                  ? `<br><small class="text-muted">${formatDate(
+                      app.fecha_revision
+                    )}</small>`
+                  : ""
               }
               ${
                 app.admin_nombre
                   ? `<br><small class="text-muted">Por: ${app.admin_nombre}</small>`
                   : ""
               }
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                ${
+                  app.cv_file_path
+                    ? '<i class="bi bi-file-earmark-pdf text-primary" title="CV"></i>'
+                    : ""
+                }
+                ${
+                  app.id_document_path
+                    ? '<i class="bi bi-card-image text-info" title="Documento ID"></i>'
+                    : ""
+                }
+                ${
+                  app.license_photo_path
+                    ? '<i class="bi bi-card-text text-success" title="Licencia"></i>'
+                    : ""
+                }
+                ${
+                  !app.cv_file_path && !app.id_document_path
+                    ? '<span class="text-muted">Sin docs</span>'
+                    : ""
+                }
+              </div>
             </td>
             <td>
               <div class="action-buttons">
@@ -977,6 +1070,50 @@
         return texts[status] || status;
       }
 
+      // Obtener texto del tipo de vehículo
+      function getVehicleTypeText(vehicleType) {
+        const texts = {
+          a_pie: "A pie",
+          bicicleta: "Bicicleta",
+          moto: "Motocicleta",
+          carro: "Automóvil",
+        };
+        return texts[vehicleType] || vehicleType;
+      }
+
+      // Formatear disponibilidad
+      function getAvailabilityText(schedule) {
+        try {
+          const scheduleObj =
+            typeof schedule === "string" ? JSON.parse(schedule) : schedule;
+          if (
+            scheduleObj &&
+            scheduleObj.days &&
+            scheduleObj.from &&
+            scheduleObj.to
+          ) {
+            const days = Array.isArray(scheduleObj.days)
+              ? scheduleObj.days.join(", ")
+              : scheduleObj.days;
+            return `${days} de ${scheduleObj.from} a ${scheduleObj.to}`;
+          }
+          return "No especificada";
+        } catch (error) {
+          return "No especificada";
+        }
+      }
+
+      // Obtener ícono del vehículo
+      function getVehicleIcon(vehicleType) {
+        const icons = {
+          a_pie: "person-walking",
+          bicicleta: "bicycle",
+          moto: "scooter",
+          carro: "car-front",
+        };
+        return icons[vehicleType] || "question-circle";
+      }
+
       // Cargar estadísticas de solicitudes
       async function loadApplicationsStats() {
         try {
@@ -1028,19 +1165,32 @@
             document.getElementById("applicationDetails").innerHTML = `
               <div class="row">
                 <div class="col-md-6">
-                  <h6>Información del Usuario</h6>
-                  <p><strong>Nombre:</strong> ${app.nombre}</p>
+                  <h6><i class="fas fa-user"></i> Información Personal</h6>
+                  <p><strong>Nombre:</strong> ${
+                    app.full_name || app.nombre || "No proporcionado"
+                  }</p>
                   <p><strong>Email:</strong> ${app.email}</p>
                   <p><strong>Teléfono:</strong> ${
-                    app.telefono || "No proporcionado"
+                    app.phone || "No proporcionado"
+                  }</p>
+                  <p><strong>Dirección:</strong> ${
+                    app.address || "No proporcionada"
+                  }</p>
+                  <p><strong>Documento:</strong> ${
+                    app.document_id || "No proporcionado"
+                  }</p>
+                  <p><strong>Fecha de nacimiento:</strong> ${
+                    app.birth_date
+                      ? formatDate(app.birth_date)
+                      : "No proporcionada"
                   }</p>
                 </div>
                 <div class="col-md-6">
-                  <h6>Detalles de la Solicitud</h6>
-                  <p><strong>Fecha:</strong> ${formatDate(
+                  <h6><i class="fas fa-info-circle"></i> Detalles de la Solicitud</h6>
+                  <p><strong>Fecha de solicitud:</strong> ${formatDate(
                     app.fecha_solicitud
                   )}</p>
-                  <p><strong>Estado Actual:</strong> 
+                  <p><strong>Estado:</strong> 
                     <span class="badge ${getStatusBadgeClass(app.status)}">
                       ${getStatusText(app.status)}
                     </span>
@@ -1052,6 +1202,122 @@
                   }
                 </div>
               </div>
+              
+              ${
+                app.vehicle_type
+                  ? `
+              <hr>
+              <div class="row">
+                <div class="col-md-6">
+                  <h6><i class="fas fa-motorcycle"></i> Información de Transporte</h6>
+                  <p><strong>Tipo de vehículo:</strong> ${getVehicleTypeText(
+                    app.vehicle_type
+                  )}</p>
+                  <p><strong>Licencia:</strong> ${
+                    app.has_license ? "Sí" : "No"
+                  }</p>
+                  ${
+                    app.license_number
+                      ? `<p><strong>Número de licencia:</strong> ${app.license_number}</p>`
+                      : ""
+                  }
+                  ${
+                    app.work_zones
+                      ? `<p><strong>Zonas de trabajo:</strong> ${
+                          Array.isArray(app.work_zones)
+                            ? app.work_zones.join(", ")
+                            : app.work_zones
+                        }</p>`
+                      : ""
+                  }
+                </div>
+                <div class="col-md-6">
+                  <h6><i class="fas fa-clock"></i> Disponibilidad</h6>
+                  ${
+                    app.availability_schedule
+                      ? `
+                    <p><strong>Horario:</strong> ${getAvailabilityText(
+                      app.availability_schedule
+                    )}</p>
+                  `
+                      : "<p>No especificada</p>"
+                  }
+                  ${
+                    app.previous_experience
+                      ? `<p><strong>Experiencia previa:</strong> ${app.previous_experience.substring(
+                          0,
+                          100
+                        )}${
+                          app.previous_experience.length > 100 ? "..." : ""
+                        }</p>`
+                      : ""
+                  }
+                </div>
+              </div>
+              `
+                  : ""
+              }
+              
+              ${
+                app.why_delivery || app.customer_service_experience
+                  ? `
+              <hr>
+              <div class="row">
+                <div class="col-12">
+                  <h6><i class="fas fa-comment"></i> Motivación y Experiencia</h6>
+                  ${
+                    app.why_delivery
+                      ? `<p><strong>¿Por qué quiere trabajar como domiciliario?</strong><br>${app.why_delivery}</p>`
+                      : ""
+                  }
+                  ${
+                    app.customer_service_experience
+                      ? `<p><strong>Experiencia en atención al cliente:</strong><br>${app.customer_service_experience}</p>`
+                      : ""
+                  }
+                </div>
+              </div>
+              `
+                  : ""
+              }
+              
+              ${
+                app.cv_file_path ||
+                app.id_document_path ||
+                app.license_photo_path
+                  ? `
+              <hr>
+              <div class="row">
+                <div class="col-12">
+                  <h6><i class="fas fa-file"></i> Documentos</h6>
+                  <div class="d-flex gap-2 flex-wrap">
+                    ${
+                      app.cv_file_path
+                        ? `<a href="/uploads/delivery-applications/${app.cv_file_path
+                            .split("/")
+                            .pop()}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-file-pdf"></i> Hoja de Vida</a>`
+                        : ""
+                    }
+                    ${
+                      app.id_document_path
+                        ? `<a href="/uploads/delivery-applications/${app.id_document_path
+                            .split("/")
+                            .pop()}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-id-card"></i> Documento ID</a>`
+                        : ""
+                    }
+                    ${
+                      app.license_photo_path
+                        ? `<a href="/uploads/delivery-applications/${app.license_photo_path
+                            .split("/")
+                            .pop()}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-car"></i> Licencia</a>`
+                        : ""
+                    }
+                  </div>
+                </div>
+              </div>
+              `
+                  : ""
+              }
             `;
 
             // Mostrar el modal
@@ -1234,6 +1500,200 @@
             });
           });
         }
+      });
+
+      // ===== SISTEMA DE NOTIFICACIONES =====
+
+      function showNotification(message, type = "info", duration = 5000) {
+        const container = document.getElementById("notificationContainer");
+        const notificationId = "notification_" + Date.now();
+
+        const notification = document.createElement("div");
+        notification.id = notificationId;
+        notification.className = `toast align-items-center text-bg-${type} border-0`;
+        notification.setAttribute("role", "alert");
+        notification.setAttribute("aria-live", "assertive");
+        notification.setAttribute("aria-atomic", "true");
+
+        notification.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="bi bi-${getNotificationIcon(type)}"></i>
+              ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        `;
+
+        container.appendChild(notification);
+
+        const toast = new bootstrap.Toast(notification, {
+          autohide: true,
+          delay: duration,
+        });
+
+        toast.show();
+
+        // Eliminar del DOM después de que se oculte
+        notification.addEventListener("hidden.bs.toast", function () {
+          notification.remove();
+        });
+      }
+
+      function getNotificationIcon(type) {
+        const icons = {
+          success: "check-circle",
+          danger: "exclamation-triangle",
+          warning: "exclamation-triangle",
+          info: "info-circle",
+        };
+        return icons[type] || "info-circle";
+      }
+
+      // Sobrescribir las funciones de aprobación/rechazo para incluir notificaciones
+      const originalQuickApprove = window.quickApprove;
+      window.quickApprove = async function (applicationId) {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `/api/v1/delivery-applications/${applicationId}/status`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                status: "aprobada",
+                observaciones: "Aprobación rápida desde el dashboard",
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            showNotification("Solicitud aprobada exitosamente", "success");
+            loadDeliveryApplications();
+            loadApplicationsStats();
+          } else {
+            showNotification(
+              "Error al aprobar la solicitud: " + data.message,
+              "danger"
+            );
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showNotification(
+            "Error de conexión al aprobar la solicitud",
+            "danger"
+          );
+        }
+      };
+
+      const originalQuickReject = window.quickReject;
+      window.quickReject = async function (applicationId) {
+        if (confirm("¿Estás seguro de que quieres rechazar esta solicitud?")) {
+          try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+              `/api/v1/delivery-applications/${applicationId}/status`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  status: "rechazada",
+                  observaciones: "Rechazo rápido desde el dashboard",
+                }),
+              }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+              showNotification("Solicitud rechazada", "warning");
+              loadDeliveryApplications();
+              loadApplicationsStats();
+            } else {
+              showNotification(
+                "Error al rechazar la solicitud: " + data.message,
+                "danger"
+              );
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            showNotification(
+              "Error de conexión al rechazar la solicitud",
+              "danger"
+            );
+          }
+        }
+      };
+
+      // ===== FUNCIONES DE FILTRADO =====
+
+      function clearFilters() {
+        document.getElementById("statusFilter").value = "";
+        document.getElementById("vehicleFilter").value = "";
+        document.getElementById("searchApplications").value = "";
+        applyFilters();
+      }
+
+      function applyFilters() {
+        const statusFilter = document.getElementById("statusFilter").value;
+        const vehicleFilter = document.getElementById("vehicleFilter").value;
+        const searchTerm = document
+          .getElementById("searchApplications")
+          .value.toLowerCase();
+
+        const rows = document.querySelectorAll("#applicationsTableBody tr");
+
+        rows.forEach((row) => {
+          const status = row.querySelector(".badge")?.textContent.toLowerCase();
+          const vehicleElement = row.querySelector(".badge.bg-secondary");
+          const vehicle = vehicleElement
+            ? vehicleElement.textContent.toLowerCase()
+            : "";
+          const text = row.textContent.toLowerCase();
+
+          let showRow = true;
+
+          // Filtro por estado
+          if (statusFilter && !status.includes(statusFilter.toLowerCase())) {
+            showRow = false;
+          }
+
+          // Filtro por vehículo
+          if (
+            vehicleFilter &&
+            !vehicle.includes(getVehicleTypeText(vehicleFilter).toLowerCase())
+          ) {
+            showRow = false;
+          }
+
+          // Filtro por búsqueda
+          if (searchTerm && !text.includes(searchTerm)) {
+            showRow = false;
+          }
+
+          row.style.display = showRow ? "" : "none";
+        });
+      }
+
+      // Event listeners para los filtros
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .getElementById("statusFilter")
+          ?.addEventListener("change", applyFilters);
+        document
+          .getElementById("vehicleFilter")
+          ?.addEventListener("change", applyFilters);
+        document
+          .getElementById("searchApplications")
+          ?.addEventListener("input", applyFilters);
       });
     </script>
   </body>

@@ -2,12 +2,15 @@ import { Router } from 'express';
 import DeliveryApplicationController from '../controllers/delivery-application.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { adminMiddleware } from '../middlewares/admin.middleware.js';
+import { uploadDeliveryFiles, handleUploadError } from '../middlewares/file-upload.middleware.js';
 
 const router = Router();
 
 // Rutas para usuarios
 router.post('/apply', 
-  authMiddleware, 
+  authMiddleware,
+  uploadDeliveryFiles,
+  handleUploadError,
   DeliveryApplicationController.createApplication
 );
 
