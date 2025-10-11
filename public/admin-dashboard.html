@@ -993,17 +993,17 @@
               <div class="d-flex gap-1">
                 ${
                   app.cv_file_path
-                    ? '<i class="bi bi-file-earmark-pdf text-primary" title="CV"></i>'
+                    ? '<i class="bi bi-file-earmark-pdf text-primary" title="CV" style="cursor: pointer;" onclick="previewDocument(\'' + app.cv_file_path + '\', \'CV - ' + (app.full_name || app.nombre) + '\')"></i>'
                     : ""
                 }
                 ${
                   app.id_document_path
-                    ? '<i class="bi bi-card-image text-info" title="Documento ID"></i>'
+                    ? '<i class="bi bi-card-image text-info" title="Documento ID" style="cursor: pointer;" onclick="previewDocument(\'' + app.id_document_path + '\', \'Documento ID - ' + (app.full_name || app.nombre) + '\')"></i>'
                     : ""
                 }
                 ${
                   app.license_photo_path
-                    ? '<i class="bi bi-card-text text-success" title="Licencia"></i>'
+                    ? '<i class="bi bi-card-text text-success" title="Licencia" style="cursor: pointer;" onclick="previewDocument(\'' + app.license_photo_path + '\', \'Licencia - ' + (app.full_name || app.nombre) + '\')"></i>'
                     : ""
                 }
                 ${
@@ -1112,6 +1112,156 @@
           carro: "car-front",
         };
         return icons[vehicleType] || "question-circle";
+      }
+
+      // Obtener URL correcta del documento
+      function getDocumentUrl(filePath) {
+        if (!filePath) return "";
+
+        // Si ya es una URL completa, devolverla tal como está
+        if (filePath.startsWith("http")) {
+          return filePath;
+        }
+
+        // Si es solo el nombre del archivo
+        const fileName = filePath.split("/").pop();
+        return `/uploads/delivery-applications/${fileName}`;
+      }
+
+      // Previsualizar documento en modal
+      function previewDocument(filePath, title) {
+        console.log("Previewing document:", filePath); // Debug
+
+        const url = getDocumentUrl(filePath);
+        console.log("Document URL:", url); // Debug
+
+        const extension = filePath.split(".").pop().toLowerCase();
+
+        // Crear modal si no existe
+        let modal = document.getElementById("documentPreviewModal");
+        if (!modal) {
+          modal = createDocumentPreviewModal();
+          document.body.appendChild(modal);
+        }
+
+        // Actualizar contenido del modal
+        document.getElementById("previewModalTitle").textContent = title;
+        const previewContent = document.getElementById("previewContent");
+
+        // Mostrar loading inicial
+        previewContent.innerHTML = `
+          <div class="text-center p-4">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando documento...</p>
+          </div>
+        `;
+
+        // Mostrar modal inmediatamente
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+
+        // Verificar si el archivo existe antes de intentar cargarlo
+        fetch(url, { method: "HEAD" })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Archivo no encontrado (${response.status})`);
+            }
+
+            // El archivo existe, proceder con la previsualización
+            if (["jpg", "jpeg", "png", "gif"].includes(extension)) {
+              // Mostrar imagen
+              previewContent.innerHTML = `
+                <div class="text-center">
+                  <img src="${url}" class="img-fluid" alt="${title}" style="max-height: 70vh;" 
+                       onload="console.log('Imagen cargada correctamente')"
+                       onerror="console.error('Error cargando imagen'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                  <div class="alert alert-danger" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error al cargar la imagen.
+                  </div>
+                </div>
+              `;
+            } else if (extension === "pdf") {
+              // Mostrar PDF
+              previewContent.innerHTML = `
+                <div class="pdf-container">
+                  <iframe src="${url}" width="100%" height="500px" frameborder="0"
+                          onload="console.log('PDF cargado correctamente')"
+                          onerror="console.error('Error cargando PDF')">
+                    <p>Tu navegador no soporta visualización de PDF. 
+                      <a href="${url}" target="_blank" class="btn btn-primary">Descargar PDF</a>
+                    </p>
+                  </iframe>
+                  <div class="text-center mt-2">
+                    <a href="${url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-external-link-alt"></i> Abrir en nueva pestaña
+                    </a>
+                  </div>
+                </div>
+              `;
+            } else {
+              // Para otros tipos, mostrar enlace de descarga
+              previewContent.innerHTML = `
+                <div class="text-center p-4">
+                  <i class="fas fa-file fa-3x text-muted mb-3"></i>
+                  <h5>Archivo: ${extension.toUpperCase()}</h5>
+                  <p>No se puede previsualizar este tipo de archivo.</p>
+                  <a href="${url}" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Descargar archivo
+                  </a>
+                </div>
+              `;
+            }
+          })
+          .catch((error) => {
+            console.error("Error accessing document:", error);
+            previewContent.innerHTML = `
+              <div class="alert alert-danger text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                <h5>Error al cargar el documento</h5>
+                <p>${error.message}</p>
+                <small class="text-muted">URL: ${url}</small>
+                <br>
+                <button onclick="window.open('${url}', '_blank')" class="btn btn-outline-primary mt-2">
+                  <i class="fas fa-external-link-alt"></i> Intentar abrir en nueva pestaña
+                </button>
+              </div>
+            `;
+          });
+      }
+
+      // Crear modal de previsualización
+      function createDocumentPreviewModal() {
+        const modalHtml = `
+          <div class="modal fade" id="documentPreviewModal" tabindex="-1" aria-labelledby="previewModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="previewModalTitle">Previsualización de documento</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div id="previewContent">
+                    <div class="text-center">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const div = document.createElement("div");
+        div.innerHTML = modalHtml;
+        return div.firstElementChild;
       }
 
       // Cargar estadísticas de solicitudes
@@ -1293,23 +1443,57 @@
                   <div class="d-flex gap-2 flex-wrap">
                     ${
                       app.cv_file_path
-                        ? `<a href="/uploads/delivery-applications/${app.cv_file_path
-                            .split("/")
-                            .pop()}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-file-pdf"></i> Hoja de Vida</a>`
+                        ? `<button onclick="previewDocument('${
+                            app.cv_file_path
+                          }', 'CV - ${
+                            app.full_name || app.nombre
+                          }')" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-file-pdf"></i> Hoja de Vida
+                           </button>
+                           <a href="${getDocumentUrl(
+                             app.cv_file_path
+                           )}" target="_blank" class="btn btn-sm btn-link p-0 ms-1">
+                            <i class="fas fa-external-link-alt"></i>
+                           </a>`
                         : ""
                     }
                     ${
                       app.id_document_path
-                        ? `<a href="/uploads/delivery-applications/${app.id_document_path
-                            .split("/")
-                            .pop()}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-id-card"></i> Documento ID</a>`
+                        ? `<button onclick="previewDocument('${
+                            app.id_document_path
+                          }', 'Documento ID - ${
+                            app.full_name || app.nombre
+                          }')" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-id-card"></i> Documento ID
+                           </button>
+                           <a href="${getDocumentUrl(
+                             app.id_document_path
+                           )}" target="_blank" class="btn btn-sm btn-link p-0 ms-1">
+                            <i class="fas fa-external-link-alt"></i>
+                           </a>`
                         : ""
                     }
                     ${
                       app.license_photo_path
-                        ? `<a href="/uploads/delivery-applications/${app.license_photo_path
-                            .split("/")
-                            .pop()}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-car"></i> Licencia</a>`
+                        ? `<button onclick="previewDocument('${
+                            app.license_photo_path
+                          }', 'Licencia - ${
+                            app.full_name || app.nombre
+                          }')" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-car"></i> Licencia
+                           </button>
+                           <a href="${getDocumentUrl(
+                             app.license_photo_path
+                           )}" target="_blank" class="btn btn-sm btn-link p-0 ms-1">
+                            <i class="fas fa-external-link-alt"></i>
+                           </a>`
+                        : ""
+                    }
+                    ${
+                      !app.cv_file_path &&
+                      !app.id_document_path &&
+                      !app.license_photo_path
+                        ? '<span class="text-muted">No hay documentos adjuntos</span>'
                         : ""
                     }
                   </div>
@@ -1694,6 +1878,26 @@
         document
           .getElementById("searchApplications")
           ?.addEventListener("input", applyFilters);
+          
+        // Agregar función de debug para documentos
+        window.debugDocuments = function() {
+          console.log('=== DEBUG: Estado de documentos ===');
+          
+          // Probar acceso directo a un archivo conocido
+          const testFile = '4_1760148157461_cv.pdf';
+          fetch(`/uploads/delivery-applications/${testFile}`, { method: 'HEAD' })
+            .then(response => {
+              console.log(`✅ Archivo ${testFile}:`, response.ok ? 'ACCESIBLE' : 'NO ACCESIBLE', `(${response.status})`);
+            })
+            .catch(error => {
+              console.log(`❌ Error accediendo a ${testFile}:`, error);
+            });
+        };
+        
+        // Ejecutar debug automáticamente en desarrollo
+        if (window.location.hostname === 'localhost') {
+          setTimeout(window.debugDocuments, 2000);
+        }
       });
     </script>
   </body>
