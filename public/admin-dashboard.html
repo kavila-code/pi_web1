@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Admin - DomiTulua</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <link rel="stylesheet" href="/frontend/admin-dashboard.css" />
+  </head>
+
+  <body class="dashboard-body">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h4><i class="bi bi-house-door"></i> DomiTulua</h4>
+        <button class="btn-close-sidebar d-lg-none" onclick="toggleSidebar()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-menu">
+        <a
+          href="#dashboard"
+          class="menu-item active"
+          onclick="showSection('dashboard')"
+        >
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#users" class="menu-item" onclick="showSection('users')">
+          <i class="bi bi-people"></i>
+          <span>Usuarios</span>
+        </a>
+        <a href="#orders" class="menu-item" onclick="showSection('orders')">
+          <i class="bi bi-cart3"></i>
+          <span>Pedidos</span>
+        </a>
+        <a
+          href="#restaurants"
+          class="menu-item"
+          onclick="showSection('restaurants')"
+        >
+          <i class="bi bi-shop"></i>
+          <span>Restaurantes</span>
+        </a>
+        <a href="#reports" class="menu-item" onclick="showSection('reports')">
+          <i class="bi bi-graph-up"></i>
+          <span>Reportes</span>
+        </a>
+        <a href="#settings" class="menu-item" onclick="showSection('settings')">
+          <i class="bi bi-gear"></i>
+          <span>Configuración</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div class="user-details">
+            <p class="user-name" id="adminName">Admin</p>
+            <p class="user-role">Administrador</p>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Navigation -->
+      <nav class="top-navbar">
+        <div class="navbar-left">
+          <button
+            class="btn-toggle-sidebar d-lg-none"
+            onclick="toggleSidebar()"
+          >
+            <i class="bi bi-list"></i>
+          </button>
+          <h2 class="page-title" id="pageTitle">Dashboard</h2>
+        </div>
+
+        <div class="navbar-right">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Buscar..." />
+          </div>
+
+          <div class="notifications">
+            <button class="btn-notification">
+              <i class="bi bi-bell"></i>
+              <span class="notification-badge">3</span>
+            </button>
+          </div>
+
+          <div class="admin-profile">
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E"
+              alt="Admin"
+              class="profile-img"
+            />
+          </div>
+        </div>
+      </nav>
+
+      <!-- Dashboard Content -->
+      <div class="content-area">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section active">
+          <div class="dashboard-grid">
+            <!-- Stats Cards -->
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                  <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-content">
+                  <h3 id="totalUsers">1,234</h3>
+                  <p>Total Usuarios</p>
+                  <span class="stat-trend positive">
+                    <i class="bi bi-arrow-up"></i> +12% este mes
+                  </span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon bg-success">
+                  <i class="bi bi-cart-check"></i>
+                </div>
+                <div class="stat-content">
+                  <h3 id="totalOrders">5,678</h3>
+                  <p>Pedidos Totales</p>
+                  <span class="stat-trend positive">
+                    <i class="bi bi-arrow-up"></i> +8% esta semana
+                  </span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                  <i class="bi bi-shop"></i>
+                </div>
+                <div class="stat-content">
+                  <h3 id="totalRestaurants">89</h3>
+                  <p>Restaurantes</p>
+                  <span class="stat-trend positive">
+                    <i class="bi bi-arrow-up"></i> +3 nuevos
+                  </span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon bg-info">
+                  <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div class="stat-content">
+                  <h3 id="totalRevenue">$45,890</h3>
+                  <p>Ingresos del Mes</p>
+                  <span class="stat-trend positive">
+                    <i class="bi bi-arrow-up"></i> +15% vs mes anterior
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+              <div class="chart-card">
+                <div class="card-header">
+                  <h5>Pedidos por Día</h5>
+                  <div class="card-actions">
+                    <button class="btn btn-sm btn-outline-primary">
+                      Ver más
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="ordersChart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <div class="card-header">
+                  <h5>Restaurantes Populares</h5>
+                  <div class="card-actions">
+                    <button class="btn btn-sm btn-outline-primary">
+                      Ver todos
+                    </button>
+                  </div>
+                </div>
+                <div class="popular-restaurants">
+                  <div class="restaurant-item">
+                    <div class="restaurant-info">
+                      <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='%23ff6b35' viewBox='0 0 16 16'%3E%3Cpath d='M8.5 5a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V9a.5.5 0 0 0 1 0V7.5H10a.5.5 0 0 0 0-1H8.5V5z'/%3E%3Cpath d='M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'/%3E%3C/svg%3E"
+                        alt="Restaurant"
+                        class="restaurant-logo"
+                      />
+                      <div class="restaurant-details">
+                        <h6>Pizza Palace</h6>
+                        <p>234 pedidos hoy</p>
+                      </div>
+                    </div>
+                    <div class="restaurant-stats">
+                      <span class="badge bg-success">4.8★</span>
+                      <span class="revenue">$2,340</span>
+                    </div>
+                  </div>
+
+                  <div class="restaurant-item">
+                    <div class="restaurant-info">
+                      <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='%2328a745' viewBox='0 0 16 16'%3E%3Cpath d='M8.5 5a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V9a.5.5 0 0 0 1 0V7.5H10a.5.5 0 0 0 0-1H8.5V5z'/%3E%3Cpath d='M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'/%3E%3C/svg%3E"
+                        alt="Restaurant"
+                        class="restaurant-logo"
+                      />
+                      <div class="restaurant-details">
+                        <h6>Burger House</h6>
+                        <p>189 pedidos hoy</p>
+                      </div>
+                    </div>
+                    <div class="restaurant-stats">
+                      <span class="badge bg-success">4.6★</span>
+                      <span class="revenue">$1,890</span>
+                    </div>
+                  </div>
+
+                  <div class="restaurant-item">
+                    <div class="restaurant-info">
+                      <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='%23dc3545' viewBox='0 0 16 16'%3E%3Cpath d='M8.5 5a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V9a.5.5 0 0 0 1 0V7.5H10a.5.5 0 0 0 0-1H8.5V5z'/%3E%3Cpath d='M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'/%3E%3C/svg%3E"
+                        alt="Restaurant"
+                        class="restaurant-logo"
+                      />
+                      <div class="restaurant-details">
+                        <h6>Sushi Zen</h6>
+                        <p>156 pedidos hoy</p>
+                      </div>
+                    </div>
+                    <div class="restaurant-stats">
+                      <span class="badge bg-success">4.9★</span>
+                      <span class="revenue">$1,560</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-row">
+              <div class="activity-card">
+                <div class="card-header">
+                  <h5>Actividad Reciente</h5>
+                  <div class="card-actions">
+                    <button class="btn btn-sm btn-outline-primary">
+                      Ver todo
+                    </button>
+                  </div>
+                </div>
+                <div class="activity-list">
+                  <div class="activity-item">
+                    <div class="activity-icon bg-success">
+                      <i class="bi bi-person-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                      <p>
+                        <strong>Nuevo usuario registrado:</strong> María
+                        González
+                      </p>
+                      <span class="activity-time">Hace 5 minutos</span>
+                    </div>
+                  </div>
+
+                  <div class="activity-item">
+                    <div class="activity-icon bg-primary">
+                      <i class="bi bi-cart-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                      <p>
+                        <strong>Nuevo pedido:</strong> #12345 - Pizza Margherita
+                      </p>
+                      <span class="activity-time">Hace 12 minutos</span>
+                    </div>
+                  </div>
+
+                  <div class="activity-item">
+                    <div class="activity-icon bg-warning">
+                      <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="activity-content">
+                      <p>
+                        <strong>Nuevo restaurante:</strong> Comida Italiana
+                        Marco
+                      </p>
+                      <span class="activity-time">Hace 1 hora</span>
+                    </div>
+                  </div>
+
+                  <div class="activity-item">
+                    <div class="activity-icon bg-info">
+                      <i class="bi bi-star"></i>
+                    </div>
+                    <div class="activity-content">
+                      <p><strong>Nueva reseña:</strong> 5★ para Burger House</p>
+                      <span class="activity-time">Hace 2 horas</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="content-section">
+          <div class="section-header">
+            <h3>Gestión de Usuarios</h3>
+            <button class="btn btn-primary">
+              <i class="bi bi-person-plus"></i> Agregar Usuario
+            </button>
+          </div>
+          <div class="table-card">
+            <p>Contenido de usuarios - En desarrollo</p>
+          </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="content-section">
+          <div class="section-header">
+            <h3>Gestión de Pedidos</h3>
+            <button class="btn btn-primary">
+              <i class="bi bi-plus-circle"></i> Nuevo Pedido
+            </button>
+          </div>
+          <div class="table-card">
+            <p>Contenido de pedidos - En desarrollo</p>
+          </div>
+        </div>
+
+        <!-- Restaurants Section -->
+        <div id="restaurants-section" class="content-section">
+          <div class="section-header">
+            <h3>Gestión de Restaurantes</h3>
+            <button class="btn btn-primary">
+              <i class="bi bi-shop"></i> Agregar Restaurante
+            </button>
+          </div>
+          <div class="table-card">
+            <p>Contenido de restaurantes - En desarrollo</p>
+          </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports-section" class="content-section">
+          <div class="section-header">
+            <h3>Reportes y Análisis</h3>
+            <button class="btn btn-primary">
+              <i class="bi bi-download"></i> Exportar
+            </button>
+          </div>
+          <div class="table-card">
+            <p>Contenido de reportes - En desarrollo</p>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="content-section">
+          <div class="section-header">
+            <h3>Configuración del Sistema</h3>
+            <button class="btn btn-primary">
+              <i class="bi bi-gear"></i> Guardar Cambios
+            </button>
+          </div>
+          <div class="table-card">
+            <p>Contenido de configuración - En desarrollo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      // Variables globales
+      let sidebarOpen = true;
+
+      // Función para alternar sidebar
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.querySelector(".main-content");
+
+        sidebar.classList.toggle("collapsed");
+        mainContent.classList.toggle("expanded");
+        sidebarOpen = !sidebarOpen;
+      }
+
+      // Función para mostrar secciones
+      function showSection(sectionName) {
+        // Ocultar todas las secciones
+        const sections = document.querySelectorAll(".content-section");
+        sections.forEach((section) => {
+          section.classList.remove("active");
+        });
+
+        // Mostrar la sección seleccionada
+        document
+          .getElementById(sectionName + "-section")
+          .classList.add("active");
+
+        // Actualizar el título de la página
+        const titles = {
+          dashboard: "Dashboard",
+          users: "Gestión de Usuarios",
+          orders: "Gestión de Pedidos",
+          restaurants: "Gestión de Restaurantes",
+          reports: "Reportes y Análisis",
+          settings: "Configuración del Sistema",
+        };
+        document.getElementById("pageTitle").textContent = titles[sectionName];
+
+        // Actualizar menu activo
+        const menuItems = document.querySelectorAll(".menu-item");
+        menuItems.forEach((item) => {
+          item.classList.remove("active");
+        });
+        event.target.closest(".menu-item").classList.add("active");
+      }
+
+      // Función de logout
+      function logout() {
+        console.log("Logout function called");
+        try {
+          if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+            console.log("User confirmed logout");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            console.log("Tokens removed, redirecting...");
+            window.location.href = "/login";
+          } else {
+            console.log("User cancelled logout");
+          }
+        } catch (error) {
+          console.error("Error in logout function:", error);
+          alert("Error al cerrar sesión: " + error.message);
+        }
+      }
+
+      // Verificar autenticación al cargar la página
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        if (!token) {
+          window.location.href = "/login";
+          return;
+        }
+
+        // Verificar si es admin
+        if (user.role !== "admin") {
+          alert("Acceso denegado. Solo administradores pueden acceder.");
+          window.location.href = "/";
+          return;
+        }
+
+        // Mostrar nombre del admin
+        if (user.username) {
+          document.getElementById("adminName").textContent = user.username;
+        }
+
+        // Cargar datos del dashboard
+        loadDashboardData();
+
+        // Inicializar gráfico
+        initChart();
+
+        // Event listener para el botón de logout como respaldo
+        const logoutBtn = document.querySelector(".btn-logout");
+        if (logoutBtn) {
+          console.log("Logout button found, adding event listener");
+          logoutBtn.addEventListener("click", function (e) {
+            console.log("Logout button clicked via event listener");
+            e.preventDefault();
+            logout();
+          });
+        } else {
+          console.error("Logout button not found!");
+        }
+      });
+
+      // Función para cargar datos del dashboard
+      async function loadDashboardData() {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/v1/admin/dashboard/stats", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.ok) {
+              updateDashboardStats(result.stats);
+            }
+          } else if (response.status === 403) {
+            alert("Acceso denegado");
+            logout();
+          }
+        } catch (error) {
+          console.error("Error loading dashboard data:", error);
+        }
+      }
+
+      // Función para actualizar las estadísticas
+      function updateDashboardStats(stats) {
+        document.getElementById("totalUsers").textContent =
+          stats.totalUsers.toLocaleString();
+        document.getElementById("totalOrders").textContent =
+          stats.totalOrders.toLocaleString();
+        document.getElementById("totalRestaurants").textContent =
+          stats.totalRestaurants;
+        document.getElementById(
+          "totalRevenue"
+        ).textContent = `$${stats.totalRevenue.toLocaleString()}`;
+      }
+
+      // Función para inicializar el gráfico
+      function initChart() {
+        const ctx = document.getElementById("ordersChart").getContext("2d");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+            datasets: [
+              {
+                label: "Pedidos",
+                data: [65, 59, 80, 81, 56, 95, 40],
+                borderColor: "#e74c3c",
+                backgroundColor: "rgba(231, 76, 60, 0.1)",
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "rgba(0,0,0,0.1)",
+                },
+              },
+              x: {
+                grid: {
+                  color: "rgba(0,0,0,0.1)",
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+          },
+        });
+      }
+
+      // Responsive: cerrar sidebar en móviles al hacer clic en menu
+      if (window.innerWidth <= 992) {
+        sidebarOpen = false;
+        document.getElementById("sidebar").classList.add("collapsed");
+        document.querySelector(".main-content").classList.add("expanded");
+      }
+    </script>
+  </body>
+</html>

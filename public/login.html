@@ -196,36 +196,19 @@
                   </div>
 
                   <form class="login-form" id="registerFormElement">
-                    <div class="form-row">
-                      <div class="form-group">
-                        <label for="firstName">
-                          <i class="bi bi-person"></i>
-                          Nombre
-                        </label>
-                        <input
-                          type="text"
-                          id="firstName"
-                          name="firstName"
-                          class="form-control"
-                          placeholder="Tu nombre"
-                          required
-                        />
-                      </div>
-
-                      <div class="form-group">
-                        <label for="lastName">
-                          <i class="bi bi-person"></i>
-                          Apellido
-                        </label>
-                        <input
-                          type="text"
-                          id="lastName"
-                          name="lastName"
-                          class="form-control"
-                          placeholder="Tu apellido"
-                          required
-                        />
-                      </div>
+                    <div class="form-group">
+                      <label for="username">
+                        <i class="bi bi-person"></i>
+                        Nombre completo
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="form-control"
+                        placeholder="Tu nombre completo"
+                        required
+                      />
                     </div>
 
                     <div class="form-group">
@@ -244,21 +227,6 @@
                     </div>
 
                     <div class="form-group">
-                      <label for="phone">
-                        <i class="bi bi-telephone"></i>
-                        Teléfono
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        class="form-control"
-                        placeholder="+57 300 123 4567"
-                        required
-                      />
-                    </div>
-
-                    <div class="form-group">
                       <label for="registerPassword">
                         <i class="bi bi-lock"></i>
                         Contraseña
@@ -269,7 +237,7 @@
                           id="registerPassword"
                           name="password"
                           class="form-control"
-                          placeholder="Crea una contraseña segura"
+                          placeholder="Mínimo 6 caracteres"
                           required
                         />
                         <button
@@ -280,85 +248,27 @@
                           <i class="bi bi-eye"></i>
                         </button>
                       </div>
-                      <div class="password-strength">
-                        <div class="strength-bar">
-                          <div class="strength-fill"></div>
-                        </div>
-                        <span class="strength-text"
-                          >Fortaleza de contraseña</span
-                        >
-                      </div>
                     </div>
 
                     <div class="form-group">
-                      <label for="confirmPassword">
-                        <i class="bi bi-lock-fill"></i>
-                        Confirmar contraseña
-                      </label>
-                      <div class="password-input">
+                      <div class="form-check">
                         <input
-                          type="password"
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          class="form-control"
-                          placeholder="Confirma tu contraseña"
+                          class="form-check-input"
+                          type="checkbox"
+                          id="acceptTerms"
                           required
                         />
-                        <button
-                          type="button"
-                          class="password-toggle"
-                          onclick="togglePassword('confirmPassword')"
-                        >
-                          <i class="bi bi-eye"></i>
-                        </button>
+                        <label class="form-check-label" for="acceptTerms">
+                          Acepto los <a href="#">términos y condiciones</a> y la
+                          <a href="#">política de privacidad</a>
+                        </label>
                       </div>
                     </div>
 
-                    <div class="form-check-custom">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="acceptTerms"
-                        required
-                      />
-                      <label class="form-check-label" for="acceptTerms">
-                        Acepto los <a href="#">términos y condiciones</a> y la
-                        <a href="#">política de privacidad</a>
-                      </label>
-                    </div>
-
-                    <div class="form-check-custom">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="acceptPromotions"
-                      />
-                      <label class="form-check-label" for="acceptPromotions">
-                        Quiero recibir promociones y ofertas especiales
-                      </label>
-                    </div>
-
-                    <button type="submit" class="btn-login-submit">
-                      <i class="bi bi-person-plus me-2"></i>
-                      Crear Cuenta
+                    <button type="submit" class="btn btn-primary btn-form">
+                      <i class="bi bi-person-plus"></i>
+                      Crear cuenta
                     </button>
-
-                    <div class="social-login">
-                      <div class="divider">
-                        <span>O regístrate con</span>
-                      </div>
-
-                      <div class="social-buttons">
-                        <button type="button" class="btn-social google">
-                          <i class="bi bi-google"></i>
-                          Google
-                        </button>
-                        <button type="button" class="btn-social facebook">
-                          <i class="bi bi-facebook"></i>
-                          Facebook
-                        </button>
-                      </div>
-                    </div>
 
                     <div class="form-footer">
                       <p>
@@ -405,63 +315,15 @@
         }
       }
 
-      // Validación de fortaleza de contraseña
+      // Validación de fortaleza de contraseña (simplificada)
       document
         .getElementById("registerPassword")
         .addEventListener("input", function () {
           const password = this.value;
-          const strengthBar = document.querySelector(".strength-fill");
-          const strengthText = document.querySelector(".strength-text");
-
-          let strength = 0;
-          let text = "";
-          let color = "";
-
-          if (password.length >= 8) strength++;
-          if (password.match(/[a-z]/)) strength++;
-          if (password.match(/[A-Z]/)) strength++;
-          if (password.match(/[0-9]/)) strength++;
-          if (password.match(/[^a-zA-Z0-9]/)) strength++;
-
-          switch (strength) {
-            case 0:
-            case 1:
-              text = "Muy débil";
-              color = "#ff4757";
-              break;
-            case 2:
-              text = "Débil";
-              color = "#ff6348";
-              break;
-            case 3:
-              text = "Regular";
-              color = "#ffa502";
-              break;
-            case 4:
-              text = "Fuerte";
-              color = "#26de81";
-              break;
-            case 5:
-              text = "Muy fuerte";
-              color = "#2ed573";
-              break;
-          }
-
-          strengthBar.style.width = strength * 20 + "%";
-          strengthBar.style.backgroundColor = color;
-          strengthText.textContent = text;
-          strengthText.style.color = color;
-        });
-
-      // Validar confirmación de contraseña
-      document
-        .getElementById("confirmPassword")
-        .addEventListener("input", function () {
-          const password = document.getElementById("registerPassword").value;
-          const confirmPassword = this.value;
-
-          if (password !== confirmPassword) {
-            this.setCustomValidity("Las contraseñas no coinciden");
+          if (password.length < 6) {
+            this.setCustomValidity(
+              "La contraseña debe tener al menos 6 caracteres"
+            );
           } else {
             this.setCustomValidity("");
           }
@@ -470,18 +332,75 @@
       // Manejar envío de formularios
       document
         .getElementById("loginFormElement")
-        .addEventListener("submit", function (e) {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
-          // Aquí agregar lógica de login
-          alert("Funcionalidad de login pendiente de implementar");
+
+          const formData = {
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value,
+          };
+
+          try {
+            const response = await fetch("/api/v1/users/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (result.ok) {
+              // Guardar token y datos del usuario
+              localStorage.setItem("token", result.token);
+              localStorage.setItem("user", JSON.stringify(result.user));
+
+              // Redireccionar según el rol
+              if (result.user.role === "admin") {
+                window.location.href = "/public/admin-dashboard.html";
+              } else {
+                window.location.href = "/public/user-dashboard.html";
+              }
+            } else {
+              alert("Error: " + result.msg);
+            }
+          } catch (error) {
+            alert("Error de conexión");
+          }
         });
 
       document
         .getElementById("registerFormElement")
-        .addEventListener("submit", function (e) {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
-          // Aquí agregar lógica de registro
-          alert("Funcionalidad de registro pendiente de implementar");
+
+          const formData = {
+            username: document.getElementById("username").value,
+            email: document.getElementById("registerEmail").value,
+            password: document.getElementById("registerPassword").value,
+          };
+
+          try {
+            const response = await fetch("/api/v1/users/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (result.ok) {
+              alert("¡Registro exitoso!");
+              showLoginForm();
+            } else {
+              alert("Error: " + result.msg);
+            }
+          } catch (error) {
+            alert("Error de conexión");
+          }
         });
     </script>
   </body>

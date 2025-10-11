@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio - DomiTulua</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <link rel="stylesheet" href="/frontend/user-inicio.css" />
+  </head>
+
+  <body class="user-inicio-body">
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+      <div class="container">
+        <a class="navbar-brand" href="/public/user-inicio.html">
+          <i class="bi bi-house-door"></i>
+          DomiTulua
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="/public/user-inicio.html"
+                >Inicio</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#restaurantes">Restaurantes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#ofertas">Ofertas</a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle user-menu"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="bi bi-person-circle"></i>
+                <span id="userGreeting">Mi Cuenta</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="/public/user-dashboard.html">
+                    <i class="bi bi-speedometer2"></i> Mi Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#mis-pedidos">
+                    <i class="bi bi-bag"></i> Mis Pedidos
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#favoritos">
+                    <i class="bi bi-heart"></i> Favoritos
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Welcome Hero Section -->
+    <section class="welcome-hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <div class="welcome-content">
+              <h1 class="welcome-title">
+                <span id="personalGreeting">¡Hola!</span>
+                <span class="highlight">¿Qué te apetece hoy?</span>
+              </h1>
+              <p class="welcome-subtitle">
+                Descubre los mejores restaurantes y disfruta de tus platillos
+                favoritos
+              </p>
+
+              <!-- Search Bar -->
+              <div class="search-section">
+                <div class="search-bar">
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="bi bi-search"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Buscar restaurantes, comida, bebidas..."
+                      id="searchInput"
+                    />
+                    <button class="btn btn-search" type="button">Buscar</button>
+                  </div>
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="quick-filters">
+                  <button class="filter-btn active" data-filter="all">
+                    <i class="bi bi-stars"></i> Todos
+                  </button>
+                  <button class="filter-btn" data-filter="pizza">
+                    <i class="bi bi-circle"></i> Pizza
+                  </button>
+                  <button class="filter-btn" data-filter="burger">
+                    <i class="bi bi-cup"></i> Hamburguesas
+                  </button>
+                  <button class="filter-btn" data-filter="sushi">
+                    <i class="bi bi-fish"></i> Sushi
+                  </button>
+                  <button class="filter-btn" data-filter="mexican">
+                    <i class="bi bi-fire"></i> Mexicana
+                  </button>
+                  <button class="filter-btn" data-filter="dessert">
+                    <i class="bi bi-balloon-heart"></i> Postres
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="welcome-image">
+              <img
+                src="/frontend/hero-food.png"
+                alt="Delicious Food"
+                onerror="this.style.display='none'"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats Section -->
+    <section class="quick-stats">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-bag-check"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalOrders">12</h3>
+                <p>Pedidos Realizados</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-heart-fill"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="favoriteRestaurants">5</h3>
+                <p>Restaurantes Favoritos</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="loyaltyPoints">350</h3>
+                <p>Puntos Acumulados</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="bi bi-percent"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalSavings">15%</h3>
+                <p>Ahorros del Mes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Orders Section -->
+    <section class="recent-orders" id="recent-orders">
+      <div class="container">
+        <div class="section-header">
+          <h2><i class="bi bi-clock-history"></i> Pedidos Recientes</h2>
+          <a href="/public/user-dashboard.html" class="btn btn-outline-primary"
+            >Ver Todos</a
+          >
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="order-card">
+              <div class="order-header">
+                <img
+                  src="/frontend/pizza-palace.jpg"
+                  alt="Pizza Palace"
+                  class="restaurant-logo"
+                  onerror="this.style.display='none'"
+                />
+                <div class="order-info">
+                  <h5>Pizza Palace</h5>
+                  <small class="text-muted">Hace 2 días</small>
+                </div>
+                <span class="order-status delivered">Entregado</span>
+              </div>
+              <div class="order-details">
+                <p>Pizza Margherita Grande, Coca Cola</p>
+                <div class="order-footer">
+                  <span class="order-total">$24.99</span>
+                  <button class="btn btn-sm btn-outline-primary">
+                    Repetir Pedido
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="order-card">
+              <div class="order-header">
+                <img
+                  src="/frontend/burger-king.jpg"
+                  alt="Burger Express"
+                  class="restaurant-logo"
+                  onerror="this.style.display='none'"
+                />
+                <div class="order-info">
+                  <h5>Burger Express</h5>
+                  <small class="text-muted">Hace 5 días</small>
+                </div>
+                <span class="order-status delivered">Entregado</span>
+              </div>
+              <div class="order-details">
+                <p>Burger Clásica, Papas Fritas</p>
+                <div class="order-footer">
+                  <span class="order-total">$18.50</span>
+                  <button class="btn btn-sm btn-outline-primary">
+                    Repetir Pedido
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="order-card">
+              <div class="order-header">
+                <img
+                  src="/frontend/sushi-zen.jpg"
+                  alt="Sushi Zen"
+                  class="restaurant-logo"
+                  onerror="this.style.display='none'"
+                />
+                <div class="order-info">
+                  <h5>Sushi Zen</h5>
+                  <small class="text-muted">Hace 1 semana</small>
+                </div>
+                <span class="order-status delivered">Entregado</span>
+              </div>
+              <div class="order-details">
+                <p>Combo Sushi Mixto, Té Verde</p>
+                <div class="order-footer">
+                  <span class="order-total">$32.00</span>
+                  <button class="btn btn-sm btn-outline-primary">
+                    Repetir Pedido
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section class="special-offers" id="ofertas">
+      <div class="container">
+        <div class="section-header">
+          <h2><i class="bi bi-fire"></i> Ofertas Especiales</h2>
+          <span class="badge bg-danger">¡Limitadas!</span>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <div class="offer-card featured">
+              <div class="offer-badge">-30%</div>
+              <div class="offer-content">
+                <div class="offer-info">
+                  <h4>Pizza Grande + Gaseosa</h4>
+                  <p>En Pizza Palace - Solo hoy</p>
+                  <div class="offer-price">
+                    <span class="old-price">$35.00</span>
+                    <span class="new-price">$24.50</span>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Ordenar Ahora</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6 mb-4">
+            <div class="offer-card">
+              <div class="offer-badge">-25%</div>
+              <div class="offer-content">
+                <div class="offer-info">
+                  <h4>Combo Familiar</h4>
+                  <p>En Burger Express - Weekend</p>
+                  <div class="offer-price">
+                    <span class="old-price">$45.00</span>
+                    <span class="new-price">$33.75</span>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Ordenar Ahora</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Favorite Restaurants Section -->
+    <section class="favorite-restaurants" id="favoritos">
+      <div class="container">
+        <div class="section-header">
+          <h2><i class="bi bi-heart-fill"></i> Tus Restaurantes Favoritos</h2>
+          <a href="#" class="btn btn-outline-primary">Explorar Más</a>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="restaurant-card favorite">
+              <div class="restaurant-image">
+                <img
+                  src="/frontend/pizza-palace.jpg"
+                  alt="Pizza Palace"
+                  onerror="this.src='/frontend/placeholder-restaurant.jpg'"
+                />
+                <div class="favorite-badge">
+                  <i class="bi bi-heart-fill"></i>
+                </div>
+              </div>
+              <div class="restaurant-info">
+                <h5>Pizza Palace</h5>
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.8</span>
+                  <small>(127 reseñas)</small>
+                </div>
+                <p class="restaurant-category">Pizza • Italiana • $$$</p>
+                <div class="restaurant-meta">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i> 25-35 min
+                  </span>
+                  <span class="delivery-fee">
+                    <i class="bi bi-truck"></i> Gratis
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="restaurant-card favorite">
+              <div class="restaurant-image">
+                <img
+                  src="/frontend/burger-express.jpg"
+                  alt="Burger Express"
+                  onerror="this.src='/frontend/placeholder-restaurant.jpg'"
+                />
+                <div class="favorite-badge">
+                  <i class="bi bi-heart-fill"></i>
+                </div>
+              </div>
+              <div class="restaurant-info">
+                <h5>Burger Express</h5>
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.6</span>
+                  <small>(89 reseñas)</small>
+                </div>
+                <p class="restaurant-category">Hamburguesas • Americana • $$</p>
+                <div class="restaurant-meta">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i> 20-30 min
+                  </span>
+                  <span class="delivery-fee">
+                    <i class="bi bi-truck"></i> $2.50
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="restaurant-card favorite">
+              <div class="restaurant-image">
+                <img
+                  src="/frontend/sushi-zen.jpg"
+                  alt="Sushi Zen"
+                  onerror="this.src='/frontend/placeholder-restaurant.jpg'"
+                />
+                <div class="favorite-badge">
+                  <i class="bi bi-heart-fill"></i>
+                </div>
+              </div>
+              <div class="restaurant-info">
+                <h5>Sushi Zen</h5>
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.9</span>
+                  <small>(156 reseñas)</small>
+                </div>
+                <p class="restaurant-category">Sushi • Japonesa • $$$$</p>
+                <div class="restaurant-meta">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i> 35-45 min
+                  </span>
+                  <span class="delivery-fee">
+                    <i class="bi bi-truck"></i> Gratis
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="restaurant-card favorite">
+              <div class="restaurant-image">
+                <img
+                  src="/frontend/taco-fiesta.jpg"
+                  alt="Taco Fiesta"
+                  onerror="this.src='/frontend/placeholder-restaurant.jpg'"
+                />
+                <div class="favorite-badge">
+                  <i class="bi bi-heart-fill"></i>
+                </div>
+              </div>
+              <div class="restaurant-info">
+                <h5>Taco Fiesta</h5>
+                <div class="restaurant-rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>4.7</span>
+                  <small>(94 reseñas)</small>
+                </div>
+                <p class="restaurant-category">Mexicana • Tacos • $$</p>
+                <div class="restaurant-meta">
+                  <span class="delivery-time">
+                    <i class="bi bi-clock"></i> 15-25 min
+                  </span>
+                  <span class="delivery-fee">
+                    <i class="bi bi-truck"></i> $1.50
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- All Restaurants Section -->
+    <section class="all-restaurants" id="restaurantes">
+      <div class="container">
+        <div class="section-header">
+          <h2><i class="bi bi-shop"></i> Todos los Restaurantes</h2>
+          <div class="filter-controls">
+            <select class="form-select" id="sortRestaurants">
+              <option value="rating">Mejor Calificados</option>
+              <option value="delivery-time">Tiempo de Entrega</option>
+              <option value="price-low">Precio: Menor a Mayor</option>
+              <option value="price-high">Precio: Mayor a Menor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" id="restaurantsList">
+          <!-- Los restaurantes se cargarán dinámicamente aquí -->
+        </div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-outline-primary" id="loadMoreRestaurants">
+            Cargar Más Restaurantes
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="footer-brand">
+              <h5>DomiTulua</h5>
+              <p>Tu comida favorita, entregada con amor</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="footer-links">
+              <a href="/public/user-dashboard.html">Mi Dashboard</a>
+              <a href="#ayuda">Ayuda</a>
+              <a href="#terminos">Términos</a>
+              <a href="#privacidad">Privacidad</a>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="text-center">
+          <p>&copy; 2025 DomiTulua. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+      // Variables globales
+      let currentUser = null;
+
+      // Verificación de autenticación
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        if (!token) {
+          window.location.href = "/login";
+          return;
+        }
+
+        // Verificar si es admin y redirigir
+        if (user.role === "admin") {
+          window.location.href = "/admin-dashboard";
+          return;
+        }
+
+        currentUser = user;
+        loadUserData(user);
+        loadRestaurants();
+
+        // Event listeners
+        setupEventListeners();
+      });
+
+      function loadUserData(user) {
+        // Personalizar saludo
+        const greeting = document.getElementById("personalGreeting");
+        const userMenu = document.getElementById("userGreeting");
+
+        if (user.nombre) {
+          greeting.textContent = `¡Hola ${user.nombre}!`;
+          userMenu.textContent = user.nombre;
+        }
+
+        // Cargar estadísticas del usuario (simuladas)
+        loadUserStats();
+      }
+
+      function loadUserStats() {
+        // Simular carga de estadísticas
+        const stats = {
+          totalOrders: Math.floor(Math.random() * 50) + 5,
+          favoriteRestaurants: Math.floor(Math.random() * 10) + 3,
+          loyaltyPoints: Math.floor(Math.random() * 500) + 100,
+          totalSavings: Math.floor(Math.random() * 25) + 10,
+        };
+
+        document.getElementById("totalOrders").textContent = stats.totalOrders;
+        document.getElementById("favoriteRestaurants").textContent =
+          stats.favoriteRestaurants;
+        document.getElementById("loyaltyPoints").textContent =
+          stats.loyaltyPoints;
+        document.getElementById("totalSavings").textContent =
+          stats.totalSavings + "%";
+      }
+
+      function loadRestaurants() {
+        // Simulación de restaurantes
+        const restaurants = [
+          {
+            id: 1,
+            name: "Casa de las Empanadas",
+            category: "Colombiana • Empanadas • $$",
+            rating: 4.5,
+            reviews: 78,
+            deliveryTime: "20-30 min",
+            deliveryFee: "Gratis",
+            image: "/frontend/empanadas.jpg",
+          },
+          {
+            id: 2,
+            name: "Parrilla Los Amigos",
+            category: "Parrilla • Carnes • $$$",
+            rating: 4.7,
+            reviews: 132,
+            deliveryTime: "30-40 min",
+            deliveryFee: "$3.00",
+            image: "/frontend/parrilla.jpg",
+          },
+          {
+            id: 3,
+            name: "Café Central",
+            category: "Café • Desayunos • $$",
+            rating: 4.6,
+            reviews: 89,
+            deliveryTime: "15-25 min",
+            deliveryFee: "$2.00",
+            image: "/frontend/cafe.jpg",
+          },
+          {
+            id: 4,
+            name: "Pollo Dorado",
+            category: "Pollo • Comida Rápida • $$",
+            rating: 4.4,
+            reviews: 156,
+            deliveryTime: "20-30 min",
+            deliveryFee: "$2.50",
+            image: "/frontend/pollo.jpg",
+          },
+          {
+            id: 5,
+            name: "Heladería Tropical",
+            category: "Helados • Postres • $",
+            rating: 4.8,
+            reviews: 67,
+            deliveryTime: "10-20 min",
+            deliveryFee: "$1.50",
+            image: "/frontend/helados.jpg",
+          },
+          {
+            id: 6,
+            name: "Comida China Dragon",
+            category: "China • Asiática • $$",
+            rating: 4.3,
+            reviews: 98,
+            deliveryTime: "25-35 min",
+            deliveryFee: "$2.50",
+            image: "/frontend/china.jpg",
+          },
+        ];
+
+        const restaurantsList = document.getElementById("restaurantsList");
+        restaurantsList.innerHTML = "";
+
+        restaurants.forEach((restaurant) => {
+          const restaurantCard = createRestaurantCard(restaurant);
+          restaurantsList.appendChild(restaurantCard);
+        });
+      }
+
+      function createRestaurantCard(restaurant) {
+        const col = document.createElement("div");
+        col.className = "col-lg-4 col-md-6 mb-4";
+
+        col.innerHTML = `
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="${restaurant.image}" alt="${restaurant.name}" onerror="this.src='/frontend/placeholder-restaurant.jpg'">
+              <div class="favorite-toggle" onclick="toggleFavorite(${restaurant.id})">
+                <i class="bi bi-heart"></i>
+              </div>
+            </div>
+            <div class="restaurant-info">
+              <h5>${restaurant.name}</h5>
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>${restaurant.rating}</span>
+                <small>(${restaurant.reviews} reseñas)</small>
+              </div>
+              <p class="restaurant-category">${restaurant.category}</p>
+              <div class="restaurant-meta">
+                <span class="delivery-time">
+                  <i class="bi bi-clock"></i> ${restaurant.deliveryTime}
+                </span>
+                <span class="delivery-fee">
+                  <i class="bi bi-truck"></i> ${restaurant.deliveryFee}
+                </span>
+              </div>
+              <button class="btn btn-primary w-100 mt-2" onclick="viewRestaurant(${restaurant.id})">
+                Ver Menú
+              </button>
+            </div>
+          </div>
+        `;
+
+        return col;
+      }
+
+      function setupEventListeners() {
+        // Búsqueda
+        const searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", handleSearch);
+
+        // Filtros rápidos
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        filterButtons.forEach((btn) => {
+          btn.addEventListener("click", handleFilter);
+        });
+
+        // Ordenamiento
+        const sortSelect = document.getElementById("sortRestaurants");
+        sortSelect.addEventListener("change", handleSort);
+      }
+
+      function handleSearch(event) {
+        const searchTerm = event.target.value.toLowerCase();
+        console.log("Buscando:", searchTerm);
+        // Implementar lógica de búsqueda
+      }
+
+      function handleFilter(event) {
+        // Remover clase active de todos los botones
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // Agregar clase active al botón clickeado
+        event.target.classList.add("active");
+
+        const filter = event.target.dataset.filter;
+        console.log("Filtro aplicado:", filter);
+        // Implementar lógica de filtrado
+      }
+
+      function handleSort(event) {
+        const sortBy = event.target.value;
+        console.log("Ordenar por:", sortBy);
+        // Implementar lógica de ordenamiento
+      }
+
+      function toggleFavorite(restaurantId) {
+        console.log("Toggle favorito para restaurante:", restaurantId);
+        // Implementar lógica de favoritos
+      }
+
+      function viewRestaurant(restaurantId) {
+        console.log("Ver restaurante:", restaurantId);
+        // Redirigir a página de restaurante
+        alert(
+          `Funcionalidad en desarrollo - Ver menú del restaurante ${restaurantId}`
+        );
+      }
+
+      function logout() {
+        console.log("Logout function called");
+        try {
+          if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+          }
+        } catch (error) {
+          console.error("Error in logout function:", error);
+          alert("Error al cerrar sesión: " + error.message);
+        }
+      }
+    </script>
+  </body>
+</html>

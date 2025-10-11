@@ -1,27 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { db } from '../database/connection.database.js';
+import { UserModel } from '../models/user.model.js';
 
-
-// Modelo simple para PostgreSQL sin ORM
-export const UserModel = {
-  async findOneByEmail(email) {
-    const query = `SELECT * FROM users WHERE email = $1`;
-    const { rows } = await db.query(query, [email]); // ← Cambiado pool → db
-    return rows[0];
-  },
-
-  async create({ username, email, password, role }) {
-    const query = `
-      INSERT INTO users (username, email, password, role)
-      VALUES ($1, $2, $3, $4)
-      RETURNING uid, username, email, role, created_at
-    `;
-    const values = [username, email, password, role || 'user'];
-    const { rows } = await db.query(query, values); // ← Cambiado pool → db
-    return rows[0];
-  }
-};
 
 // ---------------------- Controladores ----------------------
 
@@ -75,7 +55,7 @@ const login = async (req, res) => {
       return res.status(400).json({ ok: false, msg: "Missing required fields" });
     }
 
-    const user = await UserModel.findOneByEmail(email);
+    const user = await UserModel.findOneByEmailWithPassword(email);
     if (!user) {
       return res.status(404).json({ ok: false, msg: "User not found" });
     }
@@ -133,9 +113,77 @@ const profile = async (req, res) => {
   }
 };
 
+// Aplicación para ser repartidor
+const applyDelivery = async (req, res) => {
+  try {
+    // Aquí implementarías la lógica para guardar la aplicación
+    // Por ahora simulamos que se guarda exitosamente
+    
+    const applicationData = {
+      user_id: req.uid,
+      full_name: req.body.fullName,
+      id_number: req.body.idNumber,
+      phone: req.body.phone,
+      birth_date: req.body.birthDate,
+      address: req.body.address,
+      vehicle_type: req.body.vehicleType,
+      vehicle_plate: req.body.vehiclePlate,
+      vehicle_brand: req.body.vehicleBrand,
+      vehicle_model: req.body.vehicleModel,
+      experience: req.body.experience,
+      status: 'pending',
+      created_at: new Date()
+    };
+
+    // En una implementación real, guardarías esto en la base de datos
+    console.log('Delivery application received:', applicationData);
+
+    return res.json({
+      ok: true,
+      msg: 'Application submitted successfully',
+      application: {
+        id: Date.now(), // ID temporal
+        status: 'pending',
+        created_at: applicationData.created_at
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ ok: false, msg: 'Server error' });
+  }
+};
+
+// Obtener estado de aplicación de delivery
+const getDeliveryApplication = async (req, res) => {
+  try {
+    // Aquí buscarías en la base de datos la aplicación del usuario
+    // Por ahora devolvemos un estado mock
+    
+    const application = {
+      id: 1,
+      user_id: req.uid,
+      status: 'pending', // pending, approved, rejected
+      full_name: 'Usuario Ejemplo',
+      vehicle_type: 'motorcycle',
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+
+    return res.json({
+      ok: true,
+      application
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ ok: false, msg: 'Server error' });
+  }
+};
+
 export const UserController = {
   register,
   login,
-  profile
+  profile,
+  applyDelivery,
+  getDeliveryApplication
 };
 

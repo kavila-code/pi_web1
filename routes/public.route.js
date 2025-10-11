@@ -26,4 +26,24 @@ router.get('/profile', (req, res) => {
     res.sendFile(path.join(publicPath, 'profile.html'));
 });
 
+// Admin Dashboard
+router.get('/admin-dashboard', (req, res) => {
+    res.sendFile(path.join(publicPath, 'admin-dashboard.html'));
+});
+
+// User Dashboard
+router.get('/user-dashboard', (req, res) => {
+    res.sendFile(path.join(publicPath, 'user-dashboard.html'));
+});
+
+// User Inicio
+router.get('/user-inicio', (req, res) => {
+    res.sendFile(path.join(publicPath, 'user-inicio.html'));
+});
+
+// Test page
+router.get('/test-logout', (req, res) => {
+    res.sendFile(path.join(publicPath, 'test-logout.html'));
+});
+
 export default router;

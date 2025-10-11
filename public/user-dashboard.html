@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Cuenta - DomiTulua</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <link rel="stylesheet" href="/frontend/user-dashboard.css" />
+  </head>
+
+  <body class="user-dashboard-body">
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+      <div class="container">
+        <a class="navbar-brand" href="/public/user-inicio.html">
+          <i class="bi bi-house-door"></i>
+          DomiTulua
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/public/user-inicio.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#restaurants">Restaurantes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#orders">Mis Pedidos</a>
+            </li>
+          </ul>
+
+          <div class="navbar-nav">
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle user-menu"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E"
+                  alt="Usuario"
+                  class="user-avatar"
+                />
+                <span id="userName">Usuario</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="showSection('profile')"
+                    ><i class="bi bi-person"></i> Mi Perfil</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="showSection('orders')"
+                    ><i class="bi bi-bag"></i> Mis Pedidos</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="showSection('favorites')"
+                    ><i class="bi bi-heart"></i> Favoritos</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()"
+                    ><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Delivery Driver Banner -->
+    <div class="delivery-banner" id="deliveryBanner">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="banner-content">
+              <h4><i class="bi bi-bicycle"></i> ¿Buscando trabajo?</h4>
+              <p>
+                Únete a nuestro equipo de repartidores y comienza a generar
+                ingresos flexibles entregando comida en tu ciudad. ¡Gana hasta
+                $50.000 por día!
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="banner-actions">
+              <button
+                class="btn btn-delivery"
+                onclick="openDeliveryApplication()"
+              >
+                <i class="bi bi-plus-circle"></i> Aplicar como Repartidor
+              </button>
+              <button
+                class="btn btn-close-banner"
+                onclick="closeBanner()"
+                title="Cerrar banner"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid main-container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4 sidebar-column">
+          <div class="sidebar-user">
+            <div class="user-profile-card">
+              <div class="profile-header">
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' fill='%23e74c3c' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E"
+                  alt="Usuario"
+                  class="profile-image"
+                />
+                <h5 id="profileUserName">Usuario</h5>
+                <p id="profileUserEmail">email@ejemplo.com</p>
+                <span class="user-badge">Cliente</span>
+              </div>
+
+              <div class="profile-stats">
+                <div class="stat-item">
+                  <span class="stat-number" id="totalOrders">0</span>
+                  <span class="stat-label">Pedidos</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number" id="totalSpent">$0</span>
+                  <span class="stat-label">Gastado</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number" id="favoriteRestaurants">0</span>
+                  <span class="stat-label">Favoritos</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-menu">
+              <a
+                href="#"
+                class="menu-item active"
+                onclick="showSection('dashboard')"
+              >
+                <i class="bi bi-grid"></i>
+                <span>Dashboard</span>
+              </a>
+              <a href="#" class="menu-item" onclick="showSection('profile')">
+                <i class="bi bi-person"></i>
+                <span>Mi Perfil</span>
+              </a>
+              <a href="#" class="menu-item" onclick="showSection('orders')">
+                <i class="bi bi-bag"></i>
+                <span>Mis Pedidos</span>
+              </a>
+              <a href="#" class="menu-item" onclick="showSection('favorites')">
+                <i class="bi bi-heart"></i>
+                <span>Favoritos</span>
+              </a>
+              <a href="#" class="menu-item" onclick="showSection('addresses')">
+                <i class="bi bi-geo-alt"></i>
+                <span>Direcciones</span>
+              </a>
+              <a href="#" class="menu-item" onclick="showSection('payment')">
+                <i class="bi bi-credit-card"></i>
+                <span>Métodos de Pago</span>
+              </a>
+              <a
+                href="#"
+                class="menu-item"
+                onclick="showSection('delivery-app')"
+                id="deliveryAppMenu"
+                style="display: none"
+              >
+                <i class="bi bi-bicycle"></i>
+                <span>Mi Aplicación</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-lg-9 col-md-8 content-column">
+          <div class="content-area">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section active">
+              <div class="section-header">
+                <h2>Mi Dashboard</h2>
+                <p>
+                  Bienvenido de vuelta,
+                  <span id="welcomeUserName">Usuario</span>
+                </p>
+              </div>
+
+              <div class="dashboard-cards">
+                <div class="row">
+                  <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="info-card">
+                      <div class="card-icon bg-primary">
+                        <i class="bi bi-bag-check"></i>
+                      </div>
+                      <div class="card-content">
+                        <h4 id="dashTotalOrders">0</h4>
+                        <p>Pedidos Realizados</p>
+                        <small class="text-success">Este mes: +2</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="info-card">
+                      <div class="card-icon bg-success">
+                        <i class="bi bi-currency-dollar"></i>
+                      </div>
+                      <div class="card-content">
+                        <h4 id="dashTotalSpent">$0</h4>
+                        <p>Total Gastado</p>
+                        <small class="text-info">Ahorro del 15%</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="info-card">
+                      <div class="card-icon bg-warning">
+                        <i class="bi bi-star"></i>
+                      </div>
+                      <div class="card-content">
+                        <h4 id="dashFavorites">0</h4>
+                        <p>Restaurantes Favoritos</p>
+                        <small class="text-warning"
+                          >Pizza Palace es tu favorito</small
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent Orders -->
+              <div class="recent-orders">
+                <div class="section-title">
+                  <h4>Pedidos Recientes</h4>
+                  <a href="#" onclick="showSection('orders')" class="view-all"
+                    >Ver todos</a
+                  >
+                </div>
+                <div class="orders-list" id="recentOrdersList">
+                  <!-- Los pedidos se cargarán dinámicamente -->
+                  <div class="order-item">
+                    <div class="order-info">
+                      <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23ff6b35' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath d='M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z'/%3E%3C/svg%3E"
+                        alt="Restaurant"
+                      />
+                      <div class="order-details">
+                        <h6>Pizza Margherita</h6>
+                        <p>Pizza Palace</p>
+                        <small>Hace 2 días</small>
+                      </div>
+                    </div>
+                    <div class="order-status">
+                      <span class="status-badge delivered">Entregado</span>
+                      <span class="order-price">$24.99</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommended Restaurants -->
+              <div class="recommended-restaurants">
+                <div class="section-title">
+                  <h4>Restaurantes Recomendados</h4>
+                  <a href="#" class="view-all">Ver todos</a>
+                </div>
+                <div class="restaurants-grid">
+                  <div class="restaurant-card">
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%23ff6b35' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E"
+                      alt="Restaurant"
+                      class="restaurant-image"
+                    />
+                    <div class="restaurant-info">
+                      <h6>Pizza Palace</h6>
+                      <p class="restaurant-category">Italiana</p>
+                      <div class="restaurant-meta">
+                        <span class="rating"
+                          ><i class="bi bi-star-fill"></i> 4.8</span
+                        >
+                        <span class="delivery-time">30-45 min</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="restaurant-card">
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%2328a745' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E"
+                      alt="Restaurant"
+                      class="restaurant-image"
+                    />
+                    <div class="restaurant-info">
+                      <h6>Burger House</h6>
+                      <p class="restaurant-category">Comida Rápida</p>
+                      <div class="restaurant-meta">
+                        <span class="rating"
+                          ><i class="bi bi-star-fill"></i> 4.6</span
+                        >
+                        <span class="delivery-time">20-35 min</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="restaurant-card">
+                    <img
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%23dc3545' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E"
+                      alt="Restaurant"
+                      class="restaurant-image"
+                    />
+                    <div class="restaurant-info">
+                      <h6>Sushi Zen</h6>
+                      <p class="restaurant-category">Japonesa</p>
+                      <div class="restaurant-meta">
+                        <span class="rating"
+                          ><i class="bi bi-star-fill"></i> 4.9</span
+                        >
+                        <span class="delivery-time">40-55 min</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile-section" class="content-section">
+              <div class="section-header">
+                <h2>Mi Perfil</h2>
+                <button class="btn btn-primary" onclick="editProfile()">
+                  Editar
+                </button>
+              </div>
+
+              <div class="profile-form">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Nombre Completo</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserName"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Email</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="editUserEmail"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Teléfono</label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="editUserPhone"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Fecha de Registro</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserDate"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="form-actions"
+                  id="profileActions"
+                  style="display: none"
+                >
+                  <button class="btn btn-success" onclick="saveProfile()">
+                    Guardar Cambios
+                  </button>
+                  <button class="btn btn-secondary" onclick="cancelEdit()">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders-section" class="content-section">
+              <div class="section-header">
+                <h2>Mis Pedidos</h2>
+                <div class="order-filters">
+                  <select class="form-select">
+                    <option>Todos los pedidos</option>
+                    <option>Entregados</option>
+                    <option>En proceso</option>
+                    <option>Cancelados</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="orders-list-full" id="ordersListFull">
+                <p class="text-center text-muted">
+                  No tienes pedidos aún. ¡Haz tu primer pedido!
+                </p>
+              </div>
+            </div>
+
+            <!-- Favorites Section -->
+            <div id="favorites-section" class="content-section">
+              <div class="section-header">
+                <h2>Restaurantes Favoritos</h2>
+              </div>
+              <div class="favorites-grid" id="favoritesGrid">
+                <p class="text-center text-muted">
+                  No tienes restaurantes favoritos aún.
+                </p>
+              </div>
+            </div>
+
+            <!-- Addresses Section -->
+            <div id="addresses-section" class="content-section">
+              <div class="section-header">
+                <h2>Mis Direcciones</h2>
+                <button class="btn btn-primary" onclick="addAddress()">
+                  <i class="bi bi-plus"></i> Agregar Dirección
+                </button>
+              </div>
+              <div class="addresses-list" id="addressesList">
+                <p class="text-center text-muted">
+                  No tienes direcciones guardadas.
+                </p>
+              </div>
+            </div>
+
+            <!-- Payment Methods Section -->
+            <div id="payment-section" class="content-section">
+              <div class="section-header">
+                <h2>Métodos de Pago</h2>
+                <button class="btn btn-primary" onclick="addPaymentMethod()">
+                  <i class="bi bi-plus"></i> Agregar Método
+                </button>
+              </div>
+              <div class="payment-methods" id="paymentMethods">
+                <p class="text-center text-muted">
+                  No tienes métodos de pago configurados.
+                </p>
+              </div>
+            </div>
+
+            <!-- Delivery Application Section -->
+            <div id="delivery-app-section" class="content-section">
+              <div class="section-header">
+                <h2>Mi Aplicación como Repartidor</h2>
+                <span class="status-badge pending" id="applicationStatus"
+                  >Pendiente</span
+                >
+              </div>
+              <div class="application-details" id="applicationDetails">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delivery Application Modal -->
+    <div class="modal fade" id="deliveryApplicationModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Aplicar como Repartidor</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="application-form">
+              <div class="step-indicator">
+                <div class="step active" data-step="1">
+                  <span class="step-number">1</span>
+                  <span class="step-title">Información Personal</span>
+                </div>
+                <div class="step" data-step="2">
+                  <span class="step-number">2</span>
+                  <span class="step-title">Vehículo</span>
+                </div>
+                <div class="step" data-step="3">
+                  <span class="step-number">3</span>
+                  <span class="step-title">Documentos</span>
+                </div>
+              </div>
+
+              <form id="deliveryApplicationForm">
+                <!-- Step 1: Personal Information -->
+                <div class="step-content active" data-step="1">
+                  <h6>Información Personal</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="fullName"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Número de Cédula</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="idNumber"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Teléfono</label>
+                        <input
+                          type="tel"
+                          class="form-control"
+                          name="phone"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Fecha de Nacimiento</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          name="birthDate"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label>Dirección</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="address"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 2: Vehicle Information -->
+                <div class="step-content" data-step="2">
+                  <h6>Información del Vehículo</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Tipo de Vehículo</label>
+                        <select
+                          class="form-control"
+                          name="vehicleType"
+                          required
+                        >
+                          <option value="">Seleccionar...</option>
+                          <option value="bicycle">Bicicleta</option>
+                          <option value="motorcycle">Motocicleta</option>
+                          <option value="car">Automóvil</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Placa del Vehículo</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="vehiclePlate"
+                        />
+                        <small class="text-muted"
+                          >No aplica para bicicletas</small
+                        >
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Marca</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="vehicleBrand"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Modelo</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="vehicleModel"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label>Experiencia en Domicilios</label>
+                        <select class="form-control" name="experience" required>
+                          <option value="">Seleccionar...</option>
+                          <option value="none">Sin experiencia</option>
+                          <option value="less-1">Menos de 1 año</option>
+                          <option value="1-3">1-3 años</option>
+                          <option value="more-3">Más de 3 años</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 3: Documents -->
+                <div class="step-content" data-step="3">
+                  <h6>Documentos Requeridos</h6>
+                  <div class="documents-upload">
+                    <div class="upload-item">
+                      <label>Cédula de Ciudadanía (Frente y Reverso)</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        name="idDocument"
+                        accept="image/*,application/pdf"
+                        required
+                      />
+                    </div>
+                    <div class="upload-item">
+                      <label>Licencia de Conducción (Solo motos/carros)</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        name="license"
+                        accept="image/*,application/pdf"
+                      />
+                    </div>
+                    <div class="upload-item">
+                      <label>SOAT (Solo motos/carros)</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        name="soat"
+                        accept="image/*,application/pdf"
+                      />
+                    </div>
+                    <div class="upload-item">
+                      <label>Foto Personal</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        name="photo"
+                        accept="image/*"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="terms-agreement">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="agreeTerms"
+                        required
+                      />
+                      <label class="form-check-label" for="agreeTerms">
+                        Acepto los
+                        <a href="#" target="_blank">términos y condiciones</a>
+                        para repartidores
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="previousStep()"
+              id="prevBtn"
+              style="display: none"
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="nextStep()"
+              id="nextBtn"
+            >
+              Siguiente
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="submitApplication()"
+              id="submitBtn"
+              style="display: none"
+            >
+              Enviar Aplicación
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Variables globales
+      let currentStep = 1;
+      let applicationModal;
+
+      // Inicialización
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        if (!token) {
+          window.location.href = "/login";
+          return;
+        }
+
+        // Verificar si es admin y redirigir
+        if (user.role === "admin") {
+          window.location.href = "/admin-dashboard";
+          return;
+        }
+
+        // Cargar información del usuario
+        loadUserInfo(user);
+
+        // Inicializar modal
+        applicationModal = new bootstrap.Modal(
+          document.getElementById("deliveryApplicationModal")
+        );
+
+        // Verificar si ya tiene una aplicación pendiente
+        checkDeliveryApplication();
+
+        // Event listener para el botón de cerrar banner
+        const closeBannerBtn = document.querySelector(".btn-close-banner");
+        if (closeBannerBtn) {
+          console.log("Close banner button found, adding event listener");
+          closeBannerBtn.addEventListener("click", function (e) {
+            console.log("Close banner clicked via event listener");
+            e.preventDefault();
+            closeBanner();
+          });
+        }
+
+        // Event listener para el botón de logout
+        const logoutDropdown = document.querySelector('a[onclick="logout()"]');
+        if (logoutDropdown) {
+          console.log("Logout dropdown found, adding event listener");
+          logoutDropdown.addEventListener("click", function (e) {
+            console.log("Logout clicked via event listener");
+            e.preventDefault();
+            logout();
+          });
+        } else {
+          console.error("Logout dropdown not found!");
+        }
+      });
+
+      // Cargar información del usuario
+      function loadUserInfo(user) {
+        document.getElementById("userName").textContent =
+          user.username || "Usuario";
+        document.getElementById("profileUserName").textContent =
+          user.username || "Usuario";
+        document.getElementById("welcomeUserName").textContent =
+          user.username || "Usuario";
+        document.getElementById("profileUserEmail").textContent =
+          user.email || "";
+        document.getElementById("editUserName").value = user.username || "";
+        document.getElementById("editUserEmail").value = user.email || "";
+        document.getElementById("editUserDate").value = formatDate(
+          user.created_at
+        );
+
+        // Cargar estadísticas mock
+        document.getElementById("totalOrders").textContent = "8";
+        document.getElementById("totalSpent").textContent = "$156";
+        document.getElementById("favoriteRestaurants").textContent = "3";
+        document.getElementById("dashTotalOrders").textContent = "8";
+        document.getElementById("dashTotalSpent").textContent = "$156";
+        document.getElementById("dashFavorites").textContent = "3";
+      }
+
+      // Función para mostrar secciones
+      function showSection(sectionName) {
+        // Ocultar todas las secciones
+        const sections = document.querySelectorAll(".content-section");
+        sections.forEach((section) => {
+          section.classList.remove("active");
+        });
+
+        // Mostrar la sección seleccionada
+        document
+          .getElementById(sectionName + "-section")
+          .classList.add("active");
+
+        // Actualizar menú activo
+        const menuItems = document.querySelectorAll(".menu-item");
+        menuItems.forEach((item) => {
+          item.classList.remove("active");
+        });
+        event.target.closest(".menu-item").classList.add("active");
+      }
+
+      // Funciones del banner de repartidor
+      function openDeliveryApplication() {
+        applicationModal.show();
+      }
+
+      function closeBanner() {
+        const banner = document.getElementById("deliveryBanner");
+        if (banner) {
+          banner.style.display = "none";
+          banner.style.visibility = "hidden";
+          banner.style.opacity = "0";
+          localStorage.setItem("deliveryBannerClosed", "true");
+          console.log("Banner cerrado exitosamente");
+        } else {
+          console.error("No se pudo encontrar el banner para cerrar");
+        }
+      }
+
+      // Funciones del stepper
+      function nextStep() {
+        if (currentStep < 3) {
+          document
+            .querySelector(`.step-content[data-step="${currentStep}"]`)
+            .classList.remove("active");
+          document
+            .querySelector(`.step[data-step="${currentStep}"]`)
+            .classList.remove("active");
+
+          currentStep++;
+
+          document
+            .querySelector(`.step-content[data-step="${currentStep}"]`)
+            .classList.add("active");
+          document
+            .querySelector(`.step[data-step="${currentStep}"]`)
+            .classList.add("active");
+
+          updateButtons();
+        }
+      }
+
+      function previousStep() {
+        if (currentStep > 1) {
+          document
+            .querySelector(`.step-content[data-step="${currentStep}"]`)
+            .classList.remove("active");
+          document
+            .querySelector(`.step[data-step="${currentStep}"]`)
+            .classList.remove("active");
+
+          currentStep--;
+
+          document
+            .querySelector(`.step-content[data-step="${currentStep}"]`)
+            .classList.add("active");
+          document
+            .querySelector(`.step[data-step="${currentStep}"]`)
+            .classList.add("active");
+
+          updateButtons();
+        }
+      }
+
+      function updateButtons() {
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const submitBtn = document.getElementById("submitBtn");
+
+        prevBtn.style.display = currentStep > 1 ? "block" : "none";
+        nextBtn.style.display = currentStep < 3 ? "block" : "none";
+        submitBtn.style.display = currentStep === 3 ? "block" : "none";
+      }
+
+      // Enviar aplicación
+      async function submitApplication() {
+        const form = document.getElementById("deliveryApplicationForm");
+        const formData = new FormData(form);
+
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/v1/users/apply-delivery", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.ok) {
+              alert(
+                "¡Aplicación enviada exitosamente! Te contactaremos pronto."
+              );
+              applicationModal.hide();
+              document.getElementById("deliveryBanner").style.display = "none";
+              document.getElementById("deliveryAppMenu").style.display =
+                "block";
+              showApplicationStatus("pending");
+            }
+          } else {
+            alert("Error al enviar la aplicación. Inténtalo nuevamente.");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error de conexión. Inténtalo nuevamente.");
+        }
+      }
+
+      // Verificar aplicación de delivery
+      function checkDeliveryApplication() {
+        // Simular verificación - aquí harías una llamada a la API
+        const hasApplication = localStorage.getItem("hasDeliveryApplication");
+        if (hasApplication) {
+          document.getElementById("deliveryBanner").style.display = "none";
+          document.getElementById("deliveryAppMenu").style.display = "block";
+          showApplicationStatus(hasApplication);
+        } else {
+          // Verificar si el banner fue cerrado por el usuario
+          const bannerClosed = localStorage.getItem("deliveryBannerClosed");
+          if (bannerClosed) {
+            document.getElementById("deliveryBanner").style.display = "none";
+          } else {
+            // Mostrar banner por defecto
+            document.getElementById("deliveryBanner").style.display = "block";
+          }
+        }
+      }
+
+      function showApplicationStatus(status) {
+        const statusElement = document.getElementById("applicationStatus");
+        const detailsElement = document.getElementById("applicationDetails");
+
+        statusElement.className = `status-badge ${status}`;
+
+        switch (status) {
+          case "pending":
+            statusElement.textContent = "Pendiente";
+            detailsElement.innerHTML = `
+                        <div class="alert alert-info">
+                            <h6>Aplicación en Revisión</h6>
+                            <p>Tu aplicación está siendo revisada por nuestro equipo. Te contactaremos en las próximas 24-48 horas.</p>
+                        </div>
+                    `;
+            break;
+          case "approved":
+            statusElement.textContent = "Aprobado";
+            detailsElement.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6>¡Felicitaciones!</h6>
+                            <p>Tu aplicación ha sido aprobada. Ya puedes comenzar a recibir pedidos.</p>
+                            <button class="btn btn-success">Comenzar a Trabajar</button>
+                        </div>
+                    `;
+            break;
+          case "rejected":
+            statusElement.textContent = "Rechazado";
+            detailsElement.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6>Aplicación Rechazada</h6>
+                            <p>Lamentablemente tu aplicación no fue aprobada. Puedes aplicar nuevamente después de 30 días.</p>
+                        </div>
+                    `;
+            break;
+        }
+      }
+
+      // Otras funciones
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        return new Date(dateString).toLocaleDateString("es-ES");
+      }
+
+      function editProfile() {
+        const inputs = document.querySelectorAll(
+          "#profile-section input[readonly]"
+        );
+        inputs.forEach((input) => {
+          if (input.id !== "editUserEmail" && input.id !== "editUserDate") {
+            input.removeAttribute("readonly");
+          }
+        });
+        document.getElementById("profileActions").style.display = "block";
+      }
+
+      function saveProfile() {
+        // Aquí implementarías la lógica para guardar el perfil
+        alert("Perfil actualizado exitosamente");
+        cancelEdit();
+      }
+
+      function cancelEdit() {
+        const inputs = document.querySelectorAll("#profile-section input");
+        inputs.forEach((input) => {
+          input.setAttribute("readonly", true);
+        });
+        document.getElementById("profileActions").style.display = "none";
+      }
+
+      function addAddress() {
+        alert("Funcionalidad para agregar dirección - En desarrollo");
+      }
+
+      function addPaymentMethod() {
+        alert("Funcionalidad para agregar método de pago - En desarrollo");
+      }
+
+      function logout() {
+        console.log("Logout function called in user dashboard");
+        try {
+          if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+            console.log("User confirmed logout");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            console.log("Tokens removed, redirecting...");
+            window.location.href = "/login";
+          } else {
+            console.log("User cancelled logout");
+          }
+        } catch (error) {
+          console.error("Error in logout function:", error);
+          alert("Error al cerrar sesión: " + error.message);
+        }
+      }
+
+      // Event listener adicional para el botón de logout
+      // YA CONSOLIDADO EN EL DOMContentLoaded PRINCIPAL
+    </script>
+  </body>
+</html>

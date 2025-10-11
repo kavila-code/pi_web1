@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 
 import userRouter from './routes/user.route.js';
+import adminRouter from './routes/admin.route.js';
 import publicRouter from './routes/public.route.js';
 
 const app = express();
@@ -21,6 +22,7 @@ app.use(cors());
 // Rutas
 app.use('/', publicRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/admin', adminRouter);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

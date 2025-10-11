@@ -16,8 +16,10 @@ export const authMiddleware = (req, res, next) => {
     // Verificar el token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Guardamos el email del token en la request
+    // Guardamos el email y el rol del token en la request
     req.email = decoded.email;
+    req.role = decoded.role;
+    req.uid = decoded.uid;
 
     next(); // sigue al siguiente handler
   } catch (error) {

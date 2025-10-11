@@ -66,10 +66,10 @@
 
 /* Lado izquierdo - Información  */
 .login-info {
-  flex: 0 0 45%; /* Ancho fijo más pequeño */
+  flex: 0 0 40%; /* Más compacto - reducido de 45% */
   background: linear-gradient(135deg, var(--primary-red) 0%, var(--deep-red) 100%);
   color: var(--warm-white);
-  padding: 40px 30px; /* Reducido padding */
+  padding: 25px 20px; /* Más compacto - reducido de 40px 30px */
   display: flex;
   align-items: center;
   position: relative;
@@ -98,115 +98,119 @@
 }
 
 .info-content h2 {
-  font-size: 2rem; /* Reducido de 2.5rem */
+  font-size: 1.6rem; /* Más compacto - reducido de 2rem */
   font-weight: 700;
-  margin-bottom: 0.8rem; /* Reducido */
+  margin-bottom: 0.5rem; /* Más compacto - reducido de 0.8rem */
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .info-content > p {
-  font-size: 1rem; /* Reducido de 1.2rem */
-  margin-bottom: 1.5rem; /* Reducido */
+  font-size: 0.9rem; /* Más compacto - reducido de 1rem */
+  margin-bottom: 1rem; /* Más compacto - reducido de 1.5rem */
   opacity: 0.9;
-  line-height: 1.5;
+  line-height: 1.4; /* Más compacto */
 }
 
 /* Características  */
 .features {
-  margin-bottom: 1.5rem; /* Reducido */
+  margin-bottom: 1rem; /* Más compacto - reducido de 1.5rem */
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 12px; /* Reducido */
-  margin-bottom: 15px; /* Reducido */
-  padding: 12px; /* Reducido */
+  gap: 8px; /* Más compacto - reducido de 12px */
+  margin-bottom: 10px; /* Más compacto - reducido de 15px */
+  padding: 8px 10px; /* Más compacto - reducido de 12px */
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px; /* Reducido */
+  border-radius: 8px; /* Más compacto - reducido de 12px */
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
 
 .feature-item:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: translateX(10px);
+  transform: translateX(5px); /* Más sutil */
 }
 
 .feature-item i {
-  font-size: 1.2rem; /* Reducido */
+  font-size: 1rem; /* Más compacto - reducido de 1.2rem */
   color: var(--orange-accent);
-  min-width: 20px;
+  min-width: 16px; /* Más compacto */
 }
 
 .feature-item span {
   font-weight: 500;
-  font-size: 0.9rem; /* Añadido */
+  font-size: 0.8rem; /* Más compacto - reducido de 0.9rem */
 }
 
 /* Testimonio COMPACTO */
 .testimonial {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px; /* Reducido */
-  padding: 20px; /* Reducido */
+  border-radius: 10px; /* Más compacto - reducido de 15px */
+  padding: 15px; /* Más compacto - reducido de 20px */
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .testimonial-content i {
-  font-size: 1.5rem; /* Reducido */
+  font-size: 1.2rem; /* Más compacto - reducido de 1.5rem */
   color: var(--orange-accent);
-  margin-bottom: 10px; /* Reducido */
+  margin-bottom: 8px; /* Más compacto - reducido de 10px */
 }
 
 .testimonial-content p {
   font-style: italic;
-  margin-bottom: 12px; /* Reducido */
-  line-height: 1.5;
-  font-size: 0.9rem; /* Añadido */
+  margin-bottom: 8px; /* Más compacto - reducido de 12px */
+  line-height: 1.4; /* Más compacto */
+  font-size: 0.8rem; /* Más compacto - reducido de 0.9rem */
 }
 
 .testimonial-author strong {
   display: block;
-  margin-bottom: 5px;
-  font-size: 0.9rem; /* Añadido */
+  margin-bottom: 3px; /* Más compacto */
+  font-size: 0.8rem; /* Más compacto - reducido de 0.9rem */
 }
 
 .rating {
   color: var(--orange-accent);
-  font-size: 0.8rem; /* Añadido */
+  font-size: 0.7rem; /* Más compacto - reducido de 0.8rem */
 }
 
 /* Lado derecho - Formularios  */
 .login-form-container {
   flex: 1;
-  padding: 40px 35px; /* Reducido */
+  padding: 30px 25px; /* Ajustado para mejor proporción */
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center; /* Centrar horizontalmente */
 }
 
 .form-wrapper {
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 350px; /* Consistente con login-form */
 }
 
 .form-wrapper.hidden {
   opacity: 0;
   pointer-events: none;
   position: absolute;
-  top: 40px;
-  left: 35px;
-  right: 35px;
-  transform: translateX(100%); /* Añadir esto */
-  transition: all 0.3s ease; /* Añadir esto */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateX(100%); /* Centrado + animación */
+  width: 100%;
+  max-width: 350px; /* Consistente */
+  transition: all 0.3s ease;
 }
 
 .form-wrapper:not(.hidden) {
   opacity: 1;
   pointer-events: all;
   position: relative;
-  transform: translateX(0); /* Añadir esto */
-  transition: all 0.3s ease; /* Añadir esto */
+  transform: translateX(0);
+  transition: all 0.3s ease;
 }
 
 .form-header {
@@ -228,7 +232,7 @@
 
 /* Formulario */
 .login-form {
-  max-width: 380px; /* Reducido */
+  max-width: 350px; /* Más compacto para equilibrar con el lado izquierdo */
   margin: 0 auto;
   width: 100%;
 }
@@ -239,18 +243,18 @@
 }
 
 .form-group {
-  margin-bottom: 1.2rem; /* Reducido */
+  margin-bottom: 1.5rem; /* Mejor espaciado */
   flex: 1;
 }
 
 .form-group label {
   display: flex;
   align-items: center;
-  gap: 6px; /* Reducido */
+  gap: 8px;
   color: var(--dark-navy);
   font-weight: 600;
-  margin-bottom: 6px; /* Reducido */
-  font-size: 0.85rem; /* Reducido */
+  margin-bottom: 8px;
+  font-size: 0.9rem;
   position: relative;
   z-index: 2;
 }
@@ -262,17 +266,15 @@
 
 .form-control {
   width: 100%;
-  padding: 12px 16px; /* Reducido */
+  padding: 14px 16px;
   border: 2px solid var(--light-gray);
-  border-radius: 12px; /* Reducido */
-  font-size: 0.95rem; /* Reducido */
+  border-radius: 10px;
+  font-size: 1rem;
   transition: all 0.3s ease;
   background: var(--warm-white);
   position: relative;
-  z-index: 1; 
-}
-
-.form-control:focus {
+  z-index: 1;
+}.form-control:focus {
   outline: none;
   border-color: var(--primary-red);
   box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
@@ -342,12 +344,23 @@
 
 .form-check {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .form-check-input {
   margin: 0;
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+}
+
+.form-check-label {
+  font-size: 0.9rem;
+  color: var(--text-gray);
+  line-height: 1.4;
+  flex: 1;
 }
 
 .forgot-password {
@@ -374,23 +387,29 @@
 }
 
 /* Botón de envío COMPACTO */
-.btn-login-submit {
+.btn-login-submit,
+.btn-form {
   width: 100%;
   background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
   color: var(--warm-white);
   border: none;
-  padding: 12px 18px; /* Reducido */
-  border-radius: 12px; /* Reducido */
-  font-size: 1rem; /* Reducido */
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 1.5rem; /* Reducido */
+  margin: 1.5rem 0;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.btn-login-submit::before {
+.btn-login-submit::before,
+.btn-form::before {
   content: '';
   position: absolute;
   top: 0;
@@ -401,11 +420,13 @@
   transition: all 0.5s ease;
 }
 
-.btn-login-submit:hover::before {
+.btn-login-submit:hover::before,
+.btn-form:hover::before {
   left: 100%;
 }
 
-.btn-login-submit:hover {
+.btn-login-submit:hover,
+.btn-form:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(231, 76, 60, 0.4);
 }
@@ -478,8 +499,20 @@
 }
 
 /* Footer del formulario COMPACTO */
+.form-check-label a {
+  color: var(--primary-red);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.form-check-label a:hover {
+  color: var(--orange-accent);
+  text-decoration: underline;
+}
+
 .form-footer {
   text-align: center;
+  margin-top: 1rem;
 }
 
 .form-footer p {
@@ -510,23 +543,24 @@
   
   .login-info {
     order: 2;
-    padding: 30px 25px; /* Reducido */
+    padding: 20px 15px; /* Más compacto */
     flex: none;
   }
   
   .login-form-container {
     order: 1;
-    padding: 30px 25px; /* Reducido */
+    padding: 25px 20px; /* Más compacto */
+    justify-content: center; /* Mantener centrado */
   }
   
   .info-content h2 {
-    font-size: 1.8rem; /* Reducido */
+    font-size: 1.4rem; /* Más compacto */
   }
   
   .features {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px; /* Reducido */
+    gap: 8px; /* Más compacto */
   }
 }
 
@@ -543,6 +577,7 @@
   .login-info,
   .login-form-container {
     padding: 25px 20px; /* Reducido */
+    justify-content: center; /* Mantener centrado */
   }
   
   .login-form {

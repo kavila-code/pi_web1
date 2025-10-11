@@ -32,4 +32,10 @@ router.post(
 // ✅ Profile protegido con middleware
 router.get("/profile", authMiddleware, UserController.profile);
 
+// ✅ Aplicación para delivery
+router.post("/apply-delivery", authMiddleware, UserController.applyDelivery);
+
+// ✅ Obtener estado de aplicación de delivery
+router.get("/delivery-application", authMiddleware, UserController.getDeliveryApplication);
+
 export default router;
