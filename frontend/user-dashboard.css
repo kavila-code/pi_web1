@@ -291,6 +291,81 @@
   transform: scale(1.1);
 }
 
+/* Application Status Container */
+.application-status-container {
+  margin: 2rem 1rem;
+  padding: 0;
+}
+
+.application-status-container .alert {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+}
+
+.application-status-container .alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+  border-left: 5px solid #ffc107;
+}
+
+.application-status-container .alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #a8e6a1 100%);
+  color: #155724;
+  border-left: 5px solid #28a745;
+}
+
+.application-status-container .alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5b7b1 100%);
+  color: #721c24;
+  border-left: 5px solid #dc3545;
+}
+
+.application-status-container .alert-heading {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Delivery Driver Menu */
+#deliveryDriverMenu {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(255,255,255,0.1);
+}
+
+#deliveryDriverMenu .menu-item {
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 0.5rem;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+#deliveryDriverMenu .menu-item:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateX(5px);
+}
+
+#deliveryDriverMenu .menu-item i {
+  color: var(--golden-yellow);
+}
+
+/* Animations */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.application-status-container {
+  animation: slideInDown 0.5s ease-out;
+}
+
 /* Sidebar User */
 .sidebar-user {
   padding: 0 15px;

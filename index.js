@@ -5,6 +5,7 @@ import cors from 'cors';
 import userRouter from './routes/user.route.js';
 import adminRouter from './routes/admin.route.js';
 import publicRouter from './routes/public.route.js';
+import deliveryApplicationsRouter from './routes/delivery-applications.route.js';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(cors());
 app.use('/', publicRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/delivery-applications', deliveryApplicationsRouter);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

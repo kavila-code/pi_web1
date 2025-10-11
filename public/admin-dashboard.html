@@ -60,6 +60,14 @@
           <i class="bi bi-shop"></i>
           <span>Restaurantes</span>
         </a>
+        <a
+          href="#delivery-applications"
+          class="menu-item"
+          onclick="showSection('delivery-applications')"
+        >
+          <i class="bi bi-bicycle"></i>
+          <span>Solicitudes Domiciliarios</span>
+        </a>
         <a href="#reports" class="menu-item" onclick="showSection('reports')">
           <i class="bi bi-graph-up"></i>
           <span>Reportes</span>
@@ -371,6 +379,123 @@
           </div>
         </div>
 
+        <!-- Delivery Applications Section -->
+        <div id="delivery-applications-section" class="content-section">
+          <div class="section-header">
+            <h3>Solicitudes de Domiciliarios</h3>
+            <div class="header-actions">
+              <button
+                class="btn btn-outline-secondary"
+                onclick="loadDeliveryApplications('all')"
+              >
+                <i class="bi bi-list"></i> Todas
+              </button>
+              <button
+                class="btn btn-warning"
+                onclick="loadDeliveryApplications('pendiente')"
+              >
+                <i class="bi bi-clock"></i> Pendientes
+              </button>
+              <button
+                class="btn btn-success"
+                onclick="loadDeliveryApplications('aprobada')"
+              >
+                <i class="bi bi-check"></i> Aprobadas
+              </button>
+              <button
+                class="btn btn-danger"
+                onclick="loadDeliveryApplications('rechazada')"
+              >
+                <i class="bi bi-x"></i> Rechazadas
+              </button>
+            </div>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="stats-row mb-4">
+            <div class="stat-card">
+              <div class="stat-icon bg-warning">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="pendingApplications">0</h3>
+                <p>Pendientes</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-success">
+                <i class="bi bi-check-circle"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="approvedApplications">0</h3>
+                <p>Aprobadas</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-danger">
+                <i class="bi bi-x-circle"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="rejectedApplications">0</h3>
+                <p>Rechazadas</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon bg-info">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalApplications">0</h3>
+                <p>Total</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Applications Table -->
+          <div class="table-card">
+            <div class="table-header">
+              <h5>Lista de Solicitudes</h5>
+              <div class="table-actions">
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre o email..."
+                  class="form-control search-input"
+                  id="searchApplications"
+                />
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Contacto</th>
+                    <th>Fecha Solicitud</th>
+                    <th>Estado</th>
+                    <th>Fecha Revisión</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="applicationsTableBody">
+                  <!-- Las solicitudes se cargarán aquí dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+            <div id="applicationsLoading" class="text-center p-4 d-none">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+            <div id="noApplicationsMessage" class="text-center p-4 d-none">
+              <i
+                class="bi bi-inbox"
+                style="font-size: 3rem; color: #6c757d"
+              ></i>
+              <p class="text-muted mt-2">No hay solicitudes que mostrar</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Reports Section -->
         <div id="reports-section" class="content-section">
           <div class="section-header">
@@ -394,6 +519,83 @@
           </div>
           <div class="table-card">
             <p>Contenido de configuración - En desarrollo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Revisar Solicitud -->
+    <div
+      class="modal fade"
+      id="reviewApplicationModal"
+      tabindex="-1"
+      aria-labelledby="reviewApplicationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reviewApplicationModalLabel">
+              Revisar Solicitud de Domiciliario
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="applicationDetails">
+              <!-- Los detalles se cargarán aquí -->
+            </div>
+
+            <form id="reviewForm">
+              <input type="hidden" id="applicationId" />
+
+              <div class="mb-3">
+                <label for="applicationStatus" class="form-label"
+                  >Decisión *</label
+                >
+                <select class="form-select" id="applicationStatus" required>
+                  <option value="">Seleccionar decisión...</option>
+                  <option value="aprobada">✅ Aprobar Solicitud</option>
+                  <option value="rechazada">❌ Rechazar Solicitud</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="applicationObservations" class="form-label"
+                  >Observaciones (Opcional)</label
+                >
+                <textarea
+                  class="form-control"
+                  id="applicationObservations"
+                  rows="3"
+                  placeholder="Ingresa cualquier comentario o razón para tu decisión..."
+                ></textarea>
+                <div class="form-text">
+                  Estas observaciones serán visibles para el usuario
+                  solicitante.
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="submitReview()"
+            >
+              <i class="bi bi-check2"></i> Enviar Decisión
+            </button>
           </div>
         </div>
       </div>
@@ -436,6 +638,7 @@
           users: "Gestión de Usuarios",
           orders: "Gestión de Pedidos",
           restaurants: "Gestión de Restaurantes",
+          "delivery-applications": "Solicitudes de Domiciliarios",
           reports: "Reportes y Análisis",
           settings: "Configuración del Sistema",
         };
@@ -597,6 +800,441 @@
         document.getElementById("sidebar").classList.add("collapsed");
         document.querySelector(".main-content").classList.add("expanded");
       }
+
+      // === FUNCIONES PARA SOLICITUDES DE DOMICILIARIOS ===
+
+      // Cargar solicitudes de domiciliarios
+      async function loadDeliveryApplications(status = "all") {
+        try {
+          showApplicationsLoading(true);
+
+          const token = localStorage.getItem("token");
+          const url =
+            status === "all"
+              ? "/api/v1/delivery-applications/all"
+              : `/api/v1/delivery-applications/all?status=${status}`;
+
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            displayApplications(data.data);
+            loadApplicationsStats(); // Cargar estadísticas
+          } else {
+            console.error("Error cargando solicitudes:", data.message);
+            showNoApplicationsMessage(true);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showNoApplicationsMessage(true);
+        } finally {
+          showApplicationsLoading(false);
+        }
+      }
+
+      // Mostrar/ocultar loading
+      function showApplicationsLoading(show) {
+        const loading = document.getElementById("applicationsLoading");
+        const table = document.querySelector(
+          "#delivery-applications-section .table-responsive"
+        );
+
+        if (show) {
+          loading.classList.remove("d-none");
+          table.style.opacity = "0.5";
+        } else {
+          loading.classList.add("d-none");
+          table.style.opacity = "1";
+        }
+      }
+
+      // Mostrar mensaje de no solicitudes
+      function showNoApplicationsMessage(show) {
+        const message = document.getElementById("noApplicationsMessage");
+        const table = document.querySelector(
+          "#delivery-applications-section .table-responsive"
+        );
+
+        if (show) {
+          message.classList.remove("d-none");
+          table.classList.add("d-none");
+        } else {
+          message.classList.add("d-none");
+          table.classList.remove("d-none");
+        }
+      }
+
+      // Mostrar solicitudes en la tabla
+      function displayApplications(applications) {
+        const tbody = document.getElementById("applicationsTableBody");
+
+        if (applications.length === 0) {
+          showNoApplicationsMessage(true);
+          return;
+        }
+
+        showNoApplicationsMessage(false);
+
+        tbody.innerHTML = applications
+          .map(
+            (app) => `
+          <tr>
+            <td>
+              <div class="user-info">
+                <strong>${app.nombre}</strong>
+                <small class="text-muted d-block">ID: ${app.user_id}</small>
+              </div>
+            </td>
+            <td>
+              <div>
+                <i class="bi bi-envelope"></i> ${app.email}
+                ${
+                  app.telefono
+                    ? `<br><i class="bi bi-telephone"></i> ${app.telefono}`
+                    : ""
+                }
+              </div>
+            </td>
+            <td>
+              <small>${formatDate(app.fecha_solicitud)}</small>
+            </td>
+            <td>
+              <span class="badge ${getStatusBadgeClass(app.status)}">
+                ${getStatusText(app.status)}
+              </span>
+            </td>
+            <td>
+              ${
+                app.fecha_revision
+                  ? `<small>${formatDate(app.fecha_revision)}</small>`
+                  : '<span class="text-muted">-</span>'
+              }
+              ${
+                app.admin_nombre
+                  ? `<br><small class="text-muted">Por: ${app.admin_nombre}</small>`
+                  : ""
+              }
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  class="btn btn-sm btn-outline-primary" 
+                  onclick="reviewApplication(${app.id})"
+                  title="Revisar solicitud"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+                ${
+                  app.status === "pendiente"
+                    ? `
+                  <button 
+                    class="btn btn-sm btn-success" 
+                    onclick="quickApprove(${app.id})"
+                    title="Aprobar rápidamente"
+                  >
+                    <i class="bi bi-check"></i>
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-danger" 
+                    onclick="quickReject(${app.id})"
+                    title="Rechazar rápidamente"
+                  >
+                    <i class="bi bi-x"></i>
+                  </button>
+                `
+                    : ""
+                }
+              </div>
+            </td>
+          </tr>
+        `
+          )
+          .join("");
+      }
+
+      // Obtener clase CSS para el badge de estado
+      function getStatusBadgeClass(status) {
+        const classes = {
+          pendiente: "bg-warning",
+          aprobada: "bg-success",
+          rechazada: "bg-danger",
+        };
+        return classes[status] || "bg-secondary";
+      }
+
+      // Obtener texto del estado
+      function getStatusText(status) {
+        const texts = {
+          pendiente: "Pendiente",
+          aprobada: "Aprobada",
+          rechazada: "Rechazada",
+        };
+        return texts[status] || status;
+      }
+
+      // Cargar estadísticas de solicitudes
+      async function loadApplicationsStats() {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch("/api/v1/delivery-applications/stats", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            const stats = data.data;
+            document.getElementById("pendingApplications").textContent =
+              stats.pendientes || 0;
+            document.getElementById("approvedApplications").textContent =
+              stats.aprobadas || 0;
+            document.getElementById("rejectedApplications").textContent =
+              stats.rechazadas || 0;
+            document.getElementById("totalApplications").textContent =
+              stats.total || 0;
+          }
+        } catch (error) {
+          console.error("Error cargando estadísticas:", error);
+        }
+      }
+
+      // Revisar solicitud (abrir modal)
+      async function reviewApplication(applicationId) {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `/api/v1/delivery-applications/${applicationId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            const app = data.data;
+
+            // Llenar detalles en el modal
+            document.getElementById("applicationId").value = app.id;
+            document.getElementById("applicationDetails").innerHTML = `
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Información del Usuario</h6>
+                  <p><strong>Nombre:</strong> ${app.nombre}</p>
+                  <p><strong>Email:</strong> ${app.email}</p>
+                  <p><strong>Teléfono:</strong> ${
+                    app.telefono || "No proporcionado"
+                  }</p>
+                </div>
+                <div class="col-md-6">
+                  <h6>Detalles de la Solicitud</h6>
+                  <p><strong>Fecha:</strong> ${formatDate(
+                    app.fecha_solicitud
+                  )}</p>
+                  <p><strong>Estado Actual:</strong> 
+                    <span class="badge ${getStatusBadgeClass(app.status)}">
+                      ${getStatusText(app.status)}
+                    </span>
+                  </p>
+                  ${
+                    app.observaciones
+                      ? `<p><strong>Observaciones:</strong> ${app.observaciones}</p>`
+                      : ""
+                  }
+                </div>
+              </div>
+            `;
+
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(
+              document.getElementById("reviewApplicationModal")
+            );
+            modal.show();
+          }
+        } catch (error) {
+          console.error("Error cargando detalles:", error);
+          alert("Error cargando los detalles de la solicitud");
+        }
+      }
+
+      // Enviar revisión
+      async function submitReview() {
+        try {
+          const applicationId = document.getElementById("applicationId").value;
+          const status = document.getElementById("applicationStatus").value;
+          const observaciones = document.getElementById(
+            "applicationObservations"
+          ).value;
+
+          if (!status) {
+            alert("Por favor selecciona una decisión");
+            return;
+          }
+
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `/api/v1/delivery-applications/${applicationId}/status`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                status: status,
+                observaciones: observaciones,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert(`Solicitud ${status} exitosamente`);
+
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("reviewApplicationModal")
+            );
+            modal.hide();
+
+            // Recargar solicitudes
+            loadDeliveryApplications();
+
+            // Limpiar formulario
+            document.getElementById("reviewForm").reset();
+          } else {
+            alert("Error: " + data.message);
+          }
+        } catch (error) {
+          console.error("Error enviando revisión:", error);
+          alert("Error de conexión");
+        }
+      }
+
+      // Aprobación rápida
+      async function quickApprove(applicationId) {
+        if (confirm("¿Estás seguro de que quieres aprobar esta solicitud?")) {
+          await updateApplicationStatus(
+            applicationId,
+            "aprobada",
+            "Aprobación rápida"
+          );
+        }
+      }
+
+      // Rechazo rápido
+      async function quickReject(applicationId) {
+        const reason = prompt("Razón del rechazo (opcional):");
+        if (reason !== null) {
+          await updateApplicationStatus(
+            applicationId,
+            "rechazada",
+            reason || "Rechazado"
+          );
+        }
+      }
+
+      // Actualizar estado de solicitud
+      async function updateApplicationStatus(
+        applicationId,
+        status,
+        observaciones
+      ) {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `/api/v1/delivery-applications/${applicationId}/status`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                status: status,
+                observaciones: observaciones,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert(`Solicitud ${status} exitosamente`);
+            loadDeliveryApplications();
+          } else {
+            alert("Error: " + data.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error de conexión");
+        }
+      }
+
+      // Formatear fecha
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("es-ES", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      // Event listeners para delivery applications
+      document.addEventListener("DOMContentLoaded", function () {
+        // Cargar solicitudes cuando se muestre la sección
+        const deliverySection = document.getElementById(
+          "delivery-applications-section"
+        );
+        if (deliverySection) {
+          // Observer para detectar cuando se muestra la sección
+          const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+              if (
+                mutation.type === "attributes" &&
+                mutation.attributeName === "class"
+              ) {
+                if (deliverySection.classList.contains("active")) {
+                  loadDeliveryApplications();
+                }
+              }
+            });
+          });
+
+          observer.observe(deliverySection, { attributes: true });
+        }
+
+        // Búsqueda en tiempo real
+        const searchInput = document.getElementById("searchApplications");
+        if (searchInput) {
+          searchInput.addEventListener("input", function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll("#applicationsTableBody tr");
+
+            rows.forEach((row) => {
+              const text = row.textContent.toLowerCase();
+              if (text.includes(searchTerm)) {
+                row.style.display = "";
+              } else {
+                row.style.display = "none";
+              }
+            });
+          });
+        }
+      });
     </script>
   </body>
 </html>

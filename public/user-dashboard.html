@@ -888,7 +888,49 @@
 
       // Funciones del banner de repartidor
       function openDeliveryApplication() {
-        applicationModal.show();
+        // Confirmar que el usuario quiere aplicar
+        if (
+          confirm(
+            "¿Estás seguro de que quieres solicitar trabajar como domiciliario?"
+          )
+        ) {
+          submitDeliveryApplication();
+        }
+      }
+
+      // Nueva función para enviar la solicitud a la API
+      async function submitDeliveryApplication() {
+        try {
+          const token = localStorage.getItem("token");
+
+          const response = await fetch("/api/v1/delivery-applications/apply", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert(
+              "¡Solicitud enviada exitosamente! El administrador revisará tu aplicación."
+            );
+
+            // Ocultar el banner y mostrar el estado
+            document.getElementById("deliveryBanner").style.display = "none";
+            showApplicationStatus("pendiente");
+
+            // Recargar la información de la aplicación
+            checkDeliveryApplication();
+          } else {
+            alert("Error: " + data.message);
+          }
+        } catch (error) {
+          console.error("Error enviando solicitud:", error);
+          alert("Error de conexión. Inténtalo nuevamente.");
+        }
       }
 
       function closeBanner() {
@@ -996,60 +1038,179 @@
       }
 
       // Verificar aplicación de delivery
-      function checkDeliveryApplication() {
-        // Simular verificación - aquí harías una llamada a la API
-        const hasApplication = localStorage.getItem("hasDeliveryApplication");
-        if (hasApplication) {
-          document.getElementById("deliveryBanner").style.display = "none";
-          document.getElementById("deliveryAppMenu").style.display = "block";
-          showApplicationStatus(hasApplication);
-        } else {
-          // Verificar si el banner fue cerrado por el usuario
-          const bannerClosed = localStorage.getItem("deliveryBannerClosed");
-          if (bannerClosed) {
+      async function checkDeliveryApplication() {
+        try {
+          const token = localStorage.getItem("token");
+
+          const response = await fetch(
+            "/api/v1/delivery-applications/my-application",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success && data.data) {
+            // El usuario tiene una solicitud
+            const application = data.data;
             document.getElementById("deliveryBanner").style.display = "none";
+
+            if (application.status === "aprobada") {
+              // Si fue aprobada, mostrar opciones de domiciliario
+              showDeliveryDriverMenu();
+            } else {
+              // Mostrar estado de la aplicación
+              showApplicationStatus(
+                application.status,
+                application.observaciones
+              );
+            }
           } else {
-            // Mostrar banner por defecto
+            // No tiene solicitud, verificar si el banner fue cerrado
+            const bannerClosed = localStorage.getItem("deliveryBannerClosed");
+            if (bannerClosed) {
+              document.getElementById("deliveryBanner").style.display = "none";
+            } else {
+              // Mostrar banner por defecto
+              document.getElementById("deliveryBanner").style.display = "block";
+            }
+          }
+        } catch (error) {
+          console.error("Error verificando aplicación:", error);
+          // En caso de error, mostrar el banner por defecto
+          const bannerClosed = localStorage.getItem("deliveryBannerClosed");
+          if (!bannerClosed) {
             document.getElementById("deliveryBanner").style.display = "block";
           }
         }
       }
 
-      function showApplicationStatus(status) {
-        const statusElement = document.getElementById("applicationStatus");
-        const detailsElement = document.getElementById("applicationDetails");
+      function showApplicationStatus(status, observaciones = null) {
+        // Crear o encontrar el contenedor del estado
+        let statusContainer = document.getElementById(
+          "applicationStatusContainer"
+        );
 
-        statusElement.className = `status-badge ${status}`;
+        if (!statusContainer) {
+          // Crear el contenedor si no existe
+          statusContainer = document.createElement("div");
+          statusContainer.id = "applicationStatusContainer";
+          statusContainer.className = "application-status-container";
+
+          // Insertar después del delivery banner o al inicio del contenido
+          const targetElement =
+            document.getElementById("deliveryBanner") ||
+            document.querySelector(".main-container .container-fluid .row");
+          if (targetElement) {
+            targetElement.parentNode.insertBefore(
+              statusContainer,
+              targetElement.nextSibling
+            );
+          }
+        }
+
+        let statusClass = "";
+        let statusText = "";
+        let statusIcon = "";
+        let message = "";
 
         switch (status) {
-          case "pending":
-            statusElement.textContent = "Pendiente";
-            detailsElement.innerHTML = `
-                        <div class="alert alert-info">
-                            <h6>Aplicación en Revisión</h6>
-                            <p>Tu aplicación está siendo revisada por nuestro equipo. Te contactaremos en las próximas 24-48 horas.</p>
-                        </div>
-                    `;
+          case "pendiente":
+            statusClass = "warning";
+            statusText = "Solicitud Pendiente";
+            statusIcon = "bi-clock-history";
+            message =
+              "Tu solicitud está siendo revisada por nuestro equipo. Te contactaremos en las próximas 24-48 horas.";
             break;
-          case "approved":
-            statusElement.textContent = "Aprobado";
-            detailsElement.innerHTML = `
-                        <div class="alert alert-success">
-                            <h6>¡Felicitaciones!</h6>
-                            <p>Tu aplicación ha sido aprobada. Ya puedes comenzar a recibir pedidos.</p>
-                            <button class="btn btn-success">Comenzar a Trabajar</button>
-                        </div>
-                    `;
+          case "aprobada":
+            statusClass = "success";
+            statusText = "¡Solicitud Aprobada!";
+            statusIcon = "bi-check-circle-fill";
+            message =
+              "¡Felicitaciones! Tu solicitud ha sido aprobada. Ya puedes acceder a las funciones de domiciliario.";
             break;
-          case "rejected":
-            statusElement.textContent = "Rechazado";
-            detailsElement.innerHTML = `
-                        <div class="alert alert-danger">
-                            <h6>Aplicación Rechazada</h6>
-                            <p>Lamentablemente tu aplicación no fue aprobada. Puedes aplicar nuevamente después de 30 días.</p>
-                        </div>
-                    `;
+          case "rechazada":
+            statusClass = "danger";
+            statusText = "Solicitud Rechazada";
+            statusIcon = "bi-x-circle-fill";
+            message =
+              "Tu solicitud ha sido rechazada. Puedes contactar al administrador para más información.";
+            if (observaciones) {
+              message += `<br><strong>Observaciones:</strong> ${observaciones}`;
+            }
             break;
+        }
+
+        statusContainer.innerHTML = `
+          <div class="alert alert-${statusClass} d-flex align-items-center" role="alert">
+            <i class="bi ${statusIcon} me-3" style="font-size: 1.5rem;"></i>
+            <div class="flex-grow-1">
+              <h5 class="alert-heading mb-2">${statusText}</h5>
+              <p class="mb-0">${message}</p>
+            </div>
+            ${
+              status === "rechazada"
+                ? `
+              <button class="btn btn-outline-${statusClass} btn-sm ms-3" onclick="reapplyDelivery()">
+                Aplicar de Nuevo
+              </button>
+            `
+                : ""
+            }
+          </div>
+        `;
+
+        statusContainer.style.display = "block";
+      }
+
+      // Función para mostrar menú de domiciliario aprobado
+      function showDeliveryDriverMenu() {
+        console.log(
+          "Usuario aprobado como domiciliario - Mostrar funciones especiales"
+        );
+        // Aquí puedes agregar lógica para mostrar opciones especiales de domiciliario
+
+        // Mostrar estado aprobado
+        showApplicationStatus("aprobada");
+
+        // Agregar opciones en el sidebar si es necesario
+        addDeliveryDriverOptions();
+      }
+
+      // Función para agregar opciones de domiciliario en el sidebar
+      function addDeliveryDriverOptions() {
+        const sidebar = document.querySelector(".sidebar-menu");
+        if (sidebar && !document.getElementById("deliveryDriverMenu")) {
+          const deliveryMenu = document.createElement("div");
+          deliveryMenu.id = "deliveryDriverMenu";
+          deliveryMenu.innerHTML = `
+            <div class="menu-item" onclick="showContent('delivery-orders')">
+              <i class="bi bi-truck"></i>
+              <span>Pedidos Disponibles</span>
+            </div>
+            <div class="menu-item" onclick="showContent('my-deliveries')">
+              <i class="bi bi-list-check"></i>
+              <span>Mis Entregas</span>
+            </div>
+            <div class="menu-item" onclick="showContent('delivery-earnings')">
+              <i class="bi bi-cash-coin"></i>
+              <span>Mis Ganancias</span>
+            </div>
+          `;
+          sidebar.appendChild(deliveryMenu);
+        }
+      }
+
+      // Función para reaplicar después de un rechazo
+      async function reapplyDelivery() {
+        if (
+          confirm("¿Estás seguro de que quieres enviar una nueva solicitud?")
+        ) {
+          await submitDeliveryApplication();
         }
       }
 
