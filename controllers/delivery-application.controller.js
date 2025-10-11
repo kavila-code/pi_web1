@@ -40,9 +40,9 @@ class DeliveryApplicationController {
         previousExperience: req.body.previousExperience,
         whyDelivery: req.body.whyDelivery,
         customerServiceExperience: req.body.customerServiceExperience,
-        cvFilePath: req.files?.cv ? req.files.cv[0].path : null,
-        idDocumentPath: req.files?.id_document ? req.files.id_document[0].path : null,
-        licensePhotoPath: req.files?.license_photo ? req.files.license_photo[0].path : null
+        cvFilePath: req.files?.cv ? req.files.cv[0].filename : null,
+        idDocumentPath: req.files?.id_document ? req.files.id_document[0].filename : null,
+        licensePhotoPath: req.files?.license_photo ? req.files.license_photo[0].filename : null
       };
 
       // Si no hay datos del formulario, crear solicitud básica

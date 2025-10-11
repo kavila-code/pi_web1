@@ -993,17 +993,29 @@
               <div class="d-flex gap-1">
                 ${
                   app.cv_file_path
-                    ? '<i class="bi bi-file-earmark-pdf text-primary" title="CV" style="cursor: pointer;" onclick="previewDocument(\'' + app.cv_file_path + '\', \'CV - ' + (app.full_name || app.nombre) + '\')"></i>'
+                    ? '<i class="bi bi-file-earmark-pdf text-primary" title="CV" style="cursor: pointer;" onclick="previewDocument(\'' +
+                      app.cv_file_path +
+                      "', 'CV - " +
+                      (app.full_name || app.nombre) +
+                      "')\"></i>"
                     : ""
                 }
                 ${
                   app.id_document_path
-                    ? '<i class="bi bi-card-image text-info" title="Documento ID" style="cursor: pointer;" onclick="previewDocument(\'' + app.id_document_path + '\', \'Documento ID - ' + (app.full_name || app.nombre) + '\')"></i>'
+                    ? '<i class="bi bi-card-image text-info" title="Documento ID" style="cursor: pointer;" onclick="previewDocument(\'' +
+                      app.id_document_path +
+                      "', 'Documento ID - " +
+                      (app.full_name || app.nombre) +
+                      "')\"></i>"
                     : ""
                 }
                 ${
                   app.license_photo_path
-                    ? '<i class="bi bi-card-text text-success" title="Licencia" style="cursor: pointer;" onclick="previewDocument(\'' + app.license_photo_path + '\', \'Licencia - ' + (app.full_name || app.nombre) + '\')"></i>'
+                    ? '<i class="bi bi-card-text text-success" title="Licencia" style="cursor: pointer;" onclick="previewDocument(\'' +
+                      app.license_photo_path +
+                      "', 'Licencia - " +
+                      (app.full_name || app.nombre) +
+                      "')\"></i>"
                     : ""
                 }
                 ${
@@ -1123,8 +1135,14 @@
           return filePath;
         }
 
-        // Si es solo el nombre del archivo
-        const fileName = filePath.split("/").pop();
+        // Obtener solo el nombre del archivo
+        let fileName = filePath;
+
+        // Si es una ruta completa (Windows o Unix), extraer solo el nombre
+        if (filePath.includes("\\") || filePath.includes("/")) {
+          fileName = filePath.split(/[\\\/]/).pop();
+        }
+
         return `/uploads/delivery-applications/${fileName}`;
       }
 
@@ -1878,24 +1896,30 @@
         document
           .getElementById("searchApplications")
           ?.addEventListener("input", applyFilters);
-          
+
         // Agregar función de debug para documentos
-        window.debugDocuments = function() {
-          console.log('=== DEBUG: Estado de documentos ===');
-          
+        window.debugDocuments = function () {
+          console.log("=== DEBUG: Estado de documentos ===");
+
           // Probar acceso directo a un archivo conocido
-          const testFile = '4_1760148157461_cv.pdf';
-          fetch(`/uploads/delivery-applications/${testFile}`, { method: 'HEAD' })
-            .then(response => {
-              console.log(`✅ Archivo ${testFile}:`, response.ok ? 'ACCESIBLE' : 'NO ACCESIBLE', `(${response.status})`);
+          const testFile = "4_1760148157461_cv.pdf";
+          fetch(`/uploads/delivery-applications/${testFile}`, {
+            method: "HEAD",
+          })
+            .then((response) => {
+              console.log(
+                `✅ Archivo ${testFile}:`,
+                response.ok ? "ACCESIBLE" : "NO ACCESIBLE",
+                `(${response.status})`
+              );
             })
-            .catch(error => {
+            .catch((error) => {
               console.log(`❌ Error accediendo a ${testFile}:`, error);
             });
         };
-        
+
         // Ejecutar debug automáticamente en desarrollo
-        if (window.location.hostname === 'localhost') {
+        if (window.location.hostname === "localhost") {
           setTimeout(window.debugDocuments, 2000);
         }
       });
