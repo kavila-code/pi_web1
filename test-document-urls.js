@@ -9,20 +9,20 @@ const testUrls = [
 async function testUrl(url) {
   try {
     const response = await fetch(url, { method: 'HEAD' });
-    console.log(`✅ ${url} - Status: ${response.status} ${response.ok ? 'OK' : 'ERROR'}`);
+    console.log(`OK ${url} - Status: ${response.status} ${response.ok ? 'OK' : 'ERROR'}`);
   } catch (error) {
-    console.log(`❌ ${url} - Error: ${error.message}`);
+    console.log(`Error ${url} - Error: ${error.message}`);
   }
 }
 
 async function testAllUrls() {
-  console.log('🔍 Probando URLs de documentos...\n');
+  console.log(' Probando URLs de documentos...\n');
   
   for (const url of testUrls) {
     await testUrl(url);
   }
   
-  console.log('\n✅ Prueba completada');
+  console.log('\n Prueba completada');
 }
 
 testAllUrls();

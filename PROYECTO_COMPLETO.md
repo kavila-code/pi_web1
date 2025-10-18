@@ -75,7 +75,8 @@ pi_web/
 │   ├── login.html
 │   ├── profile.html
 │   ├── user-dashboard.html
-│   └── admin-dashboard.html
+│   ├── admin-dashboard.html
+│   └── delivery-dashboard.html
 ├── 📂 routes/                # Definición de rutas
 │   ├── public.route.js
 │   ├── user.route.js
@@ -105,8 +106,9 @@ pi_web/
 - username
 - email
 - password (encriptada)
-- role (user/admin/domiciliario)
+- role (user/admin/domiciliario/cliente)
 - created_at
+- updated_at (Timestamp de última actualización)
 ```
 
 #### **2. delivery_applications**
@@ -135,6 +137,7 @@ pi_web/
 - fecha_solicitud
 - fecha_revision
 - admin_id
+- updated_at (Timestamp de última actualización)
 ```
 
 ---
@@ -196,12 +199,20 @@ pi_web/
   - Toast notifications con Bootstrap
   - Diferentes tipos (success, warning, error)
   - Auto-dismiss configurable
+  - Alertas con botón de cierre
 
 - ✅ **Filtros y búsqueda:**
+
   - Filtro por estado de solicitud
   - Filtro por tipo de vehículo
   - Búsqueda por nombre/email
   - Limpiar filtros
+
+- ✅ **Sistema de roles dinámicos:**
+  - Etiquetas de rol actualizadas en tiempo real
+  - Cambio automático al aprobar domiciliario
+  - Dashboard específico para domiciliarios
+  - Transición cliente → domiciliario sin recarga
 
 ---
 
@@ -271,12 +282,12 @@ pi_web/
 
 ## 📊 **ESTADÍSTICAS DEL PROYECTO**
 
-- **📁 Archivos:** ~25 archivos de código
-- **📝 Líneas de código:** ~3,000+ líneas
-- **🗄️ Tablas BD:** 2 tablas principales
+- **📁 Archivos:** ~30 archivos de código
+- **📝 Líneas de código:** ~4,000+ líneas
+- **🗄️ Tablas BD:** 2 tablas principales + campo updated_at
 - **🎯 Endpoints:** 12 APIs funcionales
-- **📱 Páginas:** 5 páginas web completas
-- **🔧 Funcionalidades:** 20+ características implementadas
+- **📱 Páginas:** 6 páginas web completas (incluyendo delivery-dashboard)
+- **🔧 Funcionalidades:** 25+ características implementadas
 
 ---
 
@@ -292,6 +303,11 @@ pi_web/
 - [x] APIs REST completas
 - [x] Seguridad implementada
 - [x] UI/UX profesional
+- [x] Dashboard de domiciliarios
+- [x] Sistema de roles dinámicos
+- [x] Transición automática de roles (cliente → domiciliario)
+- [x] Notificaciones con cierre manual
+- [x] Previsualización robusta de documentos
 
 ### **🔄 EN DESARROLLO:**
 

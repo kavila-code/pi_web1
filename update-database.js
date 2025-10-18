@@ -17,7 +17,7 @@ const pool = new Pool({
 
 async function updateDatabase() {
   try {
-    console.log('🔄 Iniciando actualización de la base de datos...');
+    console.log('Iniciando actualización de la base de datos...');
     
     // Leer el archivo SQL de actualización
     const sqlFile = path.join(__dirname, 'database', 'update_delivery_applications.sql');
@@ -26,8 +26,8 @@ async function updateDatabase() {
     // Ejecutar las actualizaciones
     await pool.query(sql);
     
-    console.log('✅ Base de datos actualizada exitosamente');
-    console.log('📋 Nuevos campos agregados:');
+    console.log(' Base de datos actualizada exitosamente');
+    console.log(' Nuevos campos agregados:');
     console.log('   - Información personal completa');
     console.log('   - Datos de vehículo y licencia');
     console.log('   - Horarios de disponibilidad');
@@ -42,16 +42,16 @@ async function updateDatabase() {
       ORDER BY ordinal_position;
     `);
     
-    console.log('\n📊 Estructura actual de la tabla:');
+    console.log('\n Estructura actual de la tabla:');
     result.rows.forEach(col => {
       console.log(`   ${col.column_name}: ${col.data_type} (${col.is_nullable === 'YES' ? 'nullable' : 'not null'})`);
     });
     
   } catch (error) {
     if (error.message.includes('already exists') || error.message.includes('column already exists')) {
-      console.log('ℹ️  Las columnas ya existen en la base de datos');
+      console.log('Las columnas ya existen en la base de datos');
     } else {
-      console.error('❌ Error actualizando la base de datos:', error.message);
+      console.error('Error actualizando la base de datos:', error.message);
     }
   } finally {
     await pool.end();

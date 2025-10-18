@@ -64,20 +64,20 @@ async function testDeliveryApplication() {
   const token = await login();
   
   if (!token) {
-    console.error('❌ No se pudo obtener el token. Verifica las credenciales.');
+    console.error('No se pudo obtener el token. Verifica las credenciales.');
     return;
   }
   
-  console.log('✅ Login exitoso');
+  console.log('Login exitoso');
   
   // 2. Enviar solicitud de delivery
   console.log('2. Enviando solicitud de delivery...');
   const result = await submitDeliveryApplication(token);
   
   if (result && result.success) {
-    console.log('✅ Solicitud de delivery enviada exitosamente');
+    console.log('Solicitud de delivery enviada exitosamente');
   } else {
-    console.error('❌ Error enviando solicitud de delivery:', result);
+    console.error('Error enviando solicitud de delivery:', result);
   }
 }
 
