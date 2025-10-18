@@ -85,7 +85,7 @@
           </div>
           <div class="user-details">
             <p class="user-name" id="adminName">Admin</p>
-            <p class="user-role">Administrador</p>
+            <p class="user-role" id="adminRole">Administrador</p>
           </div>
         </div>
         <button class="btn-logout" onclick="logout()">
@@ -733,9 +733,28 @@
           return;
         }
 
-        // Mostrar nombre del admin
+        // Mostrar nombre y rol del usuario
         if (user.username) {
           document.getElementById("adminName").textContent = user.username;
+        }
+        if (user.role) {
+          let roleLabel = "";
+          switch (user.role) {
+            case "admin":
+              roleLabel = "Administrador";
+              break;
+            case "domiciliario":
+              roleLabel = "Domiciliario";
+              break;
+            case "cliente":
+            case "user":
+              roleLabel = "Cliente";
+              break;
+            default:
+              roleLabel = user.role;
+          }
+          const roleElem = document.getElementById("adminRole");
+          if (roleElem) roleElem.textContent = roleLabel;
         }
 
         // Cargar datos del dashboard

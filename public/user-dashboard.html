@@ -660,7 +660,7 @@
                 />
                 <h5 id="profileUserName">Usuario</h5>
                 <p id="profileUserEmail">email@ejemplo.com</p>
-                <span class="user-badge">Cliente</span>
+                <span class="user-badge" id="userRoleBadge">Cliente</span>
               </div>
 
               <div class="profile-stats">
@@ -1356,6 +1356,27 @@
           user.created_at
         );
 
+        // Mostrar el rol dinámicamente
+        if (user.role) {
+          let roleLabel = "";
+          switch (user.role) {
+            case "admin":
+              roleLabel = "Administrador";
+              break;
+            case "domiciliario":
+              roleLabel = "Domiciliario";
+              break;
+            case "cliente":
+            case "user":
+              roleLabel = "Cliente";
+              break;
+            default:
+              roleLabel = user.role;
+          }
+          const badge = document.getElementById("userRoleBadge");
+          if (badge) badge.textContent = roleLabel;
+        }
+
         // Cargar estadísticas mock
         document.getElementById("totalOrders").textContent = "8";
         document.getElementById("totalSpent").textContent = "$156";
@@ -1646,7 +1667,7 @@
         }
 
         statusContainer.innerHTML = `
-          <div class="alert alert-${statusClass} d-flex align-items-center" role="alert">
+          <div class="alert alert-${statusClass} d-flex align-items-center position-relative" role="alert">
             <i class="bi ${statusIcon} me-3" style="font-size: 1.5rem;"></i>
             <div class="flex-grow-1">
               <h5 class="alert-heading mb-2">${statusText}</h5>
@@ -1654,15 +1675,20 @@
             </div>
             ${
               status === "rechazada"
-                ? `
-              <button class="btn btn-outline-${statusClass} btn-sm ms-3" onclick="reapplyDelivery()">
-                Aplicar de Nuevo
-              </button>
-            `
+                ? `<button class="btn btn-outline-${statusClass} btn-sm ms-3" onclick="reapplyDelivery()">Aplicar de Nuevo</button>`
                 : ""
             }
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Cerrar" onclick="closeApplicationStatusAlert()"></button>
           </div>
         `;
+
+        // Add close function globally if not present
+        if (typeof window.closeApplicationStatusAlert !== "function") {
+          window.closeApplicationStatusAlert = function () {
+            const el = document.getElementById("applicationStatusContainer");
+            if (el) el.style.display = "none";
+          };
+        }
 
         statusContainer.style.display = "block";
       }
