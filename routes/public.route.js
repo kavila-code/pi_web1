@@ -36,6 +36,11 @@ router.get('/user-dashboard', (req, res) => {
     res.sendFile(path.join(publicPath, 'user-dashboard.html'));
 });
 
+// Delivery (Domiciliario) Dashboard
+router.get('/delivery-dashboard', (req, res) => {
+    res.sendFile(path.join(publicPath, 'delivery-dashboard.html'));
+});
+
 // User Inicio
 router.get('/user-inicio', (req, res) => {
     res.sendFile(path.join(publicPath, 'user-inicio.html'));

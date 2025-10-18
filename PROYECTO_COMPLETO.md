@@ -3,11 +3,15 @@
 ## 🎯 **INFORMACIÓN GENERAL**
 
 ### **Proyecto:** DomiTulua - Plataforma de Solicitudes para Domiciliarios
+
 ### **Tipo:** Aplicación Web Full-Stack
+
 ### **Universidad:** UCEVA (Unidad Central del Valle)
+
 ### **Asignatura:** Desarrollo en Ambientes Web I y Bases de Datos
 
 ### **Integrantes:**
+
 - Kelly Ávila - 230241031
 - Cristian Hoyos - 230241038
 - Juan Fernando Ramirez - 230241041
@@ -18,6 +22,7 @@
 ## 🛠️ **STACK TECNOLÓGICO**
 
 ### **Backend:**
+
 - **Node.js** v22.18.0 con ES6 modules
 - **Express.js** v5.1.0 (Framework web)
 - **PostgreSQL** (Base de datos)
@@ -26,6 +31,7 @@
 - **Bcrypt** (Encriptación de contraseñas)
 
 ### **Frontend:**
+
 - **HTML5** semántico
 - **CSS3** con Flexbox/Grid
 - **Bootstrap 5.3.0** (Framework CSS)
@@ -34,6 +40,7 @@
 - **Bootstrap Icons** (Iconografía)
 
 ### **Herramientas de Desarrollo:**
+
 - **Nodemon** (Desarrollo en tiempo real)
 - **Git/GitHub** (Control de versiones)
 - **VS Code** (Editor)
@@ -92,9 +99,10 @@ pi_web/
 ### **Tablas Principales:**
 
 #### **1. users**
+
 ```sql
 - uid (Primary Key)
-- username 
+- username
 - email
 - password (encriptada)
 - role (user/admin/domiciliario)
@@ -102,6 +110,7 @@ pi_web/
 ```
 
 #### **2. delivery_applications**
+
 ```sql
 - id (Primary Key)
 - user_id (Foreign Key → users.uid)
@@ -133,6 +142,7 @@ pi_web/
 ## 🎨 **FUNCIONALIDADES IMPLEMENTADAS**
 
 ### **👤 Sistema de Usuarios:**
+
 - ✅ Registro de usuarios con validación
 - ✅ Login con JWT tokens
 - ✅ Roles (user, admin, domiciliario)
@@ -140,6 +150,7 @@ pi_web/
 - ✅ Middleware de autorización por roles
 
 ### **📝 Sistema de Solicitudes:**
+
 - ✅ **Formulario multi-paso (4 etapas):**
   1. **Información Personal:** Nombres, teléfono, dirección, documento
   2. **Datos de Transporte:** Vehículo, licencia, información técnica
@@ -147,6 +158,7 @@ pi_web/
   4. **Documentos:** Carga de CV, cédula, licencia
 
 ### **📂 Sistema de Archivos:**
+
 - ✅ Upload de documentos con Multer
 - ✅ Validación de tipos de archivo (PDF, DOC, DOCX, JPG, PNG)
 - ✅ Límite de tamaño (5MB por archivo)
@@ -154,7 +166,9 @@ pi_web/
 - ✅ Organización por carpetas con fecha
 
 ### **👨‍💼 Panel Administrativo:**
+
 - ✅ **Dashboard completo con:**
+
   - Estadísticas en tiempo real
   - Gráficos con Chart.js
   - Actividad reciente
@@ -169,13 +183,16 @@ pi_web/
   - Sistema de notificaciones
 
 ### **🔍 Funcionalidades Avanzadas:**
+
 - ✅ **Vista previa de documentos:**
+
   - PDFs con iframe
   - Imágenes con zoom
   - Manejo de errores robusto
   - Enlaces de descarga directa
 
 - ✅ **Sistema de notificaciones:**
+
   - Toast notifications con Bootstrap
   - Diferentes tipos (success, warning, error)
   - Auto-dismiss configurable
@@ -191,11 +208,13 @@ pi_web/
 ## 🚀 **APIs IMPLEMENTADAS**
 
 ### **Autenticación:**
+
 - `POST /api/v1/users/register` - Registro de usuarios
 - `POST /api/v1/users/login` - Inicio de sesión
 - `GET /api/v1/users/profile` - Perfil del usuario
 
 ### **Solicitudes de Domiciliarios:**
+
 - `POST /api/v1/delivery-applications/apply` - Crear solicitud
 - `GET /api/v1/delivery-applications/my-application` - Ver mi solicitud
 - `GET /api/v1/delivery-applications/all` - Ver todas (admin)
@@ -205,6 +224,7 @@ pi_web/
 - `DELETE /api/v1/delivery-applications/:id` - Eliminar solicitud (admin)
 
 ### **Archivos Estáticos:**
+
 - `/uploads/delivery-applications/*` - Servir documentos subidos
 - `/frontend/*` - CSS y assets
 - `/public/*` - Páginas HTML
@@ -226,6 +246,7 @@ pi_web/
 ## 🎯 **CARACTERÍSTICAS DESTACADAS**
 
 ### **🎨 UI/UX:**
+
 - **Diseño responsivo** con Bootstrap 5
 - **Interfaz moderna** con gradientes y animaciones
 - **Formulario multi-paso** con progreso visual
@@ -233,12 +254,14 @@ pi_web/
 - **Notificaciones en tiempo real**
 
 ### **⚡ Performance:**
+
 - **Carga asíncrona** de datos
 - **Lazy loading** para documentos
 - **Optimización de consultas** SQL
 - **Compresión de archivos**
 
 ### **🔧 Mantenibilidad:**
+
 - **Arquitectura MVC** bien definida
 - **Código modular** y reutilizable
 - **Comentarios documentados**
@@ -260,6 +283,7 @@ pi_web/
 ## 🚀 **ESTADO ACTUAL**
 
 ### **✅ COMPLETADO:**
+
 - [x] Sistema completo de autenticación
 - [x] Formulario multi-paso para solicitudes
 - [x] Panel administrativo funcional
@@ -270,12 +294,14 @@ pi_web/
 - [x] UI/UX profesional
 
 ### **🔄 EN DESARROLLO:**
+
 - Módulo de gestión de pedidos
 - Sistema de restaurantes
 - Reportes avanzados
 - Notificaciones por email
 
 ### **💡 FUTURAS MEJORAS:**
+
 - Implementar sistema de geolocalización
 - Agregar chat en tiempo real
 - Sistema de calificaciones
