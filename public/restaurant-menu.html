@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menú - DomiTulua</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <style>
+      .restaurant-header-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+      }
+
+      .restaurant-logo-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .product-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+      }
+
+      .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .product-image {
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
+      }
+
+      .product-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+
+      .badge-vegetarian {
+        background: #10b981;
+        color: white;
+      }
+
+      .badge-vegan {
+        background: #22c55e;
+        color: white;
+      }
+
+      .price-tag {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .add-to-cart-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 8px 20px;
+        transition: transform 0.3s;
+      }
+
+      .add-to-cart-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .category-nav {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px 0;
+      }
+
+      .category-link {
+        color: #666;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        transition: all 0.3s;
+        display: inline-block;
+      }
+
+      .category-link:hover,
+      .category-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .cart-float-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        cursor: pointer;
+        transition: transform 0.3s;
+        z-index: 1000;
+      }
+
+      .cart-float-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .cart-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4757;
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .unavailable-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark"
+      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/public/restaurants.html">
+          <i class="bi bi-arrow-left"></i> Volver a Restaurantes
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/public/my-orders.html">
+                <i class="bi bi-bag"></i> Mis Pedidos
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Restaurant Header -->
+    <div class="restaurant-header-section" id="restaurantHeader">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-auto">
+            <img
+              id="restaurantLogo"
+              src="https://via.placeholder.com/100"
+              class="restaurant-logo-large"
+              alt="Logo"
+            />
+          </div>
+          <div class="col">
+            <h2 class="fw-bold mb-2" id="restaurantName">Cargando...</h2>
+            <p class="mb-2" id="restaurantDescription"></p>
+            <div class="d-flex gap-4">
+              <span
+                ><i class="bi bi-star-fill"></i>
+                <span id="restaurantRating">0</span></span
+              >
+              <span
+                ><i class="bi bi-clock"></i>
+                <span id="restaurantTime">30-45 min</span></span
+              >
+              <span
+                ><i class="bi bi-currency-dollar"></i> $<span id="restaurantFee"
+                  >0</span
+                >
+                domicilio</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Navigation -->
+    <div class="category-nav" id="categoryNav" style="display: none">
+      <div class="container">
+        <div class="d-flex gap-2 flex-wrap" id="categoriesMenu">
+          <!-- Se llenará dinámicamente -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+      <!-- Search Products -->
+      <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+          <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              id="searchProducts"
+              class="form-control border-start-0"
+              placeholder="Buscar en el menú..."
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="mb-4">
+        <div class="btn-group" role="group">
+          <input type="checkbox" class="btn-check" id="filterVegetarian" />
+          <label class="btn btn-outline-success" for="filterVegetarian">
+            <i class="bi bi-leaf"></i> Vegetariano
+          </label>
+
+          <input type="checkbox" class="btn-check" id="filterVegan" />
+          <label class="btn btn-outline-success" for="filterVegan">
+            <i class="bi bi-flower1"></i> Vegano
+          </label>
+        </div>
+      </div>
+
+      <!-- Products by Category -->
+      <div id="productsContainer">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3 text-muted">Cargando menú...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <div class="cart-float-btn" onclick="goToCart()">
+      <i class="bi bi-cart3"></i>
+      <span class="cart-badge" id="cartBadge" style="display: none">0</span>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div
+          class="modal-content border-0 shadow-lg"
+          style="border-radius: 20px"
+        >
+          <div class="modal-body p-0">
+            <button
+              type="button"
+              class="btn-close position-absolute top-0 end-0 m-3"
+              data-bs-dismiss="modal"
+              style="z-index: 10"
+            ></button>
+            <img
+              id="modalProductImage"
+              src=""
+              class="w-100"
+              style="
+                height: 250px;
+                object-fit: cover;
+                border-radius: 20px 20px 0 0;
+              "
+              alt="Producto"
+            />
+            <div class="p-4">
+              <h4 class="fw-bold mb-2" id="modalProductName"></h4>
+              <p class="text-muted mb-3" id="modalProductDescription"></p>
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
+              >
+                <span class="price-tag" id="modalProductPrice">$0</span>
+                <div id="modalProductBadges"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold"
+                  >Instrucciones especiales (opcional)</label
+                >
+                <textarea
+                  id="specialInstructions"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Ej: Sin cebolla, sin picante..."
+                ></textarea>
+              </div>
+              <div
+                class="d-flex align-items-center justify-content-between mb-4"
+              >
+                <label class="fw-bold">Cantidad:</label>
+                <div class="btn-group" role="group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="decreaseQuantity()"
+                  >
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    disabled
+                  >
+                    <span id="modalQuantity">1</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="increaseQuantity()"
+                  >
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <button
+                class="btn add-to-cart-btn w-100 py-3"
+                onclick="addToCart()"
+              >
+                <i class="bi bi-cart-plus me-2"></i>
+                Agregar al carrito - $<span id="modalTotalPrice">0</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="successToast"
+        class="toast align-items-center text-white bg-success border-0"
+        role="alert"
+      >
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="bi bi-check-circle me-2"></i>
+            <span id="toastMessage"></span>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let restaurant = null;
+      let allProducts = [];
+      let selectedProduct = null;
+      let modalQuantity = 1;
+      let restaurantId = null;
+
+      // Verificar autenticación y obtener ID del restaurante
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/login.html";
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      restaurantId = urlParams.get("id");
+
+      if (!restaurantId) {
+        alert("Restaurante no especificado");
+        window.location.href = "/public/restaurants.html";
+      }
+
+      // Cargar datos al iniciar
+      document.addEventListener("DOMContentLoaded", () => {
+        loadRestaurant();
+        updateCartBadge();
+
+        // Event listeners
+        document
+          .getElementById("searchProducts")
+          .addEventListener("input", filterProducts);
+        document
+          .getElementById("filterVegetarian")
+          .addEventListener("change", filterProducts);
+        document
+          .getElementById("filterVegan")
+          .addEventListener("change", filterProducts);
+      });
+
+      // Cargar datos del restaurante
+      async function loadRestaurant() {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/v1/restaurants/${restaurantId}`
+          );
+          const data = await response.json();
+
+          if (data.ok) {
+            restaurant = data.data;
+            renderRestaurantHeader();
+            loadProducts();
+          } else {
+            alert("Error al cargar el restaurante");
+            window.location.href = "/public/restaurants.html";
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error al cargar el restaurante");
+          window.location.href = "/public/restaurants.html";
+        }
+      }
+
+      // Renderizar header del restaurante
+      function renderRestaurantHeader() {
+        document.getElementById("restaurantLogo").src =
+          restaurant.logo_url || "https://via.placeholder.com/100";
+        document.getElementById("restaurantName").textContent = restaurant.name;
+        document.getElementById("restaurantDescription").textContent =
+          restaurant.description || "";
+        document.getElementById("restaurantRating").textContent =
+          restaurant.rating || "0";
+        document.getElementById("restaurantTime").textContent =
+          restaurant.delivery_time || "30-45 min";
+        document.getElementById("restaurantFee").textContent = (
+          restaurant.delivery_fee || 0
+        ).toLocaleString();
+        document.title = `${restaurant.name} - DomiTulua`;
+      }
+
+      // Cargar productos
+      async function loadProducts() {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/v1/restaurants/${restaurantId}/products`
+          );
+          const data = await response.json();
+
+          if (data.ok) {
+            allProducts = data.data;
+            loadCategories();
+            renderProducts();
+          } else {
+            document.getElementById("productsContainer").innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
+                            <p class="mt-3 text-muted">No hay productos disponibles</p>
+                        </div>
+                    `;
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Cargar categorías
+      async function loadCategories() {
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/v1/restaurants/${restaurantId}/products/categories`
+          );
+          const data = await response.json();
+
+          if (data.ok && data.data.length > 0) {
+            const container = document.getElementById("categoriesMenu");
+            container.innerHTML = `
+                        <a href="#all" class="category-link active" onclick="scrollToCategory(event, 'all')">
+                            <i class="bi bi-grid"></i> Todos
+                        </a>
+                    `;
+
+            data.data.forEach((cat) => {
+              const link = document.createElement("a");
+              link.href = `#${cat.category}`;
+              link.className = "category-link";
+              link.textContent = cat.category;
+              link.onclick = (e) => scrollToCategory(e, cat.category);
+              container.appendChild(link);
+            });
+
+            document.getElementById("categoryNav").style.display = "block";
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Scroll a categoría
+      function scrollToCategory(e, category) {
+        e.preventDefault();
+        document
+          .querySelectorAll(".category-link")
+          .forEach((link) => link.classList.remove("active"));
+        e.target.classList.add("active");
+
+        if (category === "all") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          const element = document.getElementById(`category-${category}`);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      }
+
+      // Renderizar productos
+      function renderProducts() {
+        const container = document.getElementById("productsContainer");
+
+        // Agrupar por categoría
+        const byCategory = allProducts.reduce((acc, product) => {
+          if (!acc[product.category]) {
+            acc[product.category] = [];
+          }
+          acc[product.category].push(product);
+          return acc;
+        }, {});
+
+        container.innerHTML = Object.entries(byCategory)
+          .map(
+            ([category, products]) => `
+                <div class="mb-5" id="category-${category}">
+                    <h4 class="fw-bold mb-4">${category}</h4>
+                    <div class="row g-4">
+                        ${products
+                          .map(
+                            (product) => `
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card product-card border-0 shadow-sm ${
+                                  !product.is_available
+                                    ? "position-relative"
+                                    : ""
+                                }" 
+                                     onclick="${
+                                       product.is_available
+                                         ? `openProductModal(${product.id})`
+                                         : ""
+                                     }">
+                                    <div class="position-relative">
+                                        <img src="${
+                                          product.image_url ||
+                                          "https://via.placeholder.com/300x180?text=Producto"
+                                        }" 
+                                             class="product-image" alt="${
+                                               product.name
+                                             }">
+                                        ${
+                                          product.is_vegetarian
+                                            ? '<span class="product-badge badge-vegetarian"><i class="bi bi-leaf"></i> Vegetariano</span>'
+                                            : ""
+                                        }
+                                        ${
+                                          product.is_vegan
+                                            ? '<span class="product-badge badge-vegan"><i class="bi bi-flower1"></i> Vegano</span>'
+                                            : ""
+                                        }
+                                        ${
+                                          !product.is_available
+                                            ? '<div class="unavailable-overlay">No Disponible</div>'
+                                            : ""
+                                        }
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">${
+                                          product.name
+                                        }</h5>
+                                        <p class="text-muted small">${
+                                          product.description ||
+                                          "Delicioso producto"
+                                        }</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="price-tag">$${product.price.toLocaleString()}</span>
+                                            ${
+                                              product.is_available
+                                                ? `
+                                                <button class="btn add-to-cart-btn" onclick="event.stopPropagation(); quickAddToCart(${product.id})">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            `
+                                                : ""
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                          )
+                          .join("")}
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Filtrar productos
+      function filterProducts() {
+        const search = document
+          .getElementById("searchProducts")
+          .value.toLowerCase();
+        const vegetarian = document.getElementById("filterVegetarian").checked;
+        const vegan = document.getElementById("filterVegan").checked;
+
+        let filtered = [...allProducts];
+
+        if (search) {
+          filtered = filtered.filter(
+            (p) =>
+              p.name.toLowerCase().includes(search) ||
+              p.description?.toLowerCase().includes(search)
+          );
+        }
+
+        if (vegetarian) {
+          filtered = filtered.filter((p) => p.is_vegetarian);
+        }
+
+        if (vegan) {
+          filtered = filtered.filter((p) => p.is_vegan);
+        }
+
+        // Re-renderizar con productos filtrados
+        allProducts = filtered;
+        renderProducts();
+      }
+
+      // Abrir modal de producto
+      function openProductModal(productId) {
+        selectedProduct = allProducts.find((p) => p.id === productId);
+        if (!selectedProduct) return;
+
+        modalQuantity = 1;
+
+        document.getElementById("modalProductImage").src =
+          selectedProduct.image_url || "https://via.placeholder.com/300";
+        document.getElementById("modalProductName").textContent =
+          selectedProduct.name;
+        document.getElementById("modalProductDescription").textContent =
+          selectedProduct.description || "";
+        document.getElementById("modalProductPrice").textContent =
+          selectedProduct.price.toLocaleString();
+        document.getElementById("modalQuantity").textContent = "1";
+        document.getElementById("modalTotalPrice").textContent =
+          selectedProduct.price.toLocaleString();
+        document.getElementById("specialInstructions").value = "";
+
+        // Badges
+        const badges = [];
+        if (selectedProduct.is_vegetarian)
+          badges.push('<span class="badge bg-success">Vegetariano</span>');
+        if (selectedProduct.is_vegan)
+          badges.push('<span class="badge bg-success">Vegano</span>');
+        document.getElementById("modalProductBadges").innerHTML =
+          badges.join(" ");
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("productModal")
+        );
+        modal.show();
+      }
+
+      // Aumentar cantidad
+      function increaseQuantity() {
+        modalQuantity++;
+        updateModalPrice();
+      }
+
+      // Disminuir cantidad
+      function decreaseQuantity() {
+        if (modalQuantity > 1) {
+          modalQuantity--;
+          updateModalPrice();
+        }
+      }
+
+      // Actualizar precio en modal
+      function updateModalPrice() {
+        document.getElementById("modalQuantity").textContent = modalQuantity;
+        const total = selectedProduct.price * modalQuantity;
+        document.getElementById("modalTotalPrice").textContent =
+          total.toLocaleString();
+      }
+
+      // Agregar al carrito desde modal
+      function addToCart() {
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const specialInstructions = document
+          .getElementById("specialInstructions")
+          .value.trim();
+
+        // Verificar si el producto es del mismo restaurante
+        if (cart.length > 0 && cart[0].restaurant_id !== restaurantId) {
+          if (
+            !confirm(
+              "Tu carrito tiene productos de otro restaurante. ¿Deseas vaciarlo y agregar este producto?"
+            )
+          ) {
+            return;
+          }
+          localStorage.setItem("cart", "[]");
+          cart.length = 0;
+        }
+
+        // Buscar si ya existe
+        const existingIndex = cart.findIndex(
+          (item) =>
+            item.product_id === selectedProduct.id &&
+            item.special_instructions === specialInstructions
+        );
+
+        if (existingIndex >= 0) {
+          cart[existingIndex].quantity += modalQuantity;
+        } else {
+          cart.push({
+            product_id: selectedProduct.id,
+            product_name: selectedProduct.name,
+            product_price: selectedProduct.price,
+            product_image: selectedProduct.image_url,
+            quantity: modalQuantity,
+            special_instructions: specialInstructions || null,
+            restaurant_id: restaurantId,
+            restaurant_name: restaurant.name,
+          });
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartBadge();
+        showToast(`${selectedProduct.name} agregado al carrito`);
+
+        bootstrap.Modal.getInstance(
+          document.getElementById("productModal")
+        ).hide();
+      }
+
+      // Agregar rápido al carrito (sin modal)
+      function quickAddToCart(productId) {
+        const product = allProducts.find((p) => p.id === productId);
+        if (!product) return;
+
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+        // Verificar restaurante
+        if (cart.length > 0 && cart[0].restaurant_id !== restaurantId) {
+          openProductModal(productId);
+          return;
+        }
+
+        const existingIndex = cart.findIndex(
+          (item) => item.product_id === productId && !item.special_instructions
+        );
+
+        if (existingIndex >= 0) {
+          cart[existingIndex].quantity += 1;
+        } else {
+          cart.push({
+            product_id: product.id,
+            product_name: product.name,
+            product_price: product.price,
+            product_image: product.image_url,
+            quantity: 1,
+            special_instructions: null,
+            restaurant_id: restaurantId,
+            restaurant_name: restaurant.name,
+          });
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartBadge();
+        showToast(`${product.name} agregado al carrito`);
+      }
+
+      // Actualizar badge del carrito
+      function updateCartBadge() {
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const badge = document.getElementById("cartBadge");
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+        if (totalItems > 0) {
+          badge.textContent = totalItems;
+          badge.style.display = "flex";
+        } else {
+          badge.style.display = "none";
+        }
+      }
+
+      // Ir al carrito
+      function goToCart() {
+        window.location.href = "/public/cart.html";
+      }
+
+      // Mostrar toast
+      function showToast(message) {
+        document.getElementById("toastMessage").textContent = message;
+        const toast = new bootstrap.Toast(
+          document.getElementById("successToast")
+        );
+        toast.show();
+      }
+    </script>
+  </body>
+</html>

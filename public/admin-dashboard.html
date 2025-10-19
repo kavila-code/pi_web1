@@ -153,10 +153,10 @@
                   <i class="bi bi-people"></i>
                 </div>
                 <div class="stat-content">
-                  <h3 id="totalUsers">1,234</h3>
+                  <h3 id="totalUsers">...</h3>
                   <p>Total Usuarios</p>
-                  <span class="stat-trend positive">
-                    <i class="bi bi-arrow-up"></i> +12% este mes
+                  <span class="stat-trend positive" id="usersTrend">
+                    <i class="bi bi-arrow-up"></i>
                   </span>
                 </div>
               </div>
@@ -166,10 +166,10 @@
                   <i class="bi bi-cart-check"></i>
                 </div>
                 <div class="stat-content">
-                  <h3 id="totalOrders">5,678</h3>
+                  <h3 id="totalOrders">...</h3>
                   <p>Pedidos Totales</p>
-                  <span class="stat-trend positive">
-                    <i class="bi bi-arrow-up"></i> +8% esta semana
+                  <span class="stat-trend positive" id="ordersTrend">
+                    <i class="bi bi-arrow-up"></i>
                   </span>
                 </div>
               </div>
@@ -179,10 +179,10 @@
                   <i class="bi bi-shop"></i>
                 </div>
                 <div class="stat-content">
-                  <h3 id="totalRestaurants">89</h3>
+                  <h3 id="totalRestaurants">...</h3>
                   <p>Restaurantes</p>
-                  <span class="stat-trend positive">
-                    <i class="bi bi-arrow-up"></i> +3 nuevos
+                  <span class="stat-trend positive" id="restaurantsTrend">
+                    <i class="bi bi-arrow-up"></i>
                   </span>
                 </div>
               </div>
@@ -192,10 +192,10 @@
                   <i class="bi bi-currency-dollar"></i>
                 </div>
                 <div class="stat-content">
-                  <h3 id="totalRevenue">$45,890</h3>
+                  <h3 id="totalRevenue">...</h3>
                   <p>Ingresos del Mes</p>
-                  <span class="stat-trend positive">
-                    <i class="bi bi-arrow-up"></i> +15% vs mes anterior
+                  <span class="stat-trend positive" id="revenueTrend">
+                    <i class="bi bi-arrow-up"></i>
                   </span>
                 </div>
               </div>
@@ -777,7 +777,7 @@
         }
       });
 
-      // Función para cargar datos del dashboard
+      // Función para cargar datos del dashboard (usuarios, pedidos, restaurantes, ingresos)
       async function loadDashboardData() {
         try {
           const token = localStorage.getItem("token");
@@ -801,17 +801,34 @@
         }
       }
 
-      // Función para actualizar las estadísticas
+      // Actualiza las tarjetas de estadísticas con datos reales
       function updateDashboardStats(stats) {
         document.getElementById("totalUsers").textContent =
-          stats.totalUsers.toLocaleString();
+          stats.totalUsers?.toLocaleString() ?? "0";
         document.getElementById("totalOrders").textContent =
-          stats.totalOrders.toLocaleString();
+          stats.totalOrders?.toLocaleString() ?? "0";
         document.getElementById("totalRestaurants").textContent =
-          stats.totalRestaurants;
-        document.getElementById(
-          "totalRevenue"
-        ).textContent = `$${stats.totalRevenue.toLocaleString()}`;
+          stats.totalRestaurants ?? "0";
+        document.getElementById("totalRevenue").textContent = `$${
+          stats.totalRevenue?.toLocaleString() ?? "0"
+        }`;
+        // Si el backend provee tendencias, puedes mostrarlas aquí:
+        if (stats.usersTrend)
+          document.getElementById(
+            "usersTrend"
+          ).innerHTML = `<i class='bi bi-arrow-up'></i> ${stats.usersTrend}`;
+        if (stats.ordersTrend)
+          document.getElementById(
+            "ordersTrend"
+          ).innerHTML = `<i class='bi bi-arrow-up'></i> ${stats.ordersTrend}`;
+        if (stats.restaurantsTrend)
+          document.getElementById(
+            "restaurantsTrend"
+          ).innerHTML = `<i class='bi bi-arrow-up'></i> ${stats.restaurantsTrend}`;
+        if (stats.revenueTrend)
+          document.getElementById(
+            "revenueTrend"
+          ).innerHTML = `<i class='bi bi-arrow-up'></i> ${stats.revenueTrend}`;
       }
 
       // Función para inicializar el gráfico

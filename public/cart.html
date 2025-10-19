@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrito - DomiTulua</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <style>
+      .cart-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+      }
+
+      .cart-item {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+      }
+
+      .cart-item:hover {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .cart-item-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+
+      .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .quantity-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: 2px solid #667eea;
+        background: white;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .quantity-btn:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .quantity-display {
+        font-weight: bold;
+        font-size: 1.1rem;
+        min-width: 30px;
+        text-align: center;
+      }
+
+      .summary-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 20px;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .summary-row:last-child {
+        border-bottom: none;
+      }
+
+      .total-row {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #667eea;
+      }
+
+      .checkout-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        width: 100%;
+        margin-top: 20px;
+        transition: transform 0.3s;
+      }
+
+      .checkout-btn:hover {
+        transform: scale(1.02);
+      }
+
+      .empty-cart {
+        text-align: center;
+        padding: 80px 20px;
+      }
+
+      .empty-cart-icon {
+        font-size: 5rem;
+        color: #ddd;
+      }
+
+      .delete-btn {
+        color: #dc3545;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+
+      .delete-btn:hover {
+        color: #a71d2a;
+      }
+
+      .restaurant-info-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .special-instructions {
+        font-size: 0.9rem;
+        color: #666;
+        font-style: italic;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark"
+      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/public/restaurants.html">
+          <i class="bi bi-arrow-left"></i> Seguir Comprando
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/public/my-orders.html">
+                <i class="bi bi-bag"></i> Mis Pedidos
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="cart-header">
+      <div class="container">
+        <h1 class="display-5 fw-bold">
+          <i class="bi bi-cart3"></i> Tu Carrito
+        </h1>
+        <p class="lead mb-0" id="itemsCount">0 productos</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+      <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+          <!-- Restaurant Info -->
+          <div
+            id="restaurantInfo"
+            class="restaurant-info-card"
+            style="display: none"
+          >
+            <div class="d-flex align-items-center">
+              <i class="bi bi-shop fs-3 me-3 text-primary"></i>
+              <div>
+                <h5 class="mb-0 fw-bold" id="restaurantName"></h5>
+                <small class="text-muted"
+                  >Todos los productos son de este restaurante</small
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Cart Items Container -->
+          <div id="cartItems">
+            <!-- Se llenará dinámicamente -->
+          </div>
+
+          <!-- Empty Cart -->
+          <div id="emptyCart" class="empty-cart" style="display: none">
+            <i class="bi bi-cart-x empty-cart-icon"></i>
+            <h3 class="mt-4">Tu carrito está vacío</h3>
+            <p class="text-muted">
+              ¡Agrega productos desde nuestros restaurantes!
+            </p>
+            <a
+              href="/public/restaurants.html"
+              class="btn btn-primary btn-lg mt-3"
+            >
+              <i class="bi bi-shop me-2"></i>Ver Restaurantes
+            </a>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="col-lg-4">
+          <div class="summary-card" id="summaryCard" style="display: none">
+            <h4 class="fw-bold mb-4">Resumen del Pedido</h4>
+
+            <div class="summary-row">
+              <span
+                >Subtotal (<span id="summaryItemsCount">0</span>
+                productos)</span
+              >
+              <span class="fw-bold">$<span id="subtotal">0</span></span>
+            </div>
+
+            <div class="summary-row">
+              <span> <i class="bi bi-truck"></i> Costo de domicilio </span>
+              <span class="fw-bold">$<span id="deliveryFee">0</span></span>
+            </div>
+
+            <div class="summary-row">
+              <span> <i class="bi bi-receipt"></i> IVA (19%) </span>
+              <span class="fw-bold">$<span id="tax">0</span></span>
+            </div>
+
+            <div class="summary-row">
+              <span>Descuento</span>
+              <span class="fw-bold text-success"
+                >-$<span id="discount">0</span></span
+              >
+            </div>
+
+            <div class="summary-row total-row">
+              <span>Total</span>
+              <span>$<span id="total">0</span></span>
+            </div>
+
+            <div
+              id="minimumOrderWarning"
+              class="alert alert-warning mt-3"
+              style="display: none"
+            >
+              <i class="bi bi-exclamation-triangle"></i>
+              <small>Pedido mínimo: $<span id="minimumOrder">0</span></small>
+            </div>
+
+            <button
+              class="checkout-btn"
+              onclick="goToCheckout()"
+              id="checkoutBtn"
+            >
+              <i class="bi bi-check-circle me-2"></i>
+              Proceder al Pago
+            </button>
+
+            <button
+              class="btn btn-outline-danger w-100 mt-2"
+              onclick="clearCart()"
+            >
+              <i class="bi bi-trash me-2"></i>
+              Vaciar Carrito
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="successToast"
+        class="toast align-items-center text-white bg-success border-0"
+        role="alert"
+      >
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="bi bi-check-circle me-2"></i>
+            <span id="toastMessage"></span>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let cart = [];
+      let restaurant = null;
+
+      // Verificar autenticación
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/login.html";
+      }
+
+      // Cargar carrito al iniciar
+      document.addEventListener("DOMContentLoaded", () => {
+        loadCart();
+      });
+
+      // Cargar carrito
+      function loadCart() {
+        cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+        if (cart.length === 0) {
+          showEmptyCart();
+        } else {
+          loadRestaurantInfo();
+          renderCart();
+          calculateTotals();
+        }
+      }
+
+      // Cargar información del restaurante
+      async function loadRestaurantInfo() {
+        if (cart.length === 0) return;
+
+        const restaurantId = cart[0].restaurant_id;
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/v1/restaurants/${restaurantId}`
+          );
+          const data = await response.json();
+
+          if (data.ok) {
+            restaurant = data.data;
+            document.getElementById("restaurantName").textContent =
+              restaurant.name;
+            document.getElementById("restaurantInfo").style.display = "block";
+          }
+        } catch (error) {
+          console.error("Error al cargar restaurante:", error);
+        }
+      }
+
+      // Renderizar carrito
+      function renderCart() {
+        const container = document.getElementById("cartItems");
+        const emptyCart = document.getElementById("emptyCart");
+        const summaryCard = document.getElementById("summaryCard");
+
+        if (cart.length === 0) {
+          showEmptyCart();
+          return;
+        }
+
+        emptyCart.style.display = "none";
+        summaryCard.style.display = "block";
+
+        container.innerHTML = cart
+          .map(
+            (item, index) => `
+                <div class="cart-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 mb-3 mb-md-0">
+                            <img src="${
+                              item.product_image ||
+                              "https://via.placeholder.com/100"
+                            }" 
+                                 class="cart-item-image" alt="${
+                                   item.product_name
+                                 }">
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <h5 class="fw-bold mb-1">${item.product_name}</h5>
+                            <p class="text-muted mb-0">$${item.product_price.toLocaleString()} c/u</p>
+                            ${
+                              item.special_instructions
+                                ? `
+                                <p class="special-instructions mb-0">
+                                    <i class="bi bi-chat-left-text"></i> ${item.special_instructions}
+                                </p>
+                            `
+                                : ""
+                            }
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="quantity-controls">
+                                <div class="quantity-btn" onclick="decreaseQuantity(${index})">
+                                    <i class="bi bi-dash"></i>
+                                </div>
+                                <span class="quantity-display">${
+                                  item.quantity
+                                }</span>
+                                <div class="quantity-btn" onclick="increaseQuantity(${index})">
+                                    <i class="bi bi-plus"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-3 mb-md-0 text-end">
+                            <h5 class="fw-bold text-primary mb-0">
+                                $${(
+                                  item.product_price * item.quantity
+                                ).toLocaleString()}
+                            </h5>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <i class="bi bi-trash fs-5 delete-btn" onclick="removeItem(${index})"></i>
+                        </div>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+
+        // Actualizar contador
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById(
+          "itemsCount"
+        ).textContent = `${totalItems} producto${totalItems !== 1 ? "s" : ""}`;
+      }
+
+      // Aumentar cantidad
+      function increaseQuantity(index) {
+        cart[index].quantity++;
+        saveCart();
+        renderCart();
+        calculateTotals();
+        showToast("Cantidad actualizada");
+      }
+
+      // Disminuir cantidad
+      function decreaseQuantity(index) {
+        if (cart[index].quantity > 1) {
+          cart[index].quantity--;
+          saveCart();
+          renderCart();
+          calculateTotals();
+          showToast("Cantidad actualizada");
+        } else {
+          removeItem(index);
+        }
+      }
+
+      // Eliminar item
+      function removeItem(index) {
+        if (confirm("¿Deseas eliminar este producto del carrito?")) {
+          const itemName = cart[index].product_name;
+          cart.splice(index, 1);
+          saveCart();
+          renderCart();
+          calculateTotals();
+          showToast(`${itemName} eliminado del carrito`);
+
+          if (cart.length === 0) {
+            showEmptyCart();
+          }
+        }
+      }
+
+      // Vaciar carrito
+      function clearCart() {
+        if (confirm("¿Estás seguro de que deseas vaciar el carrito?")) {
+          cart = [];
+          saveCart();
+          showEmptyCart();
+          showToast("Carrito vaciado");
+        }
+      }
+
+      // Calcular totales
+      function calculateTotals() {
+        const subtotal = cart.reduce(
+          (sum, item) => sum + item.product_price * item.quantity,
+          0
+        );
+        const deliveryFee = restaurant?.delivery_fee || 3000;
+        const tax = Math.round(subtotal * 0.19);
+        const discount = 0; // Implementar lógica de descuentos si es necesario
+        const total = subtotal + deliveryFee + tax - discount;
+
+        // Actualizar UI
+        document.getElementById("summaryItemsCount").textContent = cart.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        document.getElementById("subtotal").textContent =
+          subtotal.toLocaleString();
+        document.getElementById("deliveryFee").textContent =
+          deliveryFee.toLocaleString();
+        document.getElementById("tax").textContent = tax.toLocaleString();
+        document.getElementById("discount").textContent =
+          discount.toLocaleString();
+        document.getElementById("total").textContent = total.toLocaleString();
+
+        // Verificar pedido mínimo
+        const minimumOrder = restaurant?.minimum_order || 0;
+        const warning = document.getElementById("minimumOrderWarning");
+        const checkoutBtn = document.getElementById("checkoutBtn");
+
+        if (minimumOrder > 0 && subtotal < minimumOrder) {
+          warning.style.display = "block";
+          document.getElementById("minimumOrder").textContent =
+            minimumOrder.toLocaleString();
+          checkoutBtn.disabled = true;
+          checkoutBtn.innerHTML = `
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    Pedido mínimo no alcanzado
+                `;
+        } else {
+          warning.style.display = "none";
+          checkoutBtn.disabled = false;
+          checkoutBtn.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>
+                    Proceder al Pago
+                `;
+        }
+      }
+
+      // Guardar carrito
+      function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+
+      // Mostrar carrito vacío
+      function showEmptyCart() {
+        document.getElementById("cartItems").innerHTML = "";
+        document.getElementById("emptyCart").style.display = "block";
+        document.getElementById("summaryCard").style.display = "none";
+        document.getElementById("restaurantInfo").style.display = "none";
+        document.getElementById("itemsCount").textContent = "0 productos";
+      }
+
+      // Ir al checkout
+      function goToCheckout() {
+        if (cart.length === 0) {
+          alert("Tu carrito está vacío");
+          return;
+        }
+
+        const subtotal = cart.reduce(
+          (sum, item) => sum + item.product_price * item.quantity,
+          0
+        );
+        const minimumOrder = restaurant?.minimum_order || 0;
+
+        if (minimumOrder > 0 && subtotal < minimumOrder) {
+          alert(`El pedido mínimo es de $${minimumOrder.toLocaleString()}`);
+          return;
+        }
+
+        window.location.href = "/public/checkout.html";
+      }
+
+      // Mostrar toast
+      function showToast(message) {
+        document.getElementById("toastMessage").textContent = message;
+        const toast = new bootstrap.Toast(
+          document.getElementById("successToast")
+        );
+        toast.show();
+      }
+    </script>
+  </body>
+</html>

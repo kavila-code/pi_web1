@@ -8,6 +8,9 @@ import userRouter from './routes/user.route.js';
 import adminRouter from './routes/admin.route.js';
 import publicRouter from './routes/public.route.js';
 import deliveryApplicationsRouter from './routes/delivery-applications.route.js';
+import restaurantRouter from './routes/restaurant.route.js';
+import productRouter from './routes/product.route.js';
+import orderRouter from './routes/order.route.js';
 
 const app = express();
 
@@ -32,6 +35,9 @@ app.use('/', publicRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/delivery-applications', deliveryApplicationsRouter);
+app.use('/api/v1', restaurantRouter);
+app.use('/api/v1', productRouter);
+app.use('/api/v1', orderRouter);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

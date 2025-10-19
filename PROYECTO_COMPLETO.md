@@ -160,7 +160,17 @@ pi_web/
   3. **Disponibilidad:** Horarios, zonas de trabajo, experiencia
   4. **Documentos:** Carga de CV, cédula, licencia
 
-### **📂 Sistema de Archivos:**
+### **� Sistema de Pedidos:**
+
+- ✅ Creación de pedidos desde el frontend (carrito, checkout)
+- ✅ Visualización de pedidos disponibles para domiciliarios
+- ✅ Aceptación y actualización de estado de pedidos por domiciliarios
+- ✅ Panel de historial y seguimiento de pedidos para clientes
+- ✅ Panel de gestión de pedidos para administradores
+- ✅ Asignación de domiciliarios a pedidos
+- ✅ Estadísticas y métricas de pedidos en tiempo real
+
+### **�📂 Sistema de Archivos:**
 
 - ✅ Upload de documentos con Multer
 - ✅ Validación de tipos de archivo (PDF, DOC, DOCX, JPG, PNG)
@@ -178,12 +188,27 @@ pi_web/
   - Métricas de rendimiento
 
 - ✅ **Gestión de Solicitudes:**
+
   - Vista de todas las solicitudes
   - Filtros por estado y vehículo
   - Búsqueda en tiempo real
   - Previsualización de documentos en modales
   - Aprobación/rechazo con observaciones
   - Sistema de notificaciones
+
+- ✅ **Gestión de Pedidos:**
+  - Vista de todos los pedidos
+  - Filtros por estado y domiciliario
+  - Asignación de domiciliarios
+  - Actualización de estado de pedidos
+  - Estadísticas y métricas de pedidos
+
+### **🚴‍♂️ Panel de Domiciliarios:**
+
+- ✅ Visualización de pedidos disponibles
+- ✅ Aceptar pedidos y ver detalles
+- ✅ Actualizar estado de entrega (en camino, entregado)
+- ✅ Historial de pedidos entregados
 
 ### **🔍 Funcionalidades Avanzadas:**
 

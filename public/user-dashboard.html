@@ -48,9 +48,11 @@
             <li class="nav-item">
               <a class="nav-link" href="/public/user-inicio.html">Inicio</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#restaurants">Restaurantes</a>
-            </li>
+            <!-- <li class="nav-item">
+              <a class="nav-link" href="/public/restaurants.html"
+                >Restaurantes</a
+              >
+            </li> -->
             <li class="nav-item">
               <a class="nav-link" href="#orders">Mis Pedidos</a>
             </li>
@@ -1338,8 +1340,71 @@
         } else {
           console.error("Logout dropdown not found!");
         }
+
+        // Cargar favoritos al iniciar
+        loadFavoriteRestaurants();
       });
 
+      // Renderiza los restaurantes favoritos en el dashboard
+      async function loadFavoriteRestaurants() {
+        const token = localStorage.getItem("token");
+        const favoritesGrid = document.getElementById("favoritesGrid");
+        favoritesGrid.innerHTML =
+          '<p class="text-center text-muted">Cargando favoritos...</p>';
+        try {
+          const response = await fetch("/api/v1/users/favorites", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok)
+            throw new Error("No se pudieron cargar los favoritos");
+          const favorites = await response.json();
+          if (!favorites.length) {
+            favoritesGrid.innerHTML =
+              '<p class="text-center text-muted">No tienes restaurantes favoritos aún.</p>';
+            return;
+          }
+          favoritesGrid.innerHTML = "";
+          favorites.forEach((rest) => {
+            // Usa cover_image_url, logo_url o fallback SVG
+            let imgSrc = rest.cover_image_url || rest.logo_url || "";
+            let imgTag = imgSrc
+              ? `<img src='${imgSrc}' alt='${rest.name}' class='restaurant-image' onerror=\"this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'80\' fill=\'%23ff6b35\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z\'/%3E%3C/svg%3E'\" />`
+              : `<img src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'80\' fill=\'%23ff6b35\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z\'/%3E%3C/svg%3E' alt='${rest.name}' class='restaurant-image' />`;
+            favoritesGrid.innerHTML += `
+                  <div class='restaurant-card favorite'>
+                    <div class='restaurant-image'>
+                      ${imgTag}
+                      <div class='favorite-badge'><i class='bi bi-heart-fill'></i></div>
+                    </div>
+                    <div class='restaurant-info'>
+                      <h5>${rest.name}</h5>
+                      <div class='restaurant-rating'>
+                        <i class='bi bi-star-fill'></i>
+                        <span>${
+                          rest.rating ? rest.rating.toFixed(1) : "4.5"
+                        }</span>
+                      </div>
+                      <p class='restaurant-category'>${rest.category || ""}</p>
+                      <div class='restaurant-meta'>
+                        <span class='delivery-time'><i class='bi bi-clock'></i> ${
+                          rest.delivery_time || "--"
+                        }</span>
+                        <span class='delivery-fee'><i class='bi bi-truck'></i> ${
+                          rest.delivery_fee || "--"
+                        }</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+          });
+        } catch (err) {
+          favoritesGrid.innerHTML = `<p class='text-center text-danger'>Error cargando favoritos</p>`;
+        }
+      }
+
+      // Cargar información del usuario
       // Cargar información del usuario
       function loadUserInfo(user) {
         document.getElementById("userName").textContent =
@@ -1385,6 +1450,7 @@
         document.getElementById("dashTotalSpent").textContent = "$156";
         document.getElementById("dashFavorites").textContent = "3";
       }
+      // Fin de loadUserInfo
 
       // Función para mostrar secciones
       function showSection(sectionName) {
@@ -1404,7 +1470,9 @@
         menuItems.forEach((item) => {
           item.classList.remove("active");
         });
-        event.target.closest(".menu-item").classList.add("active");
+        if (event && event.target) {
+          event.target.closest(".menu-item").classList.add("active");
+        }
       }
 
       // Funciones del banner de repartidor
@@ -1667,20 +1735,20 @@
         }
 
         statusContainer.innerHTML = `
-          <div class="alert alert-${statusClass} d-flex align-items-center position-relative" role="alert">
-            <i class="bi ${statusIcon} me-3" style="font-size: 1.5rem;"></i>
-            <div class="flex-grow-1">
-              <h5 class="alert-heading mb-2">${statusText}</h5>
-              <p class="mb-0">${message}</p>
+            <div class="alert alert-${statusClass} d-flex align-items-center position-relative" role="alert">
+              <i class="bi ${statusIcon} me-3" style="font-size: 1.5rem;"></i>
+              <div class="flex-grow-1">
+                <h5 class="alert-heading mb-2">${statusText}</h5>
+                <p class="mb-0">${message}</p>
+              </div>
+              ${
+                status === "rechazada"
+                  ? `<button class="btn btn-outline-${statusClass} btn-sm ms-3" onclick="reapplyDelivery()">Aplicar de Nuevo</button>`
+                  : ""
+              }
+              <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Cerrar" onclick="closeApplicationStatusAlert()"></button>
             </div>
-            ${
-              status === "rechazada"
-                ? `<button class="btn btn-outline-${statusClass} btn-sm ms-3" onclick="reapplyDelivery()">Aplicar de Nuevo</button>`
-                : ""
-            }
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Cerrar" onclick="closeApplicationStatusAlert()"></button>
-          </div>
-        `;
+          `;
 
         // Add close function globally if not present
         if (typeof window.closeApplicationStatusAlert !== "function") {
@@ -1714,19 +1782,19 @@
           const deliveryMenu = document.createElement("div");
           deliveryMenu.id = "deliveryDriverMenu";
           deliveryMenu.innerHTML = `
-            <div class="menu-item" onclick="showContent('delivery-orders')">
-              <i class="bi bi-truck"></i>
-              <span>Pedidos Disponibles</span>
-            </div>
-            <div class="menu-item" onclick="showContent('my-deliveries')">
-              <i class="bi bi-list-check"></i>
-              <span>Mis Entregas</span>
-            </div>
-            <div class="menu-item" onclick="showContent('delivery-earnings')">
-              <i class="bi bi-cash-coin"></i>
-              <span>Mis Ganancias</span>
-            </div>
-          `;
+              <div class="menu-item" onclick="showContent('delivery-orders')">
+                <i class="bi bi-truck"></i>
+                <span>Pedidos Disponibles</span>
+              </div>
+              <div class="menu-item" onclick="showContent('my-deliveries')">
+                <i class="bi bi-list-check"></i>
+                <span>Mis Entregas</span>
+              </div>
+              <div class="menu-item" onclick="showContent('delivery-earnings')">
+                <i class="bi bi-cash-coin"></i>
+                <span>Mis Ganancias</span>
+              </div>
+            `;
           sidebar.appendChild(deliveryMenu);
         }
       }

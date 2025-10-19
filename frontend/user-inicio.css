@@ -1,8 +1,32 @@
 /* User Inicio Page Styles */
+:root {
+  /* Complemento de variables usadas solo en esta vista */
+  --dark-gray: #2c3e50;
+  --medium-gray: #6c757d;
+  --golden-yellow: #f1c40f;
+  --card-border: rgba(0, 0, 0, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 .user-inicio-body {
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
+}
+
+/* Accesibilidad: estados de foco visibles */
+button:focus-visible,
+a:focus-visible,
+.filter-btn:focus-visible,
+.favorite-toggle:focus-visible,
+.btn:focus-visible,
+.form-select:focus-visible,
+input.form-control:focus-visible {
+  outline: 3px solid var(--orange-accent);
+  outline-offset: 2px;
 }
 
 /* Welcome Hero Section */
@@ -44,6 +68,20 @@
   max-width: 100%;
   height: auto;
   filter: drop-shadow(0 10px 25px rgba(0,0,0,0.2));
+}
+
+/* Dropdown del usuario en navbar (pulido) */
+.navbar-custom .dropdown-menu {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+.navbar-custom .dropdown-item {
+  border-radius: 8px;
+}
+.navbar-custom .dropdown-item:hover {
+  background: rgba(231, 76, 60, 0.08);
 }
 
 /* Search Section */
@@ -95,6 +133,28 @@
   transform: translateY(-2px);
 }
 
+/* Botones Bootstrap tematizados para esta vista */
+.btn-primary {
+  background-color: var(--primary-red);
+  border-color: var(--primary-red);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--deep-red);
+  border-color: var(--deep-red);
+  transform: translateY(-1px);
+}
+.btn-outline-primary {
+  color: var(--primary-red);
+  border-color: var(--primary-red);
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: var(--primary-red);
+  color: var(--warm-white);
+  border-color: var(--primary-red);
+}
+
 /* Quick Filters */
 .quick-filters {
   display: flex;
@@ -138,9 +198,9 @@
   padding: 2rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
-  border: 1px solid rgba(233, 236, 239, 0.5);
+  border: 1px solid var(--card-border);
 }
 
 .stat-card:hover {
@@ -175,6 +235,133 @@
   padding: 4rem 0;
 }
 
+/* Favorite Restaurants — Enhanced UI */
+.favorite-restaurants .restaurant-card.favorite {
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid rgba(231, 76, 60, 0.15);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.favorite-restaurants .restaurant-card.favorite:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18);
+  border-color: rgba(231, 76, 60, 0.35);
+}
+
+/* Corner ribbon */
+.favorite-restaurants .restaurant-card.favorite::after {
+  content: 'Favorito';
+  position: absolute;
+  top: 12px;
+  left: -42px;
+  transform: rotate(-45deg);
+  background: var(--primary-red);
+  color: var(--warm-white);
+  padding: 4px 44px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 6px 14px rgba(231, 76, 60, 0.35);
+}
+
+.favorite-restaurants .restaurant-image {
+  height: 200px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.favorite-restaurants .restaurant-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.25) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.favorite-restaurants .restaurant-card.favorite:hover .restaurant-image::after {
+  opacity: 1;
+}
+
+.favorite-restaurants .favorite-badge {
+  background: var(--warm-white);
+  color: var(--primary-red);
+  border: 2px solid rgba(231, 76, 60, 0.2);
+  width: 44px;
+  height: 44px;
+}
+
+.favorite-restaurants .restaurant-card.favorite:hover .favorite-badge {
+  animation: favPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes favPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+  70% { transform: scale(1.06); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+.favorite-restaurants .restaurant-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.75rem;
+}
+
+.favorite-restaurants .restaurant-info h5 {
+  font-size: 1.05rem;
+}
+
+.favorite-restaurants .restaurant-rating {
+  /* Reset styles inherited from global .restaurant-rating in foodie.css */
+  position: static !important;
+  top: auto;
+  right: auto;
+  left: auto;
+  transform: none;
+  z-index: auto;
+
+  /* Local visual design */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  background: rgba(241, 196, 15, 0.12);
+  border: 1px solid rgba(241, 196, 15, 0.3);
+  border-radius: 10px;
+  padding: 2px 8px;
+  width: fit-content;
+}
+
+.favorite-restaurants .restaurant-category {
+  background: rgba(44, 62, 80, 0.04);
+  border: 1px solid rgba(44, 62, 80, 0.08);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.favorite-restaurants .restaurant-meta {
+  margin-top: auto;
+  gap: 0.5rem;
+}
+
+.favorite-restaurants .restaurant-meta span {
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.favorite-restaurants .restaurant-meta i {
+  color: var(--primary-red);
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -201,9 +388,9 @@
   background: var(--warm-white);
   border-radius: 15px;
   padding: 1.5rem;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
-  border: 1px solid rgba(233, 236, 239, 0.5);
+  border: 1px solid var(--card-border);
 }
 
 .order-card:hover {
@@ -281,7 +468,7 @@
   padding: 2rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
 }
 
@@ -352,9 +539,9 @@
   background: var(--warm-white);
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
-  border: 1px solid rgba(233, 236, 239, 0.5);
+  border: 1px solid var(--card-border);
 }
 
 .restaurant-card:hover {
@@ -394,6 +581,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .favorite-badge {
@@ -457,6 +645,92 @@
   gap: 0.25rem;
 }
 
+/* All Restaurants — Enhanced UI to match favorites */
+.all-restaurants .restaurant-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.all-restaurants .restaurant-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 55%, rgba(0,0,0,0.2) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.all-restaurants .restaurant-card:hover .restaurant-image::after { opacity: 1; }
+
+.all-restaurants .restaurant-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.75rem;
+}
+
+.all-restaurants .restaurant-rating {
+  /* Reset from global absolute style in foodie.css */
+  position: static !important;
+  top: auto; right: auto; left: auto;
+  transform: none; z-index: auto;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  background: rgba(241, 196, 15, 0.12);
+  border: 1px solid rgba(241, 196, 15, 0.3);
+  border-radius: 10px;
+  padding: 2px 8px;
+  width: fit-content;
+}
+
+.all-restaurants .restaurant-rating i { color: var(--golden-yellow); }
+
+.all-restaurants .restaurant-category {
+  background: rgba(44, 62, 80, 0.04);
+  border: 1px solid rgba(44, 62, 80, 0.08);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.all-restaurants .restaurant-meta {
+  margin-top: auto;
+  gap: 0.5rem;
+}
+
+.all-restaurants .restaurant-meta span {
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.all-restaurants .restaurant-meta i { color: var(--primary-red); }
+
+.all-restaurants .restaurant-info .btn {
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+}
+
+/* Favorite toggle polish */
+.favorite-toggle {
+  border: 2px solid rgba(231, 76, 60, 0.25);
+}
+.favorite-toggle.active,
+.favorite-toggle:hover {
+  background: var(--primary-red);
+  color: var(--warm-white);
+  border-color: var(--primary-red);
+}
+
 /* Filter Controls */
 .filter-controls {
   display: flex;
@@ -468,6 +742,12 @@
   border-radius: 10px;
   border: 1px solid rgba(233, 236, 239, 0.8);
   padding: 0.5rem 1rem;
+}
+
+/* Mejoras en selects y controles */
+.form-select:focus {
+  border-color: var(--orange-accent);
+  box-shadow: 0 0 0 0.2rem rgba(243, 156, 18, 0.25);
 }
 
 /* Footer */
@@ -501,13 +781,24 @@
   color: var(--golden-yellow);
 }
 
+/* Dropdown z-index on sections overlap */
+.navbar-custom { z-index: 1030; }
+.navbar-custom .dropdown-menu { z-index: 1031; }
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .welcome-title {
     font-size: 2.5rem;
   }
   
+  .favorite-restaurants .restaurant-image { height: 170px; }
+  .favorite-restaurants .restaurant-card.favorite::after {
+    left: -46px;
+    padding: 4px 48px;
+  }
   .search-bar .input-group {
+  .favorite-restaurants .restaurant-image { height: 150px; }
+  .favorite-restaurants .restaurant-card.favorite::after { display: none; }
     max-width: 100%;
   }
   
@@ -545,6 +836,8 @@
     flex-direction: column;
     gap: 0.5rem;
   }
+  .welcome-image { padding: 1rem 0; }
+  .welcome-image img { max-width: 80%; }
   
   .footer-links {
     justify-content: center;
@@ -572,6 +865,8 @@
     gap: 1rem;
     text-align: center;
   }
+  .section-header h2 { font-size: 1.6rem; }
+  .offer-badge { transform: rotate(10deg) scale(0.9); }
 }
 
 /* Animations */
@@ -597,3 +892,11 @@
 .restaurant-card:nth-child(2) { animation-delay: 0.2s; }
 .restaurant-card:nth-child(3) { animation-delay: 0.3s; }
 .restaurant-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

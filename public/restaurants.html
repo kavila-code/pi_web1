@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restaurantes - DomiTulua</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <style>
+      .restaurant-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+        height: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--warm-white);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        border: 1.5px solid rgba(0, 0, 0, 0.06);
+      }
+
+      .restaurant-card:hover {
+        transform: translateY(-7px) scale(1.03);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+        border-color: var(--primary-red);
+      }
+
+      .restaurant-cover {
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
+        filter: brightness(0.93);
+      }
+
+      .restaurant-logo {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        position: absolute;
+        bottom: -36px;
+        left: 24px;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.18);
+        background: #fff;
+      }
+

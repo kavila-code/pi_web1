@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - DomiTulua</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <style>
+      .checkout-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 40px;
+      }
+
+      .checkout-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .payment-method {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 10px;
+      }
+
+      .payment-method:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+      }
+
+      .payment-method.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f3f4ff 100%);
+      }
+
+      .payment-method input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #667eea;
+      }
+
+      .order-summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .order-summary-item:last-child {
+        border-bottom: none;
+      }
+
+      .total-amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+        padding: 15px 0;
+        border-top: 2px solid #667eea;
+        margin-top: 15px;
+      }
+
+      .place-order-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        width: 100%;
+        transition: transform 0.3s;
+      }
+
+      .place-order-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+      }
+
+      .place-order-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .product-mini-item {
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .product-mini-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      .spinner-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .spinner-content {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark"
+      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/public/cart.html">
+          <i class="bi bi-arrow-left"></i> Volver al Carrito
+        </a>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="checkout-header">
+      <div class="container text-center">
+        <h1 class="display-6 fw-bold">
+          <i class="bi bi-check-circle"></i> Finalizar Pedido
+        </h1>
+        <p class="mb-0">Completa tus datos para confirmar el pedido</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mb-5">
+      <div class="row">
+        <!-- Formulario -->
+        <div class="col-lg-7">
+          <!-- Información de Entrega -->
+          <div class="checkout-card">
+            <div class="section-title">
+              <i class="bi bi-geo-alt-fill"></i>
+              Información de Entrega
+            </div>
+            <form id="checkoutForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Nombre completo *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="fullName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Teléfono *</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="phone"
+                    required
+                    placeholder="3001234567"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Dirección de entrega *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="address"
+                  required
+                  placeholder="Calle 123 #45-67"
+                />
+                <small class="text-muted"
+                  >Ingresa la dirección completa incluyendo
+                  apartamento/casa</small
+                >
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold"
+                  >Notas de entrega (opcional)</label
+                >
+                <textarea
+                  class="form-control"
+                  id="notes"
+                  rows="3"
+                  placeholder="Ej: Timbre en el segundo piso, casa azul..."
+                ></textarea>
+              </div>
+            </form>
+          </div>
+
+          <!-- Método de Pago -->
+          <div class="checkout-card">
+            <div class="section-title">
+              <i class="bi bi-credit-card-fill"></i>
+              Método de Pago
+            </div>
+
+            <div
+              class="payment-method selected"
+              onclick="selectPayment('efectivo')"
+            >
+              <div class="d-flex align-items-center">
+                <input type="radio" name="payment" value="efectivo" checked />
+                <div class="ms-3">
+                  <i class="bi bi-cash-stack fs-3 text-success"></i>
+                </div>
+                <div class="ms-3">
+                  <h6 class="mb-0 fw-bold">Efectivo</h6>
+                  <small class="text-muted">Paga al recibir tu pedido</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="payment-method" onclick="selectPayment('tarjeta')">
+              <div class="d-flex align-items-center">
+                <input type="radio" name="payment" value="tarjeta" />
+                <div class="ms-3">
+                  <i class="bi bi-credit-card fs-3 text-primary"></i>
+                </div>
+                <div class="ms-3">
+                  <h6 class="mb-0 fw-bold">Tarjeta de crédito/débito</h6>
+                  <small class="text-muted">Pago datáfono al entregar</small>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="payment-method"
+              onclick="selectPayment('transferencia')"
+            >
+              <div class="d-flex align-items-center">
+                <input type="radio" name="payment" value="transferencia" />
+                <div class="ms-3">
+                  <i class="bi bi-bank fs-3 text-info"></i>
+                </div>
+                <div class="ms-3">
+                  <h6 class="mb-0 fw-bold">Transferencia/Nequi</h6>
+                  <small class="text-muted"
+                    >Envía el comprobante al domiciliario</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen del Pedido -->
+        <div class="col-lg-5">
+          <div class="checkout-card">
+            <div class="section-title">
+              <i class="bi bi-receipt"></i>
+              Resumen del Pedido
+            </div>
+
+            <!-- Restaurante -->
+            <div class="mb-4">
+              <h6 class="fw-bold mb-2">
+                <i class="bi bi-shop text-primary"></i>
+                <span id="restaurantName">Cargando...</span>
+              </h6>
+            </div>
+
+            <!-- Productos -->
+            <div id="orderItems" class="mb-3">
+              <!-- Se llenará dinámicamente -->
+            </div>
+
+            <!-- Totales -->
+            <div class="order-summary-item">
+              <span>Subtotal</span>
+              <span class="fw-bold">$<span id="subtotal">0</span></span>
+            </div>
+            <div class="order-summary-item">
+              <span>Domicilio</span>
+              <span class="fw-bold">$<span id="deliveryFee">0</span></span>
+            </div>
+            <div class="order-summary-item">
+              <span>IVA (19%)</span>
+              <span class="fw-bold">$<span id="tax">0</span></span>
+            </div>
+
+            <div
+              class="d-flex justify-content-between align-items-center total-amount"
+            >
+              <span>Total a Pagar</span>
+              <span>$<span id="total">0</span></span>
+            </div>
+
+            <button class="place-order-btn mt-4" onclick="placeOrder()">
+              <i class="bi bi-check-circle me-2"></i>
+              Confirmar Pedido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="spinner-overlay" id="loadingOverlay">
+      <div class="spinner-content">
+        <div
+          class="spinner-border text-primary"
+          style="width: 3rem; height: 3rem"
+          role="status"
+        >
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 mb-0 fw-bold">Procesando tu pedido...</p>
+        <small class="text-muted">Por favor espera</small>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let cart = [];
+      let restaurant = null;
+      let user = null;
+      let selectedPayment = "efectivo";
+
+      // Verificar autenticación
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/login.html";
+      }
+
+      // Cargar datos al iniciar
+      document.addEventListener("DOMContentLoaded", () => {
+        loadUserData();
+        loadCart();
+      });
+
+      // Cargar datos del usuario
+      function loadUserData() {
+        user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        // Pre-llenar formulario
+        if (user.username) {
+          document.getElementById("fullName").value = user.username;
+        }
+      }
+
+      // Cargar carrito
+      function loadCart() {
+        cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+        if (cart.length === 0) {
+          alert("Tu carrito está vacío");
+          window.location.href = "/public/restaurants.html";
+          return;
+        }
+
+        loadRestaurantInfo();
+        renderOrderSummary();
+      }
+
+      // Cargar información del restaurante
+      async function loadRestaurantInfo() {
+        const restaurantId = cart[0].restaurant_id;
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/v1/restaurants/${restaurantId}`
+          );
+          const data = await response.json();
+
+          if (data.ok) {
+            restaurant = data.data;
+            document.getElementById("restaurantName").textContent =
+              restaurant.name;
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Renderizar resumen
+      function renderOrderSummary() {
+        const itemsContainer = document.getElementById("orderItems");
+
+        itemsContainer.innerHTML = cart
+          .map(
+            (item) => `
+                <div class="product-mini-item">
+                    <img src="${
+                      item.product_image || "https://via.placeholder.com/50"
+                    }" 
+                         class="product-mini-image" alt="${item.product_name}">
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold small">${
+                              item.product_name
+                            }</span>
+                            <span class="fw-bold small">$${(
+                              item.product_price * item.quantity
+                            ).toLocaleString()}</span>
+                        </div>
+                        <small class="text-muted">
+                            ${
+                              item.quantity
+                            } x $${item.product_price.toLocaleString()}
+                        </small>
+                        ${
+                          item.special_instructions
+                            ? `
+                            <small class="d-block text-muted fst-italic">
+                                <i class="bi bi-chat-left-text"></i> ${item.special_instructions}
+                            </small>
+                        `
+                            : ""
+                        }
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+
+        calculateTotals();
+      }
+
+      // Calcular totales
+      function calculateTotals() {
+        const subtotal = cart.reduce(
+          (sum, item) => sum + item.product_price * item.quantity,
+          0
+        );
+        const deliveryFee = restaurant?.delivery_fee || 3000;
+        const tax = Math.round(subtotal * 0.19);
+        const total = subtotal + deliveryFee + tax;
+
+        document.getElementById("subtotal").textContent =
+          subtotal.toLocaleString();
+        document.getElementById("deliveryFee").textContent =
+          deliveryFee.toLocaleString();
+        document.getElementById("tax").textContent = tax.toLocaleString();
+        document.getElementById("total").textContent = total.toLocaleString();
+      }
+
+      // Seleccionar método de pago
+      function selectPayment(method) {
+        selectedPayment = method;
+
+        // Actualizar UI
+        document.querySelectorAll(".payment-method").forEach((el) => {
+          el.classList.remove("selected");
+        });
+        event.currentTarget.classList.add("selected");
+
+        // Actualizar radio button
+        document.querySelectorAll('input[name="payment"]').forEach((radio) => {
+          radio.checked = radio.value === method;
+        });
+      }
+
+      // Confirmar pedido
+      async function placeOrder() {
+        // Validar formulario
+        const form = document.getElementById("checkoutForm");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        const fullName = document.getElementById("fullName").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const notes = document.getElementById("notes").value.trim();
+
+        if (!fullName || !phone || !address) {
+          alert("Por favor completa todos los campos requeridos");
+          return;
+        }
+
+        // Validar teléfono
+        if (phone.length < 10) {
+          alert("Por favor ingresa un teléfono válido");
+          return;
+        }
+
+        // Mostrar loading
+        document.getElementById("loadingOverlay").style.display = "flex";
+
+        // Preparar datos del pedido
+        const orderData = {
+          restaurant_id: cart[0].restaurant_id,
+          delivery_address: address,
+          delivery_phone: phone,
+          delivery_notes: notes || null,
+          payment_method: selectedPayment,
+          items: cart.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            special_instructions: item.special_instructions || null,
+          })),
+        };
+
+        try {
+          const response = await fetch("http://localhost:3000/api/v1/orders", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(orderData),
+          });
+
+          const data = await response.json();
+
+          if (data.ok) {
+            // Limpiar carrito
+            localStorage.removeItem("cart");
+
+            // Redirigir a confirmación
+            localStorage.setItem("lastOrder", JSON.stringify(data.data));
+            window.location.href = "/public/order-success.html";
+          } else {
+            throw new Error(data.message || "Error al crear el pedido");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert(`Error al crear el pedido: ${error.message}`);
+          document.getElementById("loadingOverlay").style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>

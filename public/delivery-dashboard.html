@@ -98,10 +98,10 @@
                 </div>
               </div>
               <div class="mt-3" id="ordersList">
-                <div class="text-muted">
-                  Aún no hay un módulo de pedidos. Aquí verás tus pedidos
-                  asignados.
-                </div>
+                <div id="assignedOrdersBox" class="mb-3"></div>
+                <hr />
+                <h6>Pedidos Disponibles</h6>
+                <div id="availableOrdersBox"></div>
               </div>
             </div>
           </div>
@@ -143,7 +143,172 @@
         loadMyApplication();
         loadMyDocuments();
         // lastLogin podría venir desde un endpoint de perfil
+
+        loadAssignedOrders();
+        loadAvailableOrders();
       });
+      // Cargar pedidos asignados al domiciliario
+      async function loadAssignedOrders() {
+        const box = document.getElementById("assignedOrdersBox");
+        box.innerHTML =
+          "<div class='text-muted'>Cargando pedidos asignados…</div>";
+        try {
+          const res = await fetch("/api/v1/orders/my-deliveries", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+          const data = await res.json();
+          if (
+            !data.success ||
+            !Array.isArray(data.orders) ||
+            data.orders.length === 0
+          ) {
+            box.innerHTML =
+              "<div class='text-muted'>No tienes pedidos asignados.</div>";
+            return;
+          }
+          box.innerHTML = data.orders
+            .map((order) => renderAssignedOrder(order))
+            .join("");
+        } catch (e) {
+          box.innerHTML =
+            "<div class='text-danger'>Error cargando pedidos asignados.</div>";
+        }
+      }
+
+      // Renderizar un pedido asignado
+      function renderAssignedOrder(order) {
+        const estados = ["pendiente", "aceptado", "en_camino", "entregado"];
+        let nextEstado = "";
+        if (order.status === "aceptado") nextEstado = "en_camino";
+        if (order.status === "en_camino") nextEstado = "entregado";
+        return `
+          <div class="order-item">
+            <div><strong>#${
+              order.order_number
+            }</strong> <span class="badge bg-info">${order.status.replace(
+          "_",
+          " "
+        )}</span></div>
+            <div><strong>Cliente:</strong> ${order.customer_name || ""}</div>
+            <div><strong>Dirección:</strong> ${order.delivery_address}</div>
+            <div><strong>Tel:</strong> ${order.delivery_phone}</div>
+            <div><strong>Total:</strong> $${order.total}</div>
+            <div class="mt-1">
+              ${
+                nextEstado
+                  ? `<button class="btn btn-sm btn-success" onclick="updateOrderStatus('${
+                      order.id
+                    }','${nextEstado}')">Marcar como ${nextEstado.replace(
+                      "_",
+                      " "
+                    )}</button>`
+                  : ""
+              }
+            </div>
+          </div>
+        `;
+      }
+
+      // Cargar pedidos disponibles para aceptar
+      async function loadAvailableOrders() {
+        const box = document.getElementById("availableOrdersBox");
+        box.innerHTML =
+          "<div class='text-muted'>Cargando pedidos disponibles…</div>";
+        try {
+          const res = await fetch("/api/v1/orders/available", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+          const data = await res.json();
+          if (
+            !data.success ||
+            !Array.isArray(data.orders) ||
+            data.orders.length === 0
+          ) {
+            box.innerHTML =
+              "<div class='text-muted'>No hay pedidos disponibles.</div>";
+            return;
+          }
+          box.innerHTML = data.orders
+            .map((order) => renderAvailableOrder(order))
+            .join("");
+        } catch (e) {
+          box.innerHTML =
+            "<div class='text-danger'>Error cargando pedidos disponibles.</div>";
+        }
+      }
+
+      // Renderizar un pedido disponible
+      function renderAvailableOrder(order) {
+        return `
+          <div class="order-item">
+            <div><strong>#${
+              order.order_number
+            }</strong> <span class="badge bg-warning">pendiente</span></div>
+            <div><strong>Restaurante:</strong> ${
+              order.restaurant_name || ""
+            }</div>
+            <div><strong>Dirección:</strong> ${order.delivery_address}</div>
+            <div><strong>Total:</strong> $${order.total}</div>
+            <div class="mt-1">
+              <button class="btn btn-sm btn-primary" onclick="acceptOrder('${
+                order.id
+              }')">Aceptar pedido</button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Aceptar un pedido disponible
+      async function acceptOrder(orderId) {
+        if (!confirm("¿Aceptar este pedido?")) return;
+        try {
+          const res = await fetch(`/api/v1/orders/${orderId}/assign`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert("Pedido asignado correctamente.");
+            loadAssignedOrders();
+            loadAvailableOrders();
+          } else {
+            alert(data.message || "No se pudo asignar el pedido.");
+          }
+        } catch (e) {
+          alert("Error al asignar el pedido.");
+        }
+      }
+
+      // Actualizar estado de un pedido asignado
+      async function updateOrderStatus(orderId, newStatus) {
+        if (!confirm(`¿Marcar pedido como ${newStatus.replace("_", " ")}?`))
+          return;
+        try {
+          const res = await fetch(`/api/v1/orders/${orderId}/status`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ status: newStatus }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert("Estado actualizado.");
+            loadAssignedOrders();
+          } else {
+            alert(data.message || "No se pudo actualizar el estado.");
+          }
+        } catch (e) {
+          alert("Error al actualizar el estado del pedido.");
+        }
+      }
 
       async function loadMyApplication() {
         try {

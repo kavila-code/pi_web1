@@ -3,43 +3,30 @@ import { UserModel } from '../models/user.model.js';
 // Obtener estadísticas del dashboard
 const getDashboardStats = async (req, res) => {
   try {
-    // Aquí podrías hacer consultas reales a la base de datos
-    // Por ahora devolvemos datos mock
+    // Usuarios
+    const usersResult = await req.db.query('SELECT COUNT(*) FROM users');
+    const totalUsers = parseInt(usersResult.rows[0].count, 10);
+
+    // Restaurantes
+    const restaurantsResult = await req.db.query('SELECT COUNT(*) FROM restaurants WHERE is_active = true');
+    const totalRestaurants = parseInt(restaurantsResult.rows[0].count, 10);
+
+    // Pedidos y revenue
+    const orderStats = await req.db.query(`
+      SELECT 
+        COUNT(*) as total_orders,
+        COALESCE(SUM(CASE WHEN status = 'entregado' THEN total ELSE 0 END), 0) as total_revenue
+      FROM orders
+    `);
+    const totalOrders = parseInt(orderStats.rows[0].total_orders, 10);
+    const totalRevenue = parseInt(orderStats.rows[0].total_revenue, 10);
+
+    // Respuesta
     const stats = {
-      totalUsers: 1234,
-      totalOrders: 5678,
-      totalRestaurants: 89,
-      totalRevenue: 45890,
-      recentActivity: [
-        {
-          type: 'user_registered',
-          message: 'Nuevo usuario registrado: María González',
-          time: '5 minutos',
-          icon: 'person-plus',
-          color: 'success'
-        },
-        {
-          type: 'new_order',
-          message: 'Nuevo pedido: #12345 - Pizza Margherita',
-          time: '12 minutos',
-          icon: 'cart-plus',
-          color: 'primary'
-        },
-        {
-          type: 'new_restaurant',
-          message: 'Nuevo restaurante: Comida Italiana Marco',
-          time: '1 hora',
-          icon: 'shop',
-          color: 'warning'
-        },
-        {
-          type: 'new_review',
-          message: 'Nueva reseña: 5★ para Burger House',
-          time: '2 horas',
-          icon: 'star',
-          color: 'info'
-        }
-      ]
+      totalUsers,
+      totalOrders,
+      totalRestaurants,
+      totalRevenue
     };
 
     return res.json({
