@@ -4,154 +4,935 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Panel Domiciliario - DomiTulua</title>
+
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="/frontend/foodie.css" />
+    <link rel="stylesheet" href="/frontend/user-dashboard.css" />
+
     <style>
-      body {
-        background: #f6f8fb;
-        font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto,
-          Helvetica, Arial, sans-serif;
+      /* Fondo degradado suave para el área principal */
+      body.user-dashboard-body {
+        background: linear-gradient(120deg, #f8f9fa 0%, #fff 100%);
       }
-      .header {
-        background: linear-gradient(135deg, #ff6b35, #ff9f43);
+
+      /* Color global para todos los iconos */
+      .bi {
+        color: #c54232 !important;
+      }
+
+      /* Color blanco para iconos dentro de stat-item */
+      .stat-item .bi {
+        color: #ffffff !important;
+      }
+      /* Animaciones */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Tarjeta de estadísticas con estética naranja */
+      .delivery-stats-card {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         color: #fff;
-        padding: 1rem 1.25rem;
+        border-radius: 32px;
+        padding: 48px 32px 40px 32px;
+        margin-bottom: 48px;
+        margin-top: 96px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15),
+          0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.6s ease-out;
       }
-      .header h1 {
-        font-size: 1.4rem;
-        margin: 0;
+
+      .delivery-stats-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          #c54232 0%,
+          #e57373 50%,
+          #c54232 100%
+        );
+        opacity: 0.8;
       }
-      .card {
-        border: 0;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-        border-radius: 14px;
+
+      .delivery-stats-card::before {
+        content: "";
+        position: absolute;
+        top: -40%;
+        right: -40%;
+        width: 180%;
+        height: 180%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.12) 0%,
+          transparent 70%
+        );
+        animation: pulse 3s infinite;
       }
-      .stat {
+
+      .stat-item .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.95;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        transition: transform 0.3s ease;
+      }
+
+      .stat-item:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .stat-item .stat-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        display: block;
+        text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+        line-height: 1.2;
+        letter-spacing: -1px;
+      }
+
+      .stat-item .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.95;
+        font-weight: 600;
+        margin-top: 12px;
+        color: rgba(255, 255, 255, 0.95);
+        letter-spacing: 0.3px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        text-transform: uppercase;
+        font-size: 0.95rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 36px 24px;
+        position: relative;
+        z-index: 1;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: linear-gradient(135deg, #c54232 0%, #d85a4a 100%);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(197, 66, 50, 0.25),
+          0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        margin: 0 12px;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+      }
+
+      .stat-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 100%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .stat-item:hover::before {
+        opacity: 1;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-12px) scale(1.05);
+        box-shadow: 0 20px 60px rgba(197, 66, 50, 0.35),
+          0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+      }
+
+      .stat-item .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        opacity: 0.9;
+      }
+
+      .stat-item .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        display: block;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .stat-item .stat-label {
+        font-size: 0.95rem;
+        opacity: 0.95;
+        font-weight: 500;
+        margin-top: 5px;
+        display: block;
+      }
+
+      .stat-divider {
+        width: 1px;
+        background: linear-gradient(
+          to bottom,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        height: 100px;
+        margin: auto 0;
+        border-radius: 2px;
+      }
+      .stat-divider {
+        width: 1px;
+        background: linear-gradient(
+          to bottom,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        height: 100px;
+        margin: auto 0;
+        border-radius: 2px;
+      }
+
+      /* Tarjetas de pedidos mejoradas */
+      .order-card {
+        border: none;
+        border-left: 4px solid #667eea;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .order-card:hover {
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        transform: translateX(5px);
+        border-left-color: #764ba2;
+      }
+
+      .order-card.priority-high {
+        border-left-color: #ff6b6b;
+        background: linear-gradient(to right, #fff5f5 0%, white 10%);
+      }
+
+      .order-card .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f8f9fa;
+      }
+
+      .order-number {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2d3748;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 10px;
       }
-      .stat .badge {
-        font-size: 0.8rem;
+
+      .order-number i {
+        color: #667eea;
+        font-size: 1.5rem;
       }
-      .order-item {
-        border-bottom: 1px dashed #e9ecef;
-        padding: 0.75rem 0;
+
+      .status-badge {
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
-      .order-item:last-child {
-        border-bottom: 0;
+
+      .status-pending {
+        background: linear-gradient(135deg, #ffecb3 0%, #ffb74d 100%);
+        color: #b26a00;
+        border: 1px solid #ffd180;
+      }
+
+      .status-accepted,
+      .status-aceptado {
+        background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+        color: #fff;
+        border: 1px solid #ff9800;
+      }
+
+      .status-in-transit,
+      .status-en_camino {
+        background: linear-gradient(135deg, #ffd180 0%, #ff6b35 100%);
+        color: #fff;
+        border: 1px solid #ff6b35;
+        animation: pulse 2s infinite;
+      }
+
+      .status-delivered,
+      .status-entregado {
+        background: linear-gradient(135deg, #ffccbc 0%, #ff7043 100%);
+        color: #fff;
+        border: 1px solid #ff7043;
+      }
+
+      .order-info {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.2s ease;
+      }
+
+      .order-info:hover {
+        background: #f8f9fa;
+      }
+
+      .order-info i {
+        width: 24px;
+        color: #667eea;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+      }
+
+      .order-info strong {
+        color: #4a5568;
+        min-width: 100px;
+        font-weight: 600;
+      }
+
+      .order-info span {
+        color: #2d3748;
+      }
+
+      /* Secciones mejoradas */
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #f0f0f0;
+      }
+
+      .section-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .section-title i {
+        color: #667eea;
+      }
+
+      /* Botones mejorados */
+      .btn-outline-primary,
+      .btn-outline-secondary {
+        border-width: 2px;
+        font-weight: 600;
+        padding: 8px 20px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-outline-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      /* Acciones de pedidos */
+      .order-actions {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px dashed #e9ecef;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .order-actions .btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 12px 20px;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .order-actions .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .order-actions .btn-success {
+        background: linear-gradient(135deg, #ff9800 0%, #ff6b35 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(255, 111, 53, 0.15);
+      }
+
+      .order-actions .btn-primary {
+        background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+        border: none;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.12);
+      }
+
+      /* Tarjetas de información lateral */
+      .application-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .application-card:hover {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+      }
+
+      .application-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border-radius: 25px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .status-pendiente {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        color: #856404;
+      }
+
+      .status-aprobada {
+        background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+        color: white;
+      }
+
+      .status-rechazada {
+        background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+        color: white;
+      }
+
+      /* Links de documentos mejorados */
+      .doc-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #667eea;
+        text-decoration: none;
+        padding: 12px 16px;
+        border-radius: 10px;
+        transition: all 0.3s;
+        margin-bottom: 8px;
+        background: white;
+        border: 2px solid #e9ecef;
+        font-weight: 500;
+      }
+
+      .doc-link:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #667eea;
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .doc-link:hover i {
+        color: white;
+      }
+
+      .doc-link i {
+        font-size: 1.3rem;
+        transition: color 0.3s;
+      }
+
+      /* Estado vacío mejorado */
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #6c757d;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 15px;
+        border: 2px dashed #dee2e6;
+      }
+
+      .empty-state i {
+        font-size: 5rem;
+        margin-bottom: 25px;
+        opacity: 0.7;
+        color: #c54232;
+      }
+
+      .empty-state h5 {
+        margin-bottom: 15px;
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 1.3rem;
+      }
+
+      .empty-state p {
+        color: #718096;
+        font-size: 1rem;
+      }
+
+      /* Spinner personalizado */
+      .custom-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(102, 126, 234, 0.2);
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Badge de prioridad */
+      .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+
+      .priority-high {
+        background: #ffe0e0;
+        color: #d63031;
+      }
+
+      .priority-medium {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      /* Animación de entrada para cards */
+      .fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Tiempo estimado */
+      .time-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        background: #f0f0ff;
+        color: #667eea;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      /* Responsive mejoras */
+      @media (max-width: 768px) {
+        .stat-item {
+          margin: 12px 0;
+          padding: 18px 8px;
+        }
+        .stat-item .stat-number {
+          font-size: 2.2rem;
+        }
+        .stat-item .stat-label {
+          font-size: 1rem;
+        }
+        .stat-divider {
+          display: none;
+        }
+
+        .order-actions .btn {
+          min-width: 100%;
+        }
+
+        .section-title {
+          font-size: 1.3rem;
+        }
       }
     </style>
   </head>
-  <body>
-    <header class="header d-flex justify-content-between align-items-center">
-      <h1><span class="me-2">🚴‍♂️</span> Panel de Domiciliario</h1>
-      <div>
-        <button class="btn btn-light btn-sm me-2" onclick="goHome()">
-          Inicio
-        </button>
-        <button class="btn btn-dark btn-sm" onclick="logout()">
-          Cerrar sesión
-        </button>
-      </div>
-    </header>
+  <body class="user-dashboard-body">
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+      <div class="container">
+        <a class="navbar-brand" href="/public/user-inicio.html">
+          <i class="bi bi-bicycle"></i>
+          DomiTulua - Domiciliario
+        </a>
 
-    <main class="container py-4">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#orders">
+                <i class="bi bi-bag-check"></i> Mis Pedidos
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#available">
+                <i class="bi bi-search"></i> Disponibles
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#application">
+                <i class="bi bi-file-earmark-text"></i> Mi Solicitud
+              </a>
+            </li>
+          </ul>
+
+          <div class="navbar-nav">
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle user-menu"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E"
+                  alt="Usuario"
+                  class="user-avatar"
+                />
+                <span id="userName">Domiciliario</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#application">
+                    <i class="bi bi-file-earmark-text"></i> Mi Solicitud
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#documents">
+                    <i class="bi bi-folder"></i> Mis Documentos
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <!-- Selector de rol para usuarios con múltiples roles -->
+                <li id="roleSwitcherMenu" class="d-none">
+                  <h6 class="dropdown-header">Cambiar Vista</h6>
+                </li>
+                <li id="roleOptionUser" class="d-none">
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="switchRole('user')"
+                  >
+                    <i class="bi bi-bag"></i> Vista Cliente
+                  </a>
+                </li>
+                <li id="roleOptionAdmin" class="d-none">
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="switchRole('admin')"
+                  >
+                    <i class="bi bi-shield-check"></i> Vista Admin
+                  </a>
+                </li>
+                <li id="roleSwitcherDivider" class="d-none">
+                  <hr class="dropdown-divider" />
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-4">
+      <!-- Alert Guard Message -->
       <div id="guardMessage" class="alert alert-warning d-none"></div>
 
-      <div class="row g-3">
-        <div class="col-12 col-lg-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Estado</h5>
-              <div class="stat mb-2">
-                <span class="badge bg-success" id="roleBadge"
-                  >domiciliario</span
-                >
-                <small class="text-muted" id="userEmail"></small>
-              </div>
-              <div class="small text-muted">
-                Último inicio: <span id="lastLogin">—</span>
-              </div>
+      <!-- Estadísticas del Domiciliario -->
+      <div class="delivery-stats-card">
+        <div class="row align-items-center">
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <i class="bi bi-box-seam stat-icon"></i>
+              <span class="stat-number" id="statTotal">0</span>
+              <span class="stat-label">Entregas Totales</span>
             </div>
           </div>
-          <div class="card mt-3">
-            <div class="card-body">
-              <h5 class="card-title">Mi Solicitud</h5>
-              <div id="applicationBox" class="small text-muted">Cargando…</div>
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <i class="bi bi-calendar-check stat-icon"></i>
+              <span class="stat-number" id="statToday">0</span>
+              <span class="stat-label">Entregas Hoy</span>
             </div>
           </div>
-        </div>
-
-        <div class="col-12 col-lg-8">
-          <div class="card mb-3">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Mis Pedidos</h5>
-                <div>
-                  <button class="btn btn-outline-primary btn-sm" disabled>
-                    Actualizar
-                  </button>
-                </div>
-              </div>
-              <div class="mt-3" id="ordersList">
-                <div id="assignedOrdersBox" class="mb-3"></div>
-                <hr />
-                <h6>Pedidos Disponibles</h6>
-                <div id="availableOrdersBox"></div>
-              </div>
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <i class="bi bi-lightning-charge stat-icon"></i>
+              <span class="stat-number" id="statActive">0</span>
+              <span class="stat-label">En Proceso</span>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Documentos</h5>
-              <div id="docsBox" class="small text-muted">Cargando…</div>
+          <div class="col-md-3 col-6">
+            <div class="stat-item">
+              <i class="bi bi-currency-dollar stat-icon"></i>
+              <span class="stat-number" id="statEarnings">$0</span>
+              <span class="stat-label">Ganancia del Día</span>
             </div>
           </div>
         </div>
       </div>
-    </main>
 
+      <div class="row">
+        <!-- Columna Principal: Pedidos -->
+        <div class="col-lg-8">
+          <!-- Pedidos Asignados -->
+          <section id="orders" class="mb-5">
+            <div class="section-header">
+              <h2 class="section-title">
+                <i class="bi bi-bag-check-fill"></i>
+                Mis Pedidos Activos
+              </h2>
+              <button
+                class="btn btn-outline-primary"
+                onclick="loadAssignedOrders()"
+              >
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+              </button>
+            </div>
+            <div id="assignedOrdersBox">
+              <div class="text-center text-muted py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando pedidos asignados...</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Pedidos Disponibles -->
+          <section id="available" class="mb-5">
+            <div class="section-header">
+              <h2 class="section-title">
+                <i class="bi bi-search"></i>
+                Pedidos Disponibles
+              </h2>
+              <button
+                class="btn btn-outline-secondary"
+                onclick="loadAvailableOrders()"
+              >
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+              </button>
+            </div>
+            <div id="availableOrdersBox">
+              <div class="text-center text-muted py-4">
+                <div class="spinner-border text-secondary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando pedidos disponibles...</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Columna Lateral: Información -->
+        <div class="col-lg-4">
+          <!-- Mi Solicitud -->
+          <section id="application" class="mb-4">
+            <h3 class="section-title mb-3">
+              <i class="bi bi-file-earmark-text"></i>
+              Mi Solicitud
+            </h3>
+            <div class="application-card">
+              <div id="applicationBox">
+                <div class="text-center text-muted py-3">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                  <p class="mt-2 mb-0">Cargando...</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Mis Documentos -->
+          <section id="documents" class="mb-4">
+            <h3 class="section-title mb-3">
+              <i class="bi bi-folder"></i>
+              Mis Documentos
+            </h3>
+            <div class="application-card">
+              <div id="docsBox">
+                <div class="text-center text-muted py-3">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                  </div>
+                  <p class="mt-2 mb-0">Cargando...</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Información del Usuario -->
+          <section class="mb-4">
+            <h3 class="section-title mb-3">
+              <i class="bi bi-person-circle"></i>
+              Mi Perfil
+            </h3>
+            <div class="application-card">
+              <div class="mb-3">
+                <small class="text-muted d-block mb-1">Email</small>
+                <strong id="userEmail">—</strong>
+              </div>
+              <div class="mb-3">
+                <small class="text-muted d-block mb-1">Rol</small>
+                <span class="badge bg-info">Domiciliario</span>
+              </div>
+              <div>
+                <small class="text-muted d-block mb-1">Último acceso</small>
+                <span id="lastLogin" class="small">—</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-      // Guard de rol: solo domiciliario
+      // ===== VERIFICACIÓN Y GUARD =====
       document.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem("token");
         const userRaw = localStorage.getItem("user");
         const guard = document.getElementById("guardMessage");
 
         if (!token || !userRaw) {
-          window.location.href = "/login";
+          window.location.href = "/public/login.html";
           return;
         }
 
         const user = JSON.parse(userRaw);
-        document.getElementById("userEmail").textContent = user.email || "";
 
-        if (user.role !== "domiciliario") {
+        // Mostrar información del usuario
+        document.getElementById("userEmail").textContent = user.email || "—";
+        document.getElementById("userName").textContent =
+          user.name || user.email || "Domiciliario";
+
+        // Verificar si tiene rol de delivery
+        const roles = user.roles || [];
+        if (!roles.includes("delivery") && !roles.includes("domiciliario")) {
           guard.classList.remove("d-none");
           guard.innerHTML =
-            "Acceso restringido: este panel es solo para usuarios con rol <strong>domiciliario</strong>.";
-          setTimeout(() => (window.location.href = "/"), 2000);
+            '<i class="bi bi-exclamation-triangle-fill me-2"></i>Acceso restringido: este panel es solo para usuarios con rol <strong>domiciliario</strong>.';
+          setTimeout(
+            () => (window.location.href = "/public/user-inicio.html"),
+            2000
+          );
           return;
         }
 
+        // Inicializar role switcher
+        initRoleSwitcher();
+
+        // Cargar datos
         loadMyApplication();
         loadMyDocuments();
-        // lastLogin podría venir desde un endpoint de perfil
-
         loadAssignedOrders();
         loadAvailableOrders();
       });
-      // Cargar pedidos asignados al domiciliario
+
+      // ===== CARGAR PEDIDOS ASIGNADOS =====
       async function loadAssignedOrders() {
         const box = document.getElementById("assignedOrdersBox");
-        box.innerHTML =
-          "<div class='text-muted'>Cargando pedidos asignados…</div>";
+        box.innerHTML = `
+          <div class="text-center text-muted py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando pedidos asignados...</p>
+          </div>
+        `;
+
         try {
           const res = await fetch("/api/v1/orders/my-deliveries", {
             headers: {
@@ -159,63 +940,145 @@
             },
           });
           const data = await res.json();
+
           if (
             !data.success ||
             !Array.isArray(data.orders) ||
             data.orders.length === 0
           ) {
-            box.innerHTML =
-              "<div class='text-muted'>No tienes pedidos asignados.</div>";
+            box.innerHTML = `
+              <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h5>No tienes pedidos asignados</h5>
+                <p>Los pedidos que aceptes aparecerán aquí</p>
+              </div>
+            `;
+            document.getElementById("statActive").textContent = "0";
             return;
           }
+
+          // Actualizar estadística de pedidos activos
+          document.getElementById("statActive").textContent =
+            data.orders.length;
+
           box.innerHTML = data.orders
             .map((order) => renderAssignedOrder(order))
             .join("");
         } catch (e) {
-          box.innerHTML =
-            "<div class='text-danger'>Error cargando pedidos asignados.</div>";
+          console.error("Error cargando pedidos asignados:", e);
+          box.innerHTML = `
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              Error cargando pedidos asignados. Por favor, intenta nuevamente.
+            </div>
+          `;
         }
       }
 
-      // Renderizar un pedido asignado
+      // ===== RENDERIZAR PEDIDO ASIGNADO =====
       function renderAssignedOrder(order) {
-        const estados = ["pendiente", "aceptado", "en_camino", "entregado"];
-        let nextEstado = "";
-        if (order.status === "aceptado") nextEstado = "en_camino";
-        if (order.status === "en_camino") nextEstado = "entregado";
+        const statusMap = {
+          pendiente: "pending",
+          aceptado: "accepted",
+          en_camino: "in-transit",
+          entregado: "delivered",
+        };
+
+        const statusClass = statusMap[order.status] || "pending";
+        const statusText = order.status.replace(/_/g, " ").toUpperCase();
+
+        let nextStatus = "";
+        let nextStatusText = "";
+        let nextStatusIcon = "";
+
+        if (order.status === "aceptado") {
+          nextStatus = "en_camino";
+          nextStatusText = "En Camino";
+          nextStatusIcon = "truck";
+        } else if (order.status === "en_camino") {
+          nextStatus = "entregado";
+          nextStatusText = "Entregado";
+          nextStatusIcon = "check-circle-fill";
+        }
+
+        // Calcular tiempo estimado (ejemplo: 30 min)
+        const estimatedTime = "30 min";
+
         return `
-          <div class="order-item">
-            <div><strong>#${
-              order.order_number
-            }</strong> <span class="badge bg-info">${order.status.replace(
-          "_",
-          " "
-        )}</span></div>
-            <div><strong>Cliente:</strong> ${order.customer_name || ""}</div>
-            <div><strong>Dirección:</strong> ${order.delivery_address}</div>
-            <div><strong>Tel:</strong> ${order.delivery_phone}</div>
-            <div><strong>Total:</strong> $${order.total}</div>
-            <div class="mt-1">
-              ${
-                nextEstado
-                  ? `<button class="btn btn-sm btn-success" onclick="updateOrderStatus('${
-                      order.id
-                    }','${nextEstado}')">Marcar como ${nextEstado.replace(
-                      "_",
-                      " "
-                    )}</button>`
-                  : ""
-              }
+          <div class="order-card fade-in-up">
+            <div class="order-header">
+              <div class="order-number">
+                <i class="bi bi-receipt"></i>
+                #${order.order_number || order.id}
+              </div>
+              <div>
+                <span class="status-badge status-${statusClass}">${statusText}</span>
+                ${
+                  order.status === "en_camino"
+                    ? '<span class="time-badge ms-2"><i class="bi bi-clock"></i> ' +
+                      estimatedTime +
+                      "</span>"
+                    : ""
+                }
+              </div>
             </div>
+            
+            <div class="order-info">
+              <i class="bi bi-person-fill"></i>
+              <strong>Cliente:</strong>
+              <span>${order.customer_name || "Sin nombre"}</span>
+            </div>
+            
+            <div class="order-info">
+              <i class="bi bi-geo-alt-fill"></i>
+              <strong>Dirección:</strong>
+              <span>${order.delivery_address || "Sin dirección"}</span>
+            </div>
+            
+            <div class="order-info">
+              <i class="bi bi-telephone-fill"></i>
+              <strong>Teléfono:</strong>
+              <span>${order.delivery_phone || "Sin teléfono"}</span>
+            </div>
+            
+            <div class="order-info">
+              <i class="bi bi-cash-stack"></i>
+              <strong>Total:</strong>
+              <span class="fw-bold text-success">$${Number(
+                order.total
+              ).toLocaleString("es-CO")}</span>
+            </div>
+            
+            ${
+              nextStatus
+                ? `
+              <div class="order-actions">
+                <button 
+                  class="btn btn-success"
+                  onclick="updateOrderStatus('${order.id}', '${nextStatus}')"
+                >
+                  <i class="bi bi-${nextStatusIcon}"></i> Marcar como ${nextStatusText}
+                </button>
+              </div>
+            `
+                : ""
+            }
           </div>
         `;
       }
 
-      // Cargar pedidos disponibles para aceptar
+      // ===== CARGAR PEDIDOS DISPONIBLES =====
       async function loadAvailableOrders() {
         const box = document.getElementById("availableOrdersBox");
-        box.innerHTML =
-          "<div class='text-muted'>Cargando pedidos disponibles…</div>";
+        box.innerHTML = `
+          <div class="text-center text-muted py-4">
+            <div class="spinner-border text-secondary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando pedidos disponibles...</p>
+          </div>
+        `;
+
         try {
           const res = await fetch("/api/v1/orders/available", {
             headers: {
@@ -223,48 +1086,92 @@
             },
           });
           const data = await res.json();
+
           if (
             !data.success ||
             !Array.isArray(data.orders) ||
             data.orders.length === 0
           ) {
-            box.innerHTML =
-              "<div class='text-muted'>No hay pedidos disponibles.</div>";
+            box.innerHTML = `
+              <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <h5>No hay pedidos disponibles</h5>
+                <p>Los nuevos pedidos aparecerán aquí para que puedas aceptarlos</p>
+              </div>
+            `;
             return;
           }
+
           box.innerHTML = data.orders
             .map((order) => renderAvailableOrder(order))
             .join("");
         } catch (e) {
-          box.innerHTML =
-            "<div class='text-danger'>Error cargando pedidos disponibles.</div>";
+          console.error("Error cargando pedidos disponibles:", e);
+          box.innerHTML = `
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              Error cargando pedidos disponibles. Por favor, intenta nuevamente.
+            </div>
+          `;
         }
       }
 
-      // Renderizar un pedido disponible
+      // ===== RENDERIZAR PEDIDO DISPONIBLE =====
       function renderAvailableOrder(order) {
+        // Calcular distancia estimada (ejemplo)
+        const estimatedDistance = "2.5 km";
+
         return `
-          <div class="order-item">
-            <div><strong>#${
-              order.order_number
-            }</strong> <span class="badge bg-warning">pendiente</span></div>
-            <div><strong>Restaurante:</strong> ${
-              order.restaurant_name || ""
-            }</div>
-            <div><strong>Dirección:</strong> ${order.delivery_address}</div>
-            <div><strong>Total:</strong> $${order.total}</div>
-            <div class="mt-1">
-              <button class="btn btn-sm btn-primary" onclick="acceptOrder('${
-                order.id
-              }')">Aceptar pedido</button>
+          <div class="order-card fade-in-up">
+            <div class="order-header">
+              <div class="order-number">
+                <i class="bi bi-receipt"></i>
+                #${order.order_number || order.id}
+              </div>
+              <div>
+                <span class="status-badge status-pending">NUEVO</span>
+                <span class="time-badge ms-2">
+                  <i class="bi bi-geo"></i> ${estimatedDistance}
+                </span>
+              </div>
+            </div>
+            
+            <div class="order-info">
+              <i class="bi bi-shop"></i>
+              <strong>Restaurante:</strong>
+              <span>${order.restaurant_name || "Sin nombre"}</span>
+            </div>
+            
+            <div class="order-info">
+              <i class="bi bi-geo-alt-fill"></i>
+              <strong>Dirección:</strong>
+              <span>${order.delivery_address || "Sin dirección"}</span>
+            </div>
+            
+            <div class="order-info">
+              <i class="bi bi-cash-stack"></i>
+              <strong>Total:</strong>
+              <span class="fw-bold text-success">$${Number(
+                order.total
+              ).toLocaleString("es-CO")}</span>
+            </div>
+            
+            <div class="order-actions">
+              <button 
+                class="btn btn-primary"
+                onclick="acceptOrder('${order.id}')"
+              >
+                <i class="bi bi-hand-thumbs-up"></i> Aceptar Pedido
+              </button>
             </div>
           </div>
         `;
       }
 
-      // Aceptar un pedido disponible
+      // ===== ACEPTAR PEDIDO =====
       async function acceptOrder(orderId) {
-        if (!confirm("¿Aceptar este pedido?")) return;
+        if (!confirm("¿Deseas aceptar este pedido?")) return;
+
         try {
           const res = await fetch(`/api/v1/orders/${orderId}/assign`, {
             method: "POST",
@@ -273,22 +1180,36 @@
             },
           });
           const data = await res.json();
+
           if (data.success) {
-            alert("Pedido asignado correctamente.");
+            alert("✅ ¡Pedido asignado correctamente!");
             loadAssignedOrders();
             loadAvailableOrders();
           } else {
-            alert(data.message || "No se pudo asignar el pedido.");
+            alert("❌ " + (data.message || "No se pudo asignar el pedido."));
           }
         } catch (e) {
-          alert("Error al asignar el pedido.");
+          console.error("Error al asignar pedido:", e);
+          alert("❌ Error al asignar el pedido.");
         }
       }
 
-      // Actualizar estado de un pedido asignado
+      // ===== ACTUALIZAR ESTADO DE PEDIDO =====
       async function updateOrderStatus(orderId, newStatus) {
-        if (!confirm(`¿Marcar pedido como ${newStatus.replace("_", " ")}?`))
+        const statusLabels = {
+          en_camino: "En Camino",
+          entregado: "Entregado",
+        };
+
+        if (
+          !confirm(
+            `¿Deseas marcar este pedido como ${
+              statusLabels[newStatus] || newStatus
+            }?`
+          )
+        )
           return;
+
         try {
           const res = await fetch(`/api/v1/orders/${orderId}/status`, {
             method: "PUT",
@@ -299,18 +1220,23 @@
             body: JSON.stringify({ status: newStatus }),
           });
           const data = await res.json();
+
           if (data.success) {
-            alert("Estado actualizado.");
+            alert("✅ Estado actualizado correctamente");
             loadAssignedOrders();
           } else {
-            alert(data.message || "No se pudo actualizar el estado.");
+            alert("❌ " + (data.message || "No se pudo actualizar el estado."));
           }
         } catch (e) {
-          alert("Error al actualizar el estado del pedido.");
+          console.error("Error actualizando estado:", e);
+          alert("❌ Error al actualizar el estado del pedido.");
         }
       }
 
+      // ===== CARGAR MI SOLICITUD =====
       async function loadMyApplication() {
+        const box = document.getElementById("applicationBox");
+
         try {
           const res = await fetch(
             "/api/v1/delivery-applications/my-application",
@@ -321,39 +1247,71 @@
             }
           );
           const data = await res.json();
-          const box = document.getElementById("applicationBox");
+
           if (!data.success || !data.data) {
-            box.textContent = "No se encontró tu solicitud.";
+            box.innerHTML = `
+              <div class="text-muted text-center py-3">
+                <i class="bi bi-file-earmark-x"></i>
+                <p class="mb-0 mt-2">No se encontró tu solicitud</p>
+              </div>
+            `;
             return;
           }
+
           const app = data.data;
+          const statusClass = `status-${app.status}`;
+
           box.innerHTML = `
-          <div><strong>Estado:</strong> <span class="badge ${getStatusBadge(
-            app.status
-          )}">${app.status}</span></div>
-          <div><strong>Fecha solicitud:</strong> ${formatDate(
-            app.fecha_solicitud
-          )}</div>
-          ${
-            app.fecha_revision
-              ? `<div><strong>Revisión:</strong> ${formatDate(
-                  app.fecha_revision
-                )}</div>`
-              : ""
-          }
-          ${
-            app.observaciones
-              ? `<div><strong>Observaciones:</strong> ${app.observaciones}</div>`
-              : ""
-          }
-        `;
+            <div class="application-status ${statusClass}">
+              <i class="bi bi-${
+                app.status === "aprobada"
+                  ? "check-circle"
+                  : app.status === "rechazada"
+                  ? "x-circle"
+                  : "clock"
+              }"></i>
+              ${app.status.toUpperCase()}
+            </div>
+            <div class="mb-2">
+              <small class="text-muted d-block">Fecha de solicitud</small>
+              <strong>${formatDate(app.fecha_solicitud)}</strong>
+            </div>
+            ${
+              app.fecha_revision
+                ? `
+              <div class="mb-2">
+                <small class="text-muted d-block">Fecha de revisión</small>
+                <strong>${formatDate(app.fecha_revision)}</strong>
+              </div>
+            `
+                : ""
+            }
+            ${
+              app.observaciones
+                ? `
+              <div class="mt-3 pt-3 border-top">
+                <small class="text-muted d-block">Observaciones</small>
+                <p class="mb-0">${app.observaciones}</p>
+              </div>
+            `
+                : ""
+            }
+          `;
         } catch (e) {
-          document.getElementById("applicationBox").textContent =
-            "Error cargando tu solicitud.";
+          console.error("Error cargando solicitud:", e);
+          box.innerHTML = `
+            <div class="text-danger text-center py-3">
+              <i class="bi bi-exclamation-circle"></i>
+              <p class="mb-0 mt-2">Error cargando tu solicitud</p>
+            </div>
+          `;
         }
       }
 
+      // ===== CARGAR MIS DOCUMENTOS =====
       async function loadMyDocuments() {
+        const box = document.getElementById("docsBox");
+
         try {
           const res = await fetch(
             "/api/v1/delivery-applications/my-application",
@@ -364,30 +1322,61 @@
             }
           );
           const { data } = await res.json();
-          const box = document.getElementById("docsBox");
+
           if (!data) {
-            box.textContent = "Sin documentos.";
+            box.innerHTML = `
+              <div class="text-muted text-center py-3">
+                <i class="bi bi-folder-x"></i>
+                <p class="mb-0 mt-2">Sin documentos</p>
+              </div>
+            `;
             return;
           }
+
           const docs = [];
-          if (data.cv_file_path)
-            docs.push(docLink("Hoja de Vida", data.cv_file_path));
-          if (data.id_document_path)
-            docs.push(docLink("Documento ID", data.id_document_path));
-          if (data.license_photo_path)
-            docs.push(docLink("Licencia", data.license_photo_path));
-          box.innerHTML = docs.length ? docs.join("") : "Sin documentos.";
+
+          if (data.cv_file_path) {
+            docs.push(
+              docLink("Hoja de Vida", data.cv_file_path, "file-earmark-person")
+            );
+          }
+          if (data.id_document_path) {
+            docs.push(
+              docLink("Documento ID", data.id_document_path, "card-text")
+            );
+          }
+          if (data.license_photo_path) {
+            docs.push(
+              docLink("Licencia", data.license_photo_path, "card-checklist")
+            );
+          }
+
+          box.innerHTML = docs.length
+            ? docs.join("")
+            : `<div class="text-muted text-center py-3">Sin documentos adjuntos</div>`;
         } catch (e) {
-          document.getElementById("docsBox").textContent =
-            "Error cargando documentos.";
+          console.error("Error cargando documentos:", e);
+          box.innerHTML = `
+            <div class="text-danger text-center py-3">
+              <i class="bi bi-exclamation-circle"></i>
+              <p class="mb-0 mt-2">Error cargando documentos</p>
+            </div>
+          `;
         }
       }
 
-      function docLink(label, path) {
+      // ===== CREAR LINK DE DOCUMENTO =====
+      function docLink(label, path, icon = "file-earmark") {
         const url = getDocumentUrl(path);
-        return `<div class="mb-1">• ${label}: <a href="${url}" target="_blank">ver</a></div>`;
+        return `
+          <a href="${url}" target="_blank" class="doc-link d-flex">
+            <i class="bi bi-${icon}"></i>
+            <span>${label}</span>
+          </a>
+        `;
       }
 
+      // ===== OBTENER URL DEL DOCUMENTO =====
       function getDocumentUrl(filePath) {
         if (!filePath) return "";
         if (filePath.startsWith("http")) return filePath;
@@ -395,15 +1384,7 @@
         return `/uploads/delivery-applications/${fileName}`;
       }
 
-      function getStatusBadge(status) {
-        const map = {
-          pendiente: "bg-warning",
-          aprobada: "bg-success",
-          rechazada: "bg-danger",
-        };
-        return `badge ${map[status] || "bg-secondary"}`;
-      }
-
+      // ===== FORMATEAR FECHA =====
       function formatDate(dateStr) {
         if (!dateStr) return "—";
         const d = new Date(dateStr);
@@ -416,14 +1397,83 @@
         });
       }
 
+      // ===== CERRAR SESIÓN =====
       function logout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/login";
+        if (confirm("¿Deseas cerrar sesión?")) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/public/login.html";
+        }
       }
 
-      function goHome() {
-        window.location.href = "/";
+      // ===== CAMBIAR DE ROL/VISTA =====
+      function switchRole(role) {
+        if (!role) return;
+
+        const dashboardMap = {
+          delivery: "/public/delivery-dashboard.html",
+          user: "/public/user-dashboard.html",
+          admin: "/public/admin-dashboard.html",
+        };
+
+        const url = dashboardMap[role];
+        if (url) {
+          window.location.href = url;
+        }
+      }
+
+      // ===== INICIALIZAR ROLE SWITCHER =====
+      function initRoleSwitcher() {
+        try {
+          const userStr = localStorage.getItem("user");
+          if (!userStr) {
+            console.log("No hay usuario en localStorage");
+            return;
+          }
+
+          const user = JSON.parse(userStr);
+          const roles = user.roles || [];
+
+          console.log("Roles del usuario:", roles);
+
+          // Si solo tiene un rol, no mostrar el switcher
+          if (roles.length <= 1) {
+            console.log("Usuario tiene solo un rol, no se muestra switcher");
+            return;
+          }
+
+          // Mostrar el menú de cambio de rol
+          const roleSwitcherMenu = document.getElementById("roleSwitcherMenu");
+          const roleSwitcherDivider = document.getElementById(
+            "roleSwitcherDivider"
+          );
+
+          if (roleSwitcherMenu) {
+            roleSwitcherMenu.classList.remove("d-none");
+          }
+          if (roleSwitcherDivider) {
+            roleSwitcherDivider.classList.remove("d-none");
+          }
+
+          // Mostrar opciones según roles disponibles
+          if (roles.includes("user")) {
+            const userOption = document.getElementById("roleOptionUser");
+            if (userOption) {
+              userOption.classList.remove("d-none");
+            }
+          }
+
+          if (roles.includes("admin")) {
+            const adminOption = document.getElementById("roleOptionAdmin");
+            if (adminOption) {
+              adminOption.classList.remove("d-none");
+            }
+          }
+
+          console.log("Role switcher inicializado correctamente");
+        } catch (error) {
+          console.error("Error al inicializar role switcher:", error);
+        }
       }
     </script>
   </body>

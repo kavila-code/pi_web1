@@ -726,8 +726,9 @@
           return;
         }
 
-        // Verificar si es admin
-        if (user.role !== "admin") {
+        // Verificar si es admin (ahora user.roles es un array)
+        const roles = user.roles || [];
+        if (!roles.includes("admin")) {
           alert("Acceso denegado. Solo administradores pueden acceder.");
           window.location.href = "/";
           return;
@@ -737,12 +738,17 @@
         if (user.username) {
           document.getElementById("adminName").textContent = user.username;
         }
-        if (user.role) {
+
+        // Mostrar el rol principal (el primero que encuentre)
+        if (roles.length > 0) {
           let roleLabel = "";
-          switch (user.role) {
+          const primaryRole = roles.includes("admin") ? "admin" : roles[0];
+
+          switch (primaryRole) {
             case "admin":
               roleLabel = "Administrador";
               break;
+            case "delivery":
             case "domiciliario":
               roleLabel = "Domiciliario";
               break;
@@ -751,7 +757,7 @@
               roleLabel = "Cliente";
               break;
             default:
-              roleLabel = user.role;
+              roleLabel = primaryRole || "Usuario";
           }
           const roleElem = document.getElementById("adminRole");
           if (roleElem) roleElem.textContent = roleLabel;

@@ -9,21 +9,23 @@ class DeliveryApplicationController {
       console.log('req.files:', req.files); // Debug log
       
       const userId = req.user.uid;
+      const userRoles = req.user.roles || [];
 
       // Verificar que el usuario no sea ya domiciliario o admin
-      if (req.user.role === 'domiciliario') {
+      if (userRoles.includes('delivery')) {
         return res.status(400).json({
           success: false,
           message: 'Ya eres domiciliario'
         });
       }
 
-      if (req.user.role === 'admin') {
-        return res.status(400).json({
-          success: false,
-          message: 'Los administradores no pueden solicitar ser domiciliarios'
-        });
-      }
+      // Los admins pueden aplicar si quieren tener ambos roles
+      // if (userRoles.includes('admin')) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: 'Los administradores no pueden solicitar ser domiciliarios'
+      //   });
+      // }
 
       // Preparar datos de la aplicación
       const applicationData = {

@@ -356,10 +356,24 @@
               localStorage.setItem("token", result.token);
               localStorage.setItem("user", JSON.stringify(result.user));
 
-              // Redireccionar según el rol
-              if (result.user.role === "admin") {
+              // Redireccionar según los roles (ahora es un array)
+              const roles = result.user.roles || [];
+
+              console.log("👤 Usuario:", result.user.email);
+              console.log("🎭 Roles:", roles);
+
+              // Prioridad: admin > delivery > user
+              if (roles.includes("admin")) {
+                console.log("✅ Redirigiendo a Admin Dashboard");
                 window.location.href = "/public/admin-dashboard.html";
+              } else if (
+                roles.includes("delivery") ||
+                roles.includes("domiciliario")
+              ) {
+                console.log("✅ Redirigiendo a Delivery Dashboard");
+                window.location.href = "/public/delivery-dashboard.html";
               } else {
+                console.log("✅ Redirigiendo a User Dashboard");
                 window.location.href = "/public/user-dashboard.html";
               }
             } else {

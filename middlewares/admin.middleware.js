@@ -1,7 +1,9 @@
 export const adminMiddleware = (req, res, next) => {
   try {
     // Verificar si el usuario tiene rol de admin
-    if (req.role !== 'admin') {
+    const roles = req.roles || [];
+    
+    if (!roles.includes('admin')) {
       return res.status(403).json({ 
         ok: false, 
         msg: "Access denied. Admin privileges required." 

@@ -99,6 +99,31 @@
                   >
                 </li>
                 <li><hr class="dropdown-divider" /></li>
+                <!-- Selector de rol para usuarios con múltiples roles -->
+                <li id="roleSwitcherMenu" class="d-none">
+                  <h6 class="dropdown-header">Cambiar Vista</h6>
+                </li>
+                <li id="roleOptionDelivery" class="d-none">
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="switchRole('delivery')"
+                  >
+                    <i class="bi bi-bicycle"></i> Vista Domiciliario
+                  </a>
+                </li>
+                <li id="roleOptionAdmin" class="d-none">
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    onclick="switchRole('admin')"
+                  >
+                    <i class="bi bi-shield-check"></i> Vista Admin
+                  </a>
+                </li>
+                <li id="roleSwitcherDivider" class="d-none">
+                  <hr class="dropdown-divider" />
+                </li>
                 <li>
                   <a class="dropdown-item" href="#" onclick="logout()"
                     ><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a
@@ -119,7 +144,7 @@
             <div class="banner-content">
               <h4><i class="bi bi-bicycle"></i> ¿Buscando trabajo?</h4>
               <p>
-                Únete a nuestro equipo de repartidores y comienza a generar
+                Únete a nuestro equipo de domiciliarios y comienza a generar
                 ingresos flexibles entregando comida en tu ciudad. ¡Gana hasta
                 $50.000 por día!
               </p>
@@ -131,7 +156,7 @@
                 class="btn btn-delivery"
                 onclick="showDeliveryApplicationForm()"
               >
-                <i class="bi bi-plus-circle"></i> Aplicar como Repartidor
+                <i class="bi bi-plus-circle"></i> Aplicar como Domiciliario
               </button>
               <button
                 class="btn btn-close-banner"
@@ -1015,7 +1040,7 @@
             <!-- Delivery Application Section -->
             <div id="delivery-app-section" class="content-section">
               <div class="section-header">
-                <h2>Mi Aplicación como Repartidor</h2>
+                <h2>Mi Aplicación como Domiciliario</h2>
                 <span class="status-badge pending" id="applicationStatus"
                   >Pendiente</span
                 >
@@ -1034,7 +1059,7 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Aplicar como Repartidor</h5>
+            <h5 class="modal-title">Aplicar como Domiciliario</h5>
             <button
               type="button"
               class="btn-close"
@@ -1243,7 +1268,7 @@
                       <label class="form-check-label" for="agreeTerms">
                         Acepto los
                         <a href="#" target="_blank">términos y condiciones</a>
-                        para repartidores
+                        para domiciliarios
                       </label>
                     </div>
                   </div>
@@ -1300,8 +1325,9 @@
           return;
         }
 
-        // Verificar si es admin y redirigir
-        if (user.role === "admin") {
+        // Verificar si es admin y redirigir (ahora user.roles es un array)
+        const roles = user.roles || [];
+        if (roles.includes("admin")) {
           window.location.href = "/admin-dashboard";
           return;
         }
@@ -1421,13 +1447,21 @@
           user.created_at
         );
 
-        // Mostrar el rol dinámicamente
-        if (user.role) {
+        // Mostrar el rol dinámicamente (ahora user.roles es un array)
+        const roles = user.roles || [];
+        if (roles.length > 0) {
           let roleLabel = "";
-          switch (user.role) {
+          const primaryRole = roles.includes("admin")
+            ? "admin"
+            : roles.includes("delivery")
+            ? "delivery"
+            : roles[0];
+
+          switch (primaryRole) {
             case "admin":
               roleLabel = "Administrador";
               break;
+            case "delivery":
             case "domiciliario":
               roleLabel = "Domiciliario";
               break;
@@ -1436,7 +1470,7 @@
               roleLabel = "Cliente";
               break;
             default:
-              roleLabel = user.role;
+              roleLabel = primaryRole || "Usuario";
           }
           const badge = document.getElementById("userRoleBadge");
           if (badge) badge.textContent = roleLabel;
@@ -1475,7 +1509,7 @@
         }
       }
 
-      // Funciones del banner de repartidor
+      // Funciones del banner de domiciliario
       function openDeliveryApplication() {
         // Confirmar que el usuario quiere aplicar
         if (
@@ -2115,6 +2149,91 @@
       function openDeliveryApplication() {
         showDeliveryApplicationForm();
       }
+
+      // ===== FUNCIONES DE CAMBIO DE ROL =====
+
+      /**
+       * Cambia la vista al dashboard correspondiente según el rol seleccionado
+       */
+      function switchRole(role) {
+        console.log("Cambiando a rol:", role);
+
+        const dashboardMap = {
+          admin: "/public/admin-dashboard.html",
+          delivery: "/public/delivery-dashboard.html",
+          user: "/public/user-dashboard.html",
+        };
+
+        const dashboardUrl = dashboardMap[role];
+        if (dashboardUrl) {
+          window.location.href = dashboardUrl;
+        } else {
+          console.error("Rol desconocido:", role);
+        }
+      }
+
+      /**
+       * Inicializa el selector de roles basado en los roles del usuario
+       * Muestra solo las opciones de roles que el usuario tiene
+       */
+      function initRoleSwitcher() {
+        try {
+          const userStr = localStorage.getItem("user");
+          if (!userStr) {
+            console.log("No hay usuario en localStorage");
+            return;
+          }
+
+          const user = JSON.parse(userStr);
+          const roles = user.roles || [];
+
+          console.log("Roles del usuario:", roles);
+
+          // Si solo tiene un rol, no mostrar el switcher
+          if (roles.length <= 1) {
+            console.log("Usuario tiene solo un rol, no se muestra switcher");
+            return;
+          }
+
+          // Mostrar el menú de cambio de rol
+          const roleSwitcherMenu = document.getElementById("roleSwitcherMenu");
+          const roleSwitcherDivider = document.getElementById(
+            "roleSwitcherDivider"
+          );
+
+          if (roleSwitcherMenu) {
+            roleSwitcherMenu.classList.remove("d-none");
+          }
+          if (roleSwitcherDivider) {
+            roleSwitcherDivider.classList.remove("d-none");
+          }
+
+          // Mostrar opciones según roles disponibles
+          if (roles.includes("delivery")) {
+            const deliveryOption =
+              document.getElementById("roleOptionDelivery");
+            if (deliveryOption) {
+              deliveryOption.classList.remove("d-none");
+            }
+          }
+
+          if (roles.includes("admin")) {
+            const adminOption = document.getElementById("roleOptionAdmin");
+            if (adminOption) {
+              adminOption.classList.remove("d-none");
+            }
+          }
+
+          console.log("Role switcher inicializado correctamente");
+        } catch (error) {
+          console.error("Error al inicializar role switcher:", error);
+        }
+      }
+
+      // Inicializar role switcher al cargar la página
+      document.addEventListener("DOMContentLoaded", function () {
+        initRoleSwitcher();
+      });
     </script>
   </body>
 </html>

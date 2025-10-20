@@ -24,13 +24,13 @@ export const authMiddleware = (req, res, next) => {
     // Guardamos los datos del usuario en req.user
     req.user = {
       email: decoded.email,
-      role: decoded.role,
+      roles: decoded.roles || ['user'], // Array de roles
       uid: decoded.uid
     };
 
     // También mantenemos las propiedades directas por compatibilidad
     req.email = decoded.email;
-    req.role = decoded.role;
+    req.roles = decoded.roles || ['user'];
     req.uid = decoded.uid;
 
     console.log('req.user created:', req.user); // Debug log

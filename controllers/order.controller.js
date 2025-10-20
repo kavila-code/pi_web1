@@ -234,7 +234,7 @@ export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.uid;
-    const userRole = req.user.role;
+    const userRoles = req.user.roles || [];
 
     const order = await OrderModel.getById(id);
 
@@ -246,7 +246,7 @@ export const getOrderById = async (req, res) => {
     }
 
     // Verificar permisos
-    if (userRole !== 'admin') {
+    if (!userRoles.includes('admin')) {
       if (order.customer_uid !== userId && order.delivery_person_uid !== userId) {
         return res.status(403).json({
           ok: false,

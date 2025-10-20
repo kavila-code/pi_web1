@@ -23,8 +23,11 @@ const register = async (req, res) => {
 
     const newUser = await UserModel.create({ username, email, password: hashedPassword, role });
 
+    // Obtener el usuario completo con roles
+    const userWithRoles = await UserModel.findOneByUid(newUser.uid);
+
     const token = jwt.sign(
-      { uid: newUser.uid, email: newUser.email, role: newUser.role },
+      { uid: userWithRoles.uid, email: userWithRoles.email, roles: userWithRoles.roles || ['user'] },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -33,11 +36,11 @@ const register = async (req, res) => {
       ok: true,
       token,
       user: {
-        uid: newUser.uid,
-        email: newUser.email,
-        username: newUser.username,
-        role: newUser.role,
-        created_at: newUser.created_at
+        uid: userWithRoles.uid,
+        email: userWithRoles.email,
+        username: userWithRoles.username,
+        roles: userWithRoles.roles || ['user'],
+        created_at: userWithRoles.created_at
       }
     });
 
@@ -49,27 +52,43 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    console.log('📝 Login request received:', { email: req.body.email }); // Debug log
+    
     const { email, password } = req.body;
 
     if (!email || !password) {
+      console.log('❌ Missing fields'); // Debug log
       return res.status(400).json({ ok: false, msg: "Missing required fields" });
     }
 
+    console.log('🔍 Finding user...'); // Debug log
     const user = await UserModel.findOneByEmailWithPassword(email);
+    
     if (!user) {
+      console.log('❌ User not found'); // Debug log
       return res.status(404).json({ ok: false, msg: "User not found" });
     }
 
+    console.log('✅ User found:', { uid: user.uid, email: user.email, roles: user.roles }); // Debug log
+
+    console.log('🔐 Comparing passwords...'); // Debug log
     const isMatch = await bcryptjs.compare(password, user.password);
+    
     if (!isMatch) {
+      console.log('❌ Invalid password'); // Debug log
       return res.status(401).json({ ok: false, msg: "Invalid credentials" });
     }
 
+    console.log('✅ Password valid'); // Debug log
+    console.log('🎫 Generating token...'); // Debug log
+
     const token = jwt.sign(
-      { uid: user.uid, email: user.email, role: user.role },
+      { uid: user.uid, email: user.email, roles: user.roles || ['user'] },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+
+    console.log('✅ Token generated successfully'); // Debug log
 
     return res.json({
       ok: true,
@@ -78,13 +97,14 @@ const login = async (req, res) => {
         uid: user.uid,
         email: user.email,
         username: user.username,
-        role: user.role,
+        roles: user.roles || ['user'],
         created_at: user.created_at
       }
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('❌ Login error:', error.message); // Improved error log
+    console.error('Stack:', error.stack); // Full stack trace
     return res.status(500).json({ ok: false, msg: 'Server error' });
   }
 };
@@ -103,7 +123,7 @@ const profile = async (req, res) => {
         uid: user.uid,
         username: user.username,
         email: user.email,
-        role: user.role,
+        roles: user.roles || ['user'],
         created_at: user.created_at
       }
     });
