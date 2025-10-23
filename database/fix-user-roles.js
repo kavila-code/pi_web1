@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 async function fixUserRolesTable() {
   try {
-    console.log('🔧 Actualizando tabla user_roles...\n');
+    console.log('Actualizando tabla user_roles...\n');
 
     // Leer el archivo SQL
     const sqlFilePath = path.join(__dirname, 'fix_user_roles_table.sql');
@@ -17,8 +17,8 @@ async function fixUserRolesTable() {
     // Ejecutar el script SQL
     const result = await db.query(sql);
 
-    console.log('✅ Tabla user_roles actualizada exitosamente!\n');
-    console.log('📊 Columnas actuales:');
+    console.log('Tabla user_roles actualizada exitosamente!\n');
+    console.log('Columnas actuales:');
     
     // Mostrar el resultado de la verificación
     if (result.rows && result.rows.length > 0) {
@@ -39,11 +39,11 @@ async function fixUserRolesTable() {
       });
     }
 
-    console.log('\n🎉 ¡Listo! Ahora puedes intentar hacer login nuevamente.');
+    console.log('\n¡Listo! Ahora puedes intentar hacer login nuevamente.');
     
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error al actualizar la tabla:', error);
+    console.error('Error al actualizar la tabla:', error);
     process.exit(1);
   }
 }

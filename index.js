@@ -11,6 +11,7 @@ import deliveryApplicationsRouter from './routes/delivery-applications.route.js'
 import restaurantRouter from './routes/restaurant.route.js';
 import productRouter from './routes/product.route.js';
 import orderRouter from './routes/order.route.js';
+import userInfoRouter from './routes/user-info.route.js';
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/', publicRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/delivery-applications', deliveryApplicationsRouter);
+app.use('/api/v1/user-info', userInfoRouter);
 app.use('/api/v1', restaurantRouter);
 app.use('/api/v1', productRouter);
 app.use('/api/v1', orderRouter);
