@@ -346,6 +346,11 @@
           <p class="section-subtitle">
             Descubre los mejores restaurantes de Tuluá
           </p>
+          <div class="mt-3">
+            <a href="#" class="btn btn-register-restaurant" onclick="openRestaurantRegistration(event)">
+              <i class="bi bi-shop"></i> ¿Tienes un restaurante? ¡Regístralo aquí!
+            </a>
+          </div>
         </div>
 
         <div class="row">
@@ -904,6 +909,61 @@
       });
 
       // Scroll suave para los enlaces del navbar
+      // Función para abrir el formulario de registro de restaurantes
+      function openRestaurantRegistration(event) {
+        event.preventDefault();
+        
+        // Por ahora mostrar un modal de Bootstrap con información
+        const modalHTML = `
+          <div class="modal fade" id="restaurantRegisterModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                  <h5 class="modal-title">
+                    <i class="bi bi-shop"></i> Registra tu Restaurante
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="text-center mb-3">
+                    <i class="bi bi-shop-window" style="font-size: 3rem; color: var(--orange-accent);"></i>
+                  </div>
+                  <h6 class="text-center mb-3">¡Únete a DomiTuluá!</h6>
+                  <p class="text-center">
+                    Aumenta las ventas de tu restaurante llegando a más clientes en Tuluá.
+                  </p>
+                  <div class="alert alert-info">
+                    <strong>Beneficios:</strong>
+                    <ul class="mb-0 mt-2">
+                      <li>Mayor visibilidad para tu negocio</li>
+                      <li>Sistema de pedidos en línea</li>
+                      <li>Gestión de menú digital</li>
+                      <li>Estadísticas de ventas</li>
+                    </ul>
+                  </div>
+                  <div class="d-grid gap-2 mt-3">
+                    <a href="/public/register-restaurant.html" class="btn btn-warning btn-lg">
+                      <i class="bi bi-pencil-square"></i> Registrar mi restaurante
+                    </a>
+                    <p class="text-muted small text-center mb-0">
+                      Completa un formulario rápido y nos pondremos en contacto contigo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Insertar modal si no existe
+        if (!document.getElementById('restaurantRegisterModal')) {
+          document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+        
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('restaurantRegisterModal'));
+        modal.show();
+      }
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener("click", function (e) {
           e.preventDefault();
