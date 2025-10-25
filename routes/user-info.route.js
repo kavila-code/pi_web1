@@ -30,15 +30,15 @@ const userInfoValidation = [
     .notEmpty().withMessage('La dirección es requerida')
     .isLength({ max: 200 }).withMessage('La dirección no debe exceder 200 caracteres'),
   
-  body('municipio')
-    .trim()
+  body('municipio_id')
     .notEmpty().withMessage('El municipio es requerido')
-    .isLength({ max: 100 }).withMessage('El municipio no debe exceder 100 caracteres'),
+    .toInt()
+    .isInt({ min: 1 }).withMessage('El municipio debe ser un número válido mayor a 0'),
   
-  body('departamento')
-    .trim()
+  body('departamento_id')
     .notEmpty().withMessage('El departamento es requerido')
-    .isLength({ max: 100 }).withMessage('El departamento no debe exceder 100 caracteres'),
+    .toInt()
+    .isInt({ min: 1 }).withMessage('El departamento debe ser un número válido mayor a 0'),
   
   body('telefono1')
     .trim()
@@ -47,7 +47,7 @@ const userInfoValidation = [
     .isLength({ min: 7, max: 20 }).withMessage('El teléfono 1 debe tener entre 7 y 20 caracteres'),
   
   body('telefono2')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .matches(/^[0-9+\-\s()]+$/).withMessage('El teléfono 2 debe contener solo números y caracteres válidos')
     .isLength({ max: 20 }).withMessage('El teléfono 2 no debe exceder 20 caracteres'),
@@ -76,15 +76,13 @@ const userInfoUpdateValidation = [
     .trim()
     .isLength({ max: 200 }).withMessage('La dirección no debe exceder 200 caracteres'),
   
-  body('municipio')
+  body('municipio_id')
     .optional()
-    .trim()
-    .isLength({ max: 100 }).withMessage('El municipio no debe exceder 100 caracteres'),
+    .isInt({ min: 1 }).withMessage('El municipio_id debe ser un número válido'),
   
-  body('departamento')
+  body('departamento_id')
     .optional()
-    .trim()
-    .isLength({ max: 100 }).withMessage('El departamento no debe exceder 100 caracteres'),
+    .isInt({ min: 1 }).withMessage('El departamento_id debe ser un número válido'),
   
   body('telefono1')
     .optional()
@@ -93,7 +91,7 @@ const userInfoUpdateValidation = [
     .isLength({ min: 7, max: 20 }).withMessage('El teléfono 1 debe tener entre 7 y 20 caracteres'),
   
   body('telefono2')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .matches(/^[0-9+\-\s()]+$/).withMessage('El teléfono 2 debe contener solo números y caracteres válidos')
     .isLength({ max: 20 }).withMessage('El teléfono 2 no debe exceder 20 caracteres'),

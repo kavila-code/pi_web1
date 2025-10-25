@@ -8,7 +8,7 @@ import { db } from '../database/connection.database.js';
 export const UserInfoModel = {
   /**
    * Crear o actualizar información del usuario
-   * @param {Object} data - { uid, cedula, nombre, apellidos, direccion, municipio, departamento, telefono1, telefono2 }
+   * @param {Object} data - { uid, cedula, nombre, apellidos, direccion, municipio_id, departamento_id, telefono1, telefono2 }
    * @returns {Promise<Object>} Registro creado/actualizado
    */
   async upsert(data) {
@@ -18,8 +18,8 @@ export const UserInfoModel = {
       nombre,
       apellidos,
       direccion,
-      municipio,
-      departamento,
+      municipio_id,
+      departamento_id,
       telefono1,
       telefono2
     } = data;
@@ -35,8 +35,8 @@ export const UserInfoModel = {
           nombre = $2,
           apellidos = $3,
           direccion = $4,
-          municipio = $5,
-          departamento = $6,
+          municipio_id = $5,
+          departamento_id = $6,
           telefono1 = $7,
           telefono2 = $8,
           updated_at = CURRENT_TIMESTAMP
@@ -48,8 +48,8 @@ export const UserInfoModel = {
         nombre,
         apellidos,
         direccion,
-        municipio,
-        departamento,
+        municipio_id,
+        departamento_id,
         telefono1,
         telefono2,
         uid
@@ -59,7 +59,7 @@ export const UserInfoModel = {
       const insertQuery = `
         INSERT INTO user_details (
           user_id, cedula, nombre, apellidos, direccion,
-          municipio, departamento, telefono1, telefono2
+          municipio_id, departamento_id, telefono1, telefono2
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *;
@@ -70,8 +70,8 @@ export const UserInfoModel = {
         nombre,
         apellidos,
         direccion,
-        municipio,
-        departamento,
+        municipio_id,
+        departamento_id,
         telefono1,
         telefono2
       ]);
@@ -113,8 +113,8 @@ export const UserInfoModel = {
       'nombre',
       'apellidos',
       'direccion',
-      'municipio',
-      'departamento',
+      'municipio_id',
+      'departamento_id',
       'telefono1',
       'telefono2'
     ];
@@ -162,35 +162,35 @@ export const UserInfoModel = {
 
   /**
    * Listar usuarios por municipio
-   * @param {string} municipio - Nombre del municipio
+   * @param {number} municipioId - ID del municipio
    * @returns {Promise<Array>}
    */
-  async findByMunicipio(municipio) {
+  async findByMunicipio(municipioId) {
     const query = `
       SELECT ui.*, u.email, u.username 
       FROM user_details ui
       INNER JOIN users u ON ui.user_id = u.uid
-      WHERE ui.municipio ILIKE $1
+      WHERE ui.municipio_id = $1
       ORDER BY ui.apellidos, ui.nombre
     `;
-    const { rows } = await db.query(query, [`%${municipio}%`]);
+    const { rows } = await db.query(query, [municipioId]);
     return rows;
   },
 
   /**
    * Listar usuarios por departamento
-   * @param {string} departamento - Nombre del departamento
+   * @param {number} departamentoId - ID del departamento
    * @returns {Promise<Array>}
    */
-  async findByDepartamento(departamento) {
+  async findByDepartamento(departamentoId) {
     const query = `
       SELECT ui.*, u.email, u.username 
       FROM user_details ui
       INNER JOIN users u ON ui.user_id = u.uid
-      WHERE ui.departamento ILIKE $1
+      WHERE ui.departamento_id = $1
       ORDER BY ui.apellidos, ui.nombre
     `;
-    const { rows } = await db.query(query, [`%${departamento}%`]);
+    const { rows } = await db.query(query, [departamentoId]);
     return rows;
   },
 
@@ -203,7 +203,7 @@ export const UserInfoModel = {
     const info = await this.findByUid(uid);
     if (!info) return false;
 
-    const requiredFields = ['cedula', 'nombre', 'apellidos', 'direccion', 'municipio', 'departamento', 'telefono1'];
-    return requiredFields.every(field => info[field] && info[field].trim() !== '');
+    const requiredFields = ['cedula', 'nombre', 'apellidos', 'direccion', 'municipio_id', 'departamento_id', 'telefono1'];
+    return requiredFields.every(field => info[field] && (typeof info[field] === 'number' || info[field].trim() !== ''));
   }
 };

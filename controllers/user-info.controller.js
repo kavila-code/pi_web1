@@ -46,17 +46,17 @@ export const UserInfoController = {
         nombre,
         apellidos,
         direccion,
-        municipio,
-        departamento,
+        municipio_id,
+        departamento_id,
         telefono1,
         telefono2
       } = req.body;
 
       // Validar campos requeridos
-      if (!cedula || !nombre || !apellidos || !telefono1 || !direccion || !municipio || !departamento) {
+      if (!cedula || !nombre || !apellidos || !telefono1 || !direccion || !municipio_id || !departamento_id) {
         return res.status(400).json({
           success: false,
-          message: 'Faltan campos requeridos: cédula, nombre, apellidos, dirección, municipio, departamento, teléfono1'
+          message: 'Faltan campos requeridos: cédula, nombre, apellidos, dirección, municipio_id, departamento_id, teléfono1'
         });
       }
 
@@ -69,16 +69,27 @@ export const UserInfoController = {
         });
       }
 
+      // Normalizar telefono2 a null si viene vacío o solo espacios
+      const tel2Normalized = (() => {
+        if (telefono2 === undefined) return null;
+        if (telefono2 === null) return null;
+        if (typeof telefono2 === 'string') {
+          const t = telefono2.trim();
+          return t === '' ? null : t;
+        }
+        return telefono2 || null;
+      })();
+
       const data = {
         uid,
         cedula,
         nombre,
         apellidos,
         direccion,
-        municipio,
-        departamento,
+        municipio_id: parseInt(municipio_id),
+        departamento_id: parseInt(departamento_id),
         telefono1,
-        telefono2: telefono2 || null
+        telefono2: tel2Normalized
       };
 
       const info = await UserInfoModel.upsert(data);
@@ -114,6 +125,16 @@ export const UserInfoController = {
     try {
       const uid = req.user.uid;
       const updates = req.body;
+
+      // Normalizar telefono2 a null si llega vacío o solo espacios
+      if (Object.prototype.hasOwnProperty.call(updates, 'telefono2')) {
+        const v = updates.telefono2;
+        if (v === null || v === undefined) {
+          updates.telefono2 = null;
+        } else if (typeof v === 'string' && v.trim() === '') {
+          updates.telefono2 = null;
+        }
+      }
 
       // Verificar que hay campos para actualizar
       if (Object.keys(updates).length === 0) {

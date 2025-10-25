@@ -26,6 +26,126 @@
   </head>
 
   <body class="user-dashboard-body">
+    <!-- Modal para completar información de usuario -->
+    <div
+      class="modal fade"
+      id="userDetailsModal"
+      tabindex="-1"
+      aria-labelledby="userDetailsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="userDetailsForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="userDetailsModalLabel">
+                Completa tu información
+              </h5>
+            </div>
+            <div class="modal-body">
+              <div class="mb-2">
+                <label for="ud_cedula" class="form-label">Cédula *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ud_cedula"
+                  name="cedula"
+                  required
+                />
+              </div>
+              <div class="mb-2">
+                <label for="ud_nombre" class="form-label">Nombre *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ud_nombre"
+                  name="nombre"
+                  required
+                />
+              </div>
+              <div class="mb-2">
+                <label for="ud_apellidos" class="form-label">Apellidos *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ud_apellidos"
+                  name="apellidos"
+                  required
+                />
+              </div>
+              <div class="mb-2">
+                <label for="ud_direccion" class="form-label">Dirección *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ud_direccion"
+                  name="direccion"
+                  required
+                />
+              </div>
+              <div class="mb-2">
+                <label for="ud_departamento" class="form-label"
+                  >Departamento *</label
+                >
+                <select
+                  class="form-select"
+                  id="ud_departamento"
+                  name="departamento_id"
+                  required
+                >
+                  <option value="">Seleccione un departamento</option>
+                  <option value="1">Valle del Cauca</option>
+                  <option value="2">Cundinamarca</option>
+                  <option value="3">Antioquia</option>
+                  <option value="4">Caldas</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label for="ud_municipio" class="form-label">Municipio *</label>
+                <select
+                  class="form-select"
+                  id="ud_municipio"
+                  name="municipio_id"
+                  required
+                  disabled
+                >
+                  <option value="">Primero seleccione un departamento</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label for="ud_telefono1" class="form-label"
+                  >Teléfono 1 *</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ud_telefono1"
+                  name="telefono1"
+                  required
+                />
+              </div>
+              <div class="mb-2">
+                <label for="ud_telefono2" class="form-label"
+                  >Teléfono 2 (opcional)</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ud_telefono2"
+                  name="telefono2"
+                  placeholder="Opcional"
+                />
+              </div>
+              <div id="userDetailsError" class="text-danger small"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Top Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom">
       <div class="container">
@@ -914,7 +1034,7 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label>Nombre Completo</label>
+                      <label>Usuario</label>
                       <input
                         type="text"
                         class="form-control"
@@ -936,11 +1056,83 @@
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label>Teléfono</label>
+                      <label>Cédula</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserCedula"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Nombre Completo</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserFullName"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Dirección</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserDireccion"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Municipio</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserMunicipio"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Departamento</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="editUserDepartamento"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Teléfono 1</label>
                       <input
                         type="tel"
                         class="form-control"
                         id="editUserPhone"
+                        readonly
+                        placeholder="No especificado"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Teléfono 2</label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="editUserPhone2"
                         readonly
                         placeholder="No especificado"
                       />
@@ -1312,6 +1504,159 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+      // Mostrar modal si falta info de user_details
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        fetch("/api/v1/user-info/me/complete", {
+          headers: { Authorization: "Bearer " + token },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            // Backend devuelve { success, isComplete }
+            const isComplete = data.complete || data.isComplete;
+            if ((data.ok || data.success) && !isComplete) {
+              // Oculta dashboard y muestra modal
+              document.body.classList.add("modal-open");
+              const mainContent =
+                document.querySelector(".main-container") ||
+                document.querySelector("main");
+              if (mainContent) mainContent.style.display = "none";
+              const modal = new bootstrap.Modal(
+                document.getElementById("userDetailsModal"),
+                { backdrop: "static", keyboard: false }
+              );
+              modal.show();
+            }
+          });
+      });
+
+      // Datos de municipios por departamento
+      const municipiosPorDepartamento = {
+        1: [
+          { id: "1", nombre: "Cali" },
+          { id: "2", nombre: "Palmira" },
+          { id: "3", nombre: "Jamundí" },
+          { id: "4", nombre: "Tuluá" },
+          { id: "5", nombre: "Buenaventura" },
+          { id: "6", nombre: "Candelaria" },
+        ],
+        2: [
+          { id: "7", nombre: "Bogotá" },
+          { id: "8", nombre: "Soacha" },
+          { id: "9", nombre: "Chía" },
+          { id: "10", nombre: "Zipaquirá" },
+          { id: "11", nombre: "Facatativá" },
+        ],
+        3: [
+          { id: "12", nombre: "Medellín" },
+          { id: "13", nombre: "Bello" },
+          { id: "14", nombre: "Itagüí" },
+          { id: "15", nombre: "Envigado" },
+          { id: "16", nombre: "Rionegro" },
+        ],
+        4: [
+          { id: "17", nombre: "Manizales" },
+          { id: "18", nombre: "Chinchiná" },
+          { id: "19", nombre: "La Dorada" },
+          { id: "20", nombre: "Villamaría" },
+          { id: "21", nombre: "Anserma" },
+        ],
+      };
+
+      // Manejar cambio de departamento para actualizar municipios
+      document.addEventListener("DOMContentLoaded", function () {
+        const departamentoSelect = document.getElementById("ud_departamento");
+        const municipioSelect = document.getElementById("ud_municipio");
+
+        if (departamentoSelect && municipioSelect) {
+          departamentoSelect.addEventListener("change", function () {
+            const departamentoId = this.value;
+            municipioSelect.innerHTML =
+              '<option value="">Seleccione un municipio</option>';
+
+            if (departamentoId && municipiosPorDepartamento[departamentoId]) {
+              municipioSelect.disabled = false;
+              municipiosPorDepartamento[departamentoId].forEach(function (
+                municipio
+              ) {
+                const option = document.createElement("option");
+                option.value = municipio.id;
+                option.textContent = municipio.nombre;
+                municipioSelect.appendChild(option);
+              });
+            } else {
+              municipioSelect.disabled = true;
+              municipioSelect.innerHTML =
+                '<option value="">Primero seleccione un departamento</option>';
+            }
+          });
+        }
+      });
+
+      // Enviar formulario de user_details
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("userDetailsForm");
+        if (!form) return;
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const token = localStorage.getItem("token");
+          const errorDiv = document.getElementById("userDetailsError");
+          errorDiv.textContent = "";
+          const formData = new FormData(form);
+          const body = {};
+          formData.forEach((v, k) => {
+            // No agregar campos vacíos o solo con espacios
+            if (k === "telefono2" && (!v || v.trim() === "")) {
+              // No agregar el campo si está vacío
+            } else if (v && v.toString().trim() !== "") {
+              body[k] = v;
+            }
+          });
+
+          console.log("Datos a enviar:", body); // Debug
+
+          try {
+            const res = await fetch("/api/v1/user-info/me", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify(body),
+            });
+            const data = await res.json();
+
+            console.log("Respuesta del servidor:", data); // Debug
+
+            if (data.ok || data.success) {
+              // Oculta modal y muestra dashboard
+              const modalEl = document.getElementById("userDetailsModal");
+              const modal = bootstrap.Modal.getInstance(modalEl);
+              modal.hide();
+              document.body.classList.remove("modal-open");
+              const mainContent =
+                document.querySelector(".main-container") ||
+                document.querySelector("main");
+              if (mainContent) mainContent.style.display = "";
+              location.reload();
+            } else {
+              if (Array.isArray(data.errors) && data.errors.length > 0) {
+                errorDiv.innerHTML = data.errors
+                  .map((e) => `<div>${e.msg}</div>`)
+                  .join("");
+              } else {
+                errorDiv.textContent =
+                  data.message ||
+                  data.msg ||
+                  "Error al guardar. Verifica los datos.";
+              }
+            }
+          } catch (err) {
+            errorDiv.textContent = "Error de conexión.";
+          }
+        });
+      });
       // Variables globales
       let applicationModal;
 
@@ -1446,6 +1791,39 @@
         document.getElementById("editUserDate").value = formatDate(
           user.created_at
         );
+
+        // Cargar datos adicionales de user_details desde el backend
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetch("/api/v1/user-info/me", {
+            headers: { Authorization: "Bearer " + token },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if ((data.ok || data.success) && data.data) {
+                const userDetails = data.data;
+                document.getElementById("editUserCedula").value =
+                  userDetails.cedula || "";
+                document.getElementById("editUserFullName").value =
+                  userDetails.nombre && userDetails.apellidos
+                    ? `${userDetails.nombre} ${userDetails.apellidos}`
+                    : "";
+                document.getElementById("editUserDireccion").value =
+                  userDetails.direccion || "";
+                document.getElementById("editUserMunicipio").value =
+                  userDetails.municipio || "";
+                document.getElementById("editUserDepartamento").value =
+                  userDetails.departamento || "";
+                document.getElementById("editUserPhone").value =
+                  userDetails.telefono1 || "";
+                document.getElementById("editUserPhone2").value =
+                  userDetails.telefono2 || "";
+              }
+            })
+            .catch((err) => {
+              console.log("No se pudieron cargar los detalles del usuario");
+            });
+        }
 
         // Mostrar el rol dinámicamente (ahora user.roles es un array)
         const roles = user.roles || [];
