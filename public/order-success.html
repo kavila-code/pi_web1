@@ -126,22 +126,7 @@
       </div>
     </div>
 
-    <script>
-      // Obtener datos del pedido
-      const lastOrder = JSON.parse(localStorage.getItem("lastOrder") || "{}");
-
-      if (lastOrder.order_number) {
-        document.getElementById("orderNumber").textContent =
-          lastOrder.order_number;
-      } else {
-        // Si no hay pedido, redirigir
-        window.location.href = "/public/restaurants.html";
-      }
-
-      // Limpiar después de mostrar
-      setTimeout(() => {
-        localStorage.removeItem("lastOrder");
-      }, 1000);
-    </script>
+    <script src="/frontend/js/common.js"></script>
+    <script src="/frontend/js/order-success.js"></script>
   </body>
 </html>

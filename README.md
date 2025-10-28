@@ -56,14 +56,31 @@ El servidor estará corriendo en `http://localhost:3000`
 ```
 pi_web/
 ├── controllers/       # Lógica de negocio
-├── database/         # Migraciones y conexión DB
-├── middlewares/      # Autenticación, validación, etc.
-├── models/           # Modelos de datos
-├── routes/           # Definición de endpoints
-├── public/           # HTML estáticos
-├── frontend/         # CSS
-├── uploads/          # Archivos subidos
-└── index.js          # Entry point
+├── database/          # Migraciones y conexión DB
+├── middlewares/       # Autenticación, validación, etc.
+├── models/            # Modelos de datos
+├── routes/            # Definición de endpoints
+├── public/            # HTML estáticos (sin JS inline)
+├── frontend/          # Activos del frontend (CSS/JS)
+│   ├── foodie.css
+│   ├── admin-dashboard.css
+│   └── js/
+│       ├── common.js
+│       ├── index.js
+│       ├── login.js
+│       ├── register-restaurant.js
+│       ├── checkout.js
+│       ├── restaurant-menu.js
+│       ├── cart.js
+│       ├── restaurants.js
+│       ├── my-orders.js
+│       ├── order-success.js
+│       ├── admin-dashboard.js
+│       ├── user-dashboard.js
+│       ├── delivery-dashboard.js
+│       └── delivery-orders.js
+├── uploads/           # Archivos subidos
+└── index.js           # Entry point
 ```
 
 ## 🗄️ Base de Datos
@@ -138,6 +155,24 @@ Los tokens deben enviarse en el header `Authorization: Bearer <token>`
 - La ruta API `/api/v1/user-info` es un alias que internamente usa `user_details`
 - Validaciones implementadas con `express-validator`
 - Autenticación via middleware `authMiddleware` y `adminMiddleware`
+
+### Frontend (refactor)
+
+- Todo el JavaScript del cliente fue externalizado a `/frontend/js`.
+- Los HTML en `public/` referencian `bootstrap.bundle.min.js` → `/frontend/js/common.js` → el JS específico de la página.
+- Beneficios: código más modular, mantenible y sin scripts inline.
+
+## ✅ Verificación rápida
+
+Tras iniciar el servidor, estas rutas deben responder 200 (según rol/autenticación):
+
+- `/`
+- `/public/restaurants.html`
+- `/public/admin-dashboard.html` (requiere token admin)
+- `/public/user-dashboard.html` (requiere token user)
+- `/public/delivery-dashboard.html` y `/public/delivery-orders.html` (requiere token delivery)
+
+Y los JS estáticos deben servirse en `/frontend/js/*` (por ejemplo, `common.js`, `restaurants.js`).
 
 ## 👥 Equipo
 

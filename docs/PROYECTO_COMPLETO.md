@@ -58,10 +58,25 @@ pi_web/
 ├── 📂 database/              # Configuración de BD
 │   ├── connection.database.js
 │   └── update_delivery_applications.sql
-├── 📂 frontend/              # Estilos CSS
+├── 📂 frontend/              # Activos del frontend (CSS/JS)
 │   ├── foodie.css
 │   ├── login.css
-│   └── admin-dashboard.css
+│   ├── admin-dashboard.css
+│   └── js/
+│       ├── common.js
+│       ├── index.js
+│       ├── login.js
+│       ├── register-restaurant.js
+│       ├── checkout.js
+│       ├── restaurant-menu.js
+│       ├── cart.js
+│       ├── restaurants.js
+│       ├── my-orders.js
+│       ├── order-success.js
+│       ├── admin-dashboard.js
+│       ├── user-dashboard.js
+│       ├── delivery-dashboard.js
+│       └── delivery-orders.js
 ├── 📂 middlewares/           # Middleware personalizado
 │   ├── auth.middleware.js
 │   ├── admin.middleware.js
@@ -70,7 +85,7 @@ pi_web/
 ├── 📂 models/                # Modelos de datos
 │   ├── user.model.js
 │   └── delivery-application.model.js
-├── 📂 public/                # Páginas web
+├── 📂 public/                # Páginas web (sin JS inline, referencian /frontend/js)
 │   ├── index.html
 │   ├── login.html
 │   ├── profile.html
@@ -160,7 +175,7 @@ pi_web/
   3. **Disponibilidad:** Horarios, zonas de trabajo, experiencia
   4. **Documentos:** Carga de CV, cédula, licencia
 
-### **� Sistema de Pedidos:**
+### **🍽️ Sistema de Pedidos:**
 
 - ✅ Creación de pedidos desde el frontend (carrito, checkout)
 - ✅ Visualización de pedidos disponibles para domiciliarios
@@ -170,7 +185,7 @@ pi_web/
 - ✅ Asignación de domiciliarios a pedidos
 - ✅ Estadísticas y métricas de pedidos en tiempo real
 
-### **�📂 Sistema de Archivos:**
+### **�️ Sistema de Archivos:**
 
 - ✅ Upload de documentos con Multer
 - ✅ Validación de tipos de archivo (PDF, DOC, DOCX, JPG, PNG)
@@ -262,8 +277,17 @@ pi_web/
 ### **Archivos Estáticos:**
 
 - `/uploads/delivery-applications/*` - Servir documentos subidos
-- `/frontend/*` - CSS y assets
-- `/public/*` - Páginas HTML
+- `/frontend/*` - CSS y JS
+- `/public/*` - Páginas HTML (referencian JS externo)
+
+---
+
+## 🧩 Refactor de Frontend (2025-10)
+
+- Se externalizó todo el JavaScript a `/frontend/js`, eliminando scripts inline en los HTML de `public/`.
+- Se crearon módulos por página y un `common.js` con utilidades compartidas (auth, fetch con token, helpers de UI).
+- Páginas afectadas: index, login, register-restaurant, checkout, restaurant-menu, cart, restaurants, my-orders, order-success, admin-dashboard, user-dashboard, delivery-dashboard, delivery-orders.
+- Beneficios: mejor mantenibilidad, reuso de código y orden en carga de scripts.
 
 ---
 
