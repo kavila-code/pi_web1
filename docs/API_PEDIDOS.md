@@ -530,3 +530,116 @@ Body: {
 ---
 
 **🎉 25 APIs REST completamente funcionales para el sistema de pedidos!**
+
+---
+
+## 🚴‍♂️ DELIVERY APPLICATIONS (`/api/v1/delivery-applications`)
+
+Endpoints para gestionar las solicitudes de usuarios que quieren ser domiciliarios. Estos endpoints son usados por el dashboard de Admin y los paneles de Usuario/Domiciliario en el frontend.
+
+### Cliente (Usuario autenticado)
+
+#### 1. Crear solicitud
+
+```
+POST /api/v1/delivery-applications/apply
+Headers: Authorization: Bearer {token}
+```
+
+Body (multipart/form-data si adjunta documentos; JSON básico mínimo):
+
+```json
+{
+  "full_name": "Juan Pérez",
+  "phone": "3001234567",
+  "vehicle_type": "moto",
+  "work_zones": ["Centro", "Norte"]
+}
+```
+
+Respuesta:
+
+```json
+{
+  "ok": true,
+  "message": "Solicitud creada",
+  "data": { "id": 12, "status": "pending" }
+}
+```
+
+#### 2. Ver mi solicitud
+
+```
+GET /api/v1/delivery-applications/my-application
+Headers: Authorization: Bearer {token}
+```
+
+---
+
+### Admin (Protegidas)
+
+#### 3. Listar todas
+
+```
+GET /api/v1/delivery-applications/all
+Headers: Authorization: Bearer {token}
+```
+
+Query params:
+
+- `status`: pending/under_review/approved/rejected
+- `limit`, `offset`
+
+#### 4. Ver estadísticas
+
+```
+GET /api/v1/delivery-applications/stats
+Headers: Authorization: Bearer {token}
+```
+
+Respuesta:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "total": 25,
+    "pending": 5,
+    "under_review": 3,
+    "approved": 12,
+    "rejected": 5
+  }
+}
+```
+
+#### 5. Ver solicitud por id
+
+```
+GET /api/v1/delivery-applications/:id
+Headers: Authorization: Bearer {token}
+```
+
+#### 6. Actualizar estado
+
+```
+PUT /api/v1/delivery-applications/:id/status
+Headers: Authorization: Bearer {token}
+```
+
+Body:
+
+```json
+{ "status": "approved", "notes": "Documentos válidos" }
+```
+
+#### 7. Eliminar solicitud
+
+```
+DELETE /api/v1/delivery-applications/:id
+Headers: Authorization: Bearer {token}
+```
+
+Notas:
+
+- Los documentos subidos (cédula, licencia, SOAT, etc.) quedan almacenados y pueden previsualizarse desde el dashboard.
+- Al aprobarse, el usuario recibe el rol de domiciliario y puede empezar a tomar pedidos.
