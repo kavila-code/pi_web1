@@ -437,11 +437,15 @@
 
 .profile-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* Use auto columns and center the grid so the stat boxes stay centered
+     inside the profile card instead of stretching to the card's full width */
+  grid-template-columns: repeat(3, auto);
   gap: 1rem;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 2px solid rgba(231, 76, 60, 0.1);
+  justify-content: center;
+  justify-items: center;
 }
 
 .stat-item {
@@ -1024,8 +1028,10 @@
   }
   
   .profile-stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, auto);
     gap: 0.5rem;
+    justify-content: center;
+    justify-items: center;
   }
   
   .section-header {
