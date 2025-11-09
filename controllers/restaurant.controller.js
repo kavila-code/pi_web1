@@ -103,6 +103,39 @@ export const createRestaurant = async (req, res) => {
   }
 };
 
+// Aplicación pública para registrar un restaurante (se deja inactivo para revisión)
+export const applyRestaurant = async (req, res) => {
+  try {
+    const restaurantData = {
+      name: req.body.name,
+      description: req.body.description || req.body.notes || null,
+      category: req.body.category,
+      address: req.body.address,
+      phone: req.body.phone,
+      email: req.body.email,
+      logo_url: req.body.logo_url || null,
+      cover_image_url: req.body.cover_image_url || null,
+      opening_hours: req.body.opening_hours || null,
+      delivery_time: req.body.delivery_time || '30-45 min',
+      minimum_order: req.body.minimum_order || 0,
+      delivery_fee: req.body.delivery_fee || 0,
+      rating: req.body.rating || 0,
+      is_active: false, // dejar inactivo hasta revisión
+    };
+
+    if (!restaurantData.name || !restaurantData.address || !restaurantData.phone) {
+      return res.status(400).json({ ok: false, message: 'Nombre, dirección y teléfono son requeridos' });
+    }
+
+    const newRestaurant = await RestaurantModel.create(restaurantData);
+
+    return res.status(201).json({ ok: true, message: 'Solicitud recibida. Su restaurante será revisado por el equipo.', data: newRestaurant });
+  } catch (error) {
+    console.error('Error al solicitar registro de restaurante:', error);
+    return res.status(500).json({ ok: false, message: 'Error al procesar la solicitud', error: error.message });
+  }
+};
+
 // Actualizar restaurante (admin)
 export const updateRestaurant = async (req, res) => {
   try {

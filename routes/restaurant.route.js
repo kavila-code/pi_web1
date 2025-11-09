@@ -3,6 +3,7 @@ import {
   getAllRestaurants,
   getRestaurantById,
   createRestaurant,
+  applyRestaurant,
   updateRestaurant,
   deleteRestaurant,
   getCategories,
@@ -13,6 +14,7 @@ import { adminMiddleware } from '../middlewares/admin.middleware.js';
 const router = Router();
 
 // Rutas públicas (sin autenticación)
+router.post('/restaurants/apply', applyRestaurant);
 router.get('/restaurants', getAllRestaurants);
 router.get('/restaurants/categories', getCategories);
 router.get('/restaurants/:id', getRestaurantById);
