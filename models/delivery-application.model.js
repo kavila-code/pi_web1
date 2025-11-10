@@ -147,7 +147,10 @@ class DeliveryApplicationModel {
 
   // Actualizar estado de solicitud
   static async updateStatus(id, status, observaciones, adminId) {
+    const client = await pool.connect();
     try {
+      await client.query('BEGIN');
+
       const query = `
         UPDATE delivery_applications 
         SET 
@@ -159,25 +162,62 @@ class DeliveryApplicationModel {
         WHERE id = $4
         RETURNING *
       `;
-      const result = await pool.query(query, [status, observaciones, adminId, id]);
-      
+      const result = await client.query(query, [status, observaciones, adminId, id]);
+
       if (result.rows.length === 0) {
+        await client.query('ROLLBACK');
         throw new Error('Solicitud no encontrada');
       }
 
-      // Si la solicitud es aprobada, actualizar el rol del usuario
+      // Si la solicitud es aprobada, asignar rol y sincronizar perfil en la misma transacción
       if (status === 'aprobada') {
-        const updateUserQuery = `
-          UPDATE users 
-          SET role = 'domiciliario', updated_at = CURRENT_TIMESTAMP
-          WHERE uid = (SELECT user_id FROM delivery_applications WHERE id = $1)
+        // Obtener user_id para esta solicitud
+        const { rows: userRow } = await client.query('SELECT user_id FROM delivery_applications WHERE id = $1', [id]);
+        const userId = userRow[0].user_id;
+
+        // Asignar rol 'delivery' en la tabla user_roles (reactivar si existía)
+        const assignRoleQuery = `
+          INSERT INTO user_roles (user_id, role, is_active, assigned_at)
+          VALUES ($1, 'delivery', true, CURRENT_TIMESTAMP)
+          ON CONFLICT (user_id, role) DO UPDATE SET is_active = true, assigned_at = EXCLUDED.assigned_at
         `;
-        await pool.query(updateUserQuery, [id]);
+        await client.query(assignRoleQuery, [userId]);
+
+        // Sincronizar campos de perfil desde delivery_applications a users
+        // Esta actualización solo rellenará campos vacíos en `users` (no sobrescribe datos existentes).
+        const syncProfileQuery = `
+          UPDATE users u
+          SET
+            full_name = COALESCE(da.full_name, u.full_name),
+            phone = COALESCE(da.phone, u.phone),
+            address = COALESCE(da.address, u.address),
+            birth_date = COALESCE(da.birth_date, u.birth_date),
+            document_id = COALESCE(da.document_id, u.document_id),
+            vehicle_type = COALESCE(da.vehicle_type, u.vehicle_type),
+            has_license = COALESCE(da.has_license, u.has_license),
+            license_number = COALESCE(da.license_number, u.license_number),
+            work_zones = COALESCE(da.work_zones, u.work_zones),
+            availability_schedule = COALESCE(da.availability_schedule, u.availability_schedule),
+            previous_experience = COALESCE(da.previous_experience, u.previous_experience),
+            why_delivery = COALESCE(da.why_delivery, u.why_delivery),
+            customer_service_experience = COALESCE(da.customer_service_experience, u.customer_service_experience),
+            cv_file_path = COALESCE(da.cv_file_path, u.cv_file_path),
+            id_document_path = COALESCE(da.id_document_path, u.id_document_path),
+            license_photo_path = COALESCE(da.license_photo_path, u.license_photo_path),
+            updated_at = CURRENT_TIMESTAMP
+          FROM delivery_applications da
+          WHERE da.id = $1 AND u.uid = da.user_id
+        `;
+        await client.query(syncProfileQuery, [id]);
       }
 
+      await client.query('COMMIT');
       return result.rows[0];
     } catch (error) {
+      await client.query('ROLLBACK');
       throw error;
+    } finally {
+      client.release();
     }
   }
 

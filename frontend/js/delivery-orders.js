@@ -10,7 +10,9 @@ if (!token) {
   window.location.href = "/login.html";
 }
 
-if (user.role !== "domiciliario") {
+// Compatibilidad: preferir `roles` (array) y caer a `role` si existe
+const roles = user.roles || (user.role ? [user.role] : []);
+if (!(roles.includes("delivery") || roles.includes("domiciliario"))) {
   alert("Acceso denegado. Solo domiciliarios pueden acceder a esta página.");
   window.location.href = "/public/user-dashboard.html";
 }
