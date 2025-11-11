@@ -185,6 +185,11 @@ class DeliveryApplicationModel {
 
         // Sincronizar campos de perfil desde delivery_applications a users
         // Esta actualización solo rellenará campos vacíos en `users` (no sobrescribe datos existentes).
+        // Nota: en algunas bases de datos antiguas puede haber referencias legacy a la columna
+        // `role` en la tabla `users`. Para evitar que un problema en la sincronización bloquee
+        // la aprobación (y el asignado del rol en `user_roles`), ejecutamos la sincronización
+        // en un bloque try/catch separado y NO hacemos rollback si falla aquí. Esto permite
+        // aprobar la solicitud aunque haya objetos DB que referencien una columna 'role' inexistente.
         const syncProfileQuery = `
           UPDATE users u
           SET
@@ -208,7 +213,15 @@ class DeliveryApplicationModel {
           FROM delivery_applications da
           WHERE da.id = $1 AND u.uid = da.user_id
         `;
-        await client.query(syncProfileQuery, [id]);
+        try {
+          await client.query(syncProfileQuery, [id]);
+        } catch (syncErr) {
+          // Loguear el error pero no abortar la transacción completa
+          // El paso crítico (UPDATE de delivery_applications y INSERT en user_roles)
+          // ya se realizó antes; queremos que la aprobación continúe.
+          console.warn('Warning: falló la sincronización de perfil al aprobar la solicitud:', syncErr.message);
+          // Opcional: podríamos almacenar syncErr.message en observaciones o en logs externos
+        }
       }
 
       await client.query('COMMIT');

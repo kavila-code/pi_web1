@@ -89,6 +89,32 @@
   flex: 1;
 }
 
+/* Override Bootstrap .list-group styles inside our sidebar so menu items
+   keep the dark gradient background and white text (Bootstrap sets
+   .list-group-item { background: #fff } which makes white text invisible). */
+.sidebar .list-group,
+.sidebar .list-group-flush {
+  background: transparent;
+}
+
+.sidebar .list-group-item {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.9);
+  padding: 0.8rem 1.5rem;
+}
+
+.sidebar .list-group-item:hover {
+  background-color: rgba(255,255,255,0.06);
+  color: var(--warm-white);
+}
+
+.sidebar .list-group-item.active {
+  background-color: rgba(231,76,60,0.18);
+  color: var(--warm-white);
+  border-left: 3px solid var(--primary-red);
+}
+
 .menu-item {
   display: flex;
   align-items: center;
