@@ -14,11 +14,25 @@
     />
     <link rel="stylesheet" href="/frontend/foodie.css" />
     <style>
+      /* Header (rojo -> amarillo gradient to match main promo palette) */
       .cart-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ff4d4f 0%, #ffbf00 100%);
         color: white;
-        padding: 40px 0;
+        /* Aumentamos padding-top para que el contenido no quede debajo de la navbar fija */
+        padding: 96px 0 40px; /* top 96px, bottom 40px */
         margin-bottom: 30px;
+      }
+      .cart-header .container {
+        text-align: center;
+      }
+      .cart-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.1;
+      }
+      .cart-header p#itemsCount {
+        margin-top: 8px;
+        opacity: 0.95;
       }
 
       .cart-item {
@@ -103,26 +117,104 @@
       }
 
       .checkout-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: linear-gradient(135deg, #ff4d4f 0%, #ffbf00 100%);
+        color: #222;
         border: none;
         border-radius: 25px;
         padding: 15px;
         font-size: 1.1rem;
-        font-weight: bold;
+        font-weight: 700;
         width: 100%;
         margin-top: 20px;
-        transition: transform 0.3s;
+        transition: transform 0.18s ease;
       }
 
       .checkout-btn:hover {
         transform: scale(1.02);
       }
 
+      /* Empty cart: center vertically and horizontally and keep it readable */
       .empty-cart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        padding: 80px 20px;
+        padding: 40px 20px;
+        min-height: 56vh; /* center area below header */
+        /* centrar el bloque dentro de la columna y limitar ancho para lectura */
+        max-width: 720px;
+        margin: 0 auto;
       }
+
+      .empty-cart h3 {
+        font-size: 1.6rem;
+        margin-top: 12px;
+      }
+
+      .empty-cart p {
+        color: #6b7280; /* muted text like main page */
+        margin-bottom: 18px;
+      }
+
+      .empty-cart .btn {
+        background: #ffbf00; /* amarillo principal */
+        color: #1f1f1f;
+        border-color: transparent;
+        box-shadow: 0 6px 18px rgba(255, 191, 0, 0.12);
+      }
+
+      /* Header icon pills to match the red->yellow palette */
+      .header-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.92);
+        color: #ff4d4f; /* rojo principal */
+        font-size: 1.05rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      }
+
+      .header-icon.small-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.95rem;
+      }
+
+      /* Navbar links contrast on gradient */
+      .navbar .nav-link, .navbar .navbar-brand {
+        color: #fff !important;
+        font-weight: 600;
+      }
+
+      /* "Seguir Comprando" link styled as a colored pill to match the provided red */
+      .custom-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 6px 12px;
+        border-radius: 10px;
+        background: var(--primary-red); /* usar la variable global de color */
+        color: #ffffff !important;
+        text-decoration: none;
+        box-shadow: 0 6px 16px rgba(231,76,60,0.18);
+      }
+
+      .custom-back-link:hover {
+        text-decoration: none;
+        filter: brightness(0.96);
+      }
+
+      /* keep the small circular icon visible on the colored background */
+      .custom-back-link .header-icon {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+      }
+
+      .custom-back-link span { vertical-align: middle; }
 
       .empty-cart-icon {
         font-size: 5rem;
@@ -158,11 +250,12 @@
     <!-- Navbar -->
     <nav
       class="navbar navbar-expand-lg navbar-dark"
-      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      style="background: var(--primary-red);"
     >
       <div class="container">
-        <a class="navbar-brand fw-bold" href="/public/restaurants.html">
-          <i class="bi bi-arrow-left"></i> Seguir Comprando
+        <a class="navbar-brand d-flex align-items-center fw-bold custom-back-link" href="/public/restaurants.html">
+          <span class="header-icon" aria-hidden="true"><i class="bi bi-arrow-left"></i></span>
+          <span class="ms-2">Seguir Comprando</span>
         </a>
         <button
           class="navbar-toggler"
@@ -175,8 +268,9 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/public/my-orders.html">
-                <i class="bi bi-bag"></i> Mis Pedidos
+              <a class="nav-link d-flex align-items-center justify-content-end custom-orders-link" href="/public/my-orders.html">
+                <span class="me-2">Mis Pedidos</span>
+                <span class="header-icon small-icon" aria-hidden="true"><i class="bi bi-bag"></i></span>
               </a>
             </li>
           </ul>

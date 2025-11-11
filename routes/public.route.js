@@ -50,5 +50,6 @@ router.get('/user-inicio', (req, res) => {
 router.get('/test-logout', (req, res) => {
     res.sendFile(path.join(publicPath, 'test-logout.html'));
 });
+// (product.html and restaurant.html are served via static files or modal preview; explicit routes removed)
 
 export default router;

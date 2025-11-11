@@ -197,6 +197,31 @@ body {
   font-weight: 600;
 }
 
+/* Variant to match the circular floating cart used inside restaurant/menu pages */
+.btn-cart.use-float-style {
+  background: linear-gradient(135deg, #ff7a86 0%, #ff5870 100%); /* warm pinky gradient similar to attachment */
+  border: none;
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 6px 18px rgba(255,87,102,0.18);
+  color: #fff;
+  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-cart.use-float-style:hover {
+  transform: scale(1.05);
+}
+.btn-cart.use-float-style .cart-count {
+  top: -6px;
+  right: -6px;
+  background: #ff3b4d; /* stronger red for badge */
+  width: 20px;
+  height: 20px;
+  font-size: 0.72rem;
+}
+
 
 .btn-info:hover {
   background: var(--warm-white);
@@ -965,9 +990,109 @@ body {
   color: var(--primary-red);
   font-weight: 600;
   text-align: center;
-  padding: 10px;
-  border-radius: 10px;
+  /* Mostrar como inline-flex y centrar para que no ocupe todo el ancho y sea compacto */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px; /* aún más compacto */
+  border-radius: 8px;
+  margin: 0 0 12px 0;
+  white-space: nowrap; /* evitar salto de línea que aumente la longitud */
+  font-size: 0.88rem; /* reducir ligeramente el tamaño del texto */
 }
+
+/* Estilos compactos sólo para la tarjeta Envío Gratis (mitad de altura aprox.) */
+.promo-card.small.compact-enviogratis {
+  /* Ajustado para igualar la altura con Pizza Doble: */
+  max-height: 180px; /* altura objetivo ajustada para paridad */
+  overflow: hidden; /* recortar el contenido sobrante si hiciera falta */
+}
+.promo-card.small.compact-enviogratis .promo-content {
+  /* Mantener compacto en altura pero usar la misma tipografía/márgenes
+     que las tarjetas principales (p. ej. Happy Hour). */
+  padding: 10px 12px !important; /* compacto pero consistente */
+}
+.promo-card.small.compact-enviogratis .promo-content h4 {
+  /* Igual que .promo-content h4 */
+  color: var(--dark-navy);
+  font-size: 1.3rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 10px !important;
+}
+.promo-card.small.compact-enviogratis .promo-content p {
+  color: var(--text-gray) !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 20px !important;
+  line-height: 1.5 !important;
+}
+.promo-card.small.compact-enviogratis .promo-code {
+  /* Igual que .promo-card.small .promo-code */
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+  font-size: 0.88rem !important;
+}
+.promo-card.small.compact-enviogratis .btn-claim-promo {
+  /* Usar estilos de botón compacto ya definidos */
+  padding: 10px 22px !important;
+  font-size: 0.95rem !important;
+  min-width: 160px !important;
+  align-self: center !important;
+}
+
+/* Estilos compactos para la tarjeta Pizza Doble: reducir altura a la mitad */
+.promo-card.small.compact-pizza {
+  /* Aumentada 50px solicitados respecto a la versión compacta previa */
+  max-height: 180px; /* altura objetivo ajustada para paridad con Envío Gratis */
+  overflow: hidden;
+}
+.promo-card.small.compact-pizza .promo-content {
+  /* Mantener compacto en altura pero usar la misma tipografía/márgenes
+     que las tarjetas principales (p. ej. Happy Hour). */
+  padding: 10px 12px !important;
+}
+.promo-card.small.compact-pizza .promo-content h4 {
+  color: var(--dark-navy);
+  font-size: 1.3rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 10px !important;
+}
+.promo-card.small.compact-pizza .promo-content p {
+  color: var(--text-gray) !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 20px !important;
+  line-height: 1.5 !important;
+}
+.promo-card.small.compact-pizza .promo-code {
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+  font-size: 0.88rem !important;
+}
+.promo-card.small.compact-pizza .btn-claim-promo {
+  padding: 10px 22px !important;
+  font-size: 0.95rem !important;
+  min-width: 160px !important;
+  align-self: center !important;
+}
+
+/* Envío Gratis card keeps default styling */
+
+/* Compact the Envío Gratis card vertically: 300px less tall (make it visually smaller) */
+.promo-card.small.promo-shift {
+  /* Ajustado para que el contenido (incluyendo el botón) sea visible
+     en la versión compacta: mantener una altura máxima pero permitir
+     que el contenido desborde para que el botón no quede oculto. */
+  max-height: 220px; /* compact vertical size ampliado para mostrar botón */
+  overflow: visible; /* permitir que el botón sea visible fuera del recorte */
+}
+
+.promo-card.small.promo-shift .promo-content {
+  padding: 12px !important;
+}
+
+/* Aumentar la tarjeta 'Envío Gratis' en ~300px (altura más grande según petición) */
+/* .promo-card.small.promo-shift removed — Envío Gratis card deleted */
 
 .promo-header {
   position: absolute;
@@ -988,6 +1113,47 @@ body {
 .promo-content {
   padding: 25px;
 }
+
+/* Forzar layout en columnas de promociones para que todas las tarjetas
+   tengan una altura coherente y el botón quede dentro del flujo. Esto
+   previene que una tarjeta más alta haga que su botón sobresalga.
+ */
+.promo-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.promo-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* evita overflow por textos largos */
+}
+
+.promo-content .btn-claim-promo {
+  margin-top: auto; /* empuja el botón al fondo del contenido */
+  align-self: stretch; /* ocupa el ancho disponible */
+}
+
+/* Botón más compacto para las tarjetas pequeñas (desktop) */
+.promo-card.small .btn-claim-promo {
+  width: auto !important;
+  min-width: 160px;
+  max-width: 260px;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  align-self: center !important; /* centrar el botón dentro de la tarjeta */
+  border-radius: 22px;
+}
+
+/* En móvil volvemos a full-width para facilidad de pulsado */
+@media (max-width: 991.98px) {
+  .promo-card.small .btn-claim-promo {
+    width: 100% !important;
+    align-self: stretch !important;
+  }
+}
+
 
 .promo-content h4 {
   color: var(--dark-navy);
@@ -1029,7 +1195,7 @@ body {
   padding: 12px 25px;
   border-radius: 25px;
   font-weight: 600;
-  width: 100%;
+  width: auto; /* dejar ancho automático por defecto; reglas responsive controlan full-width en móvil */
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -1039,11 +1205,296 @@ body {
   transform: translateY(-2px);
 }
 
+/* Toast pequeño para confirmar copia del código de promoción */
+.claim-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.25s ease;
+  font-size: 0.95rem;
+}
+.claim-toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Preview modal para items de comida/restaurante */
+.preview-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75); /* fondo más oscuro para destacar la previsualización */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 12000; /* encima de la navbar y otros elementos */
+}
+.preview-modal-overlay.active {
+  display: flex;
+}
+.preview-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 96vw; /* ocupar casi toda la anchura disponible */
+  max-width: 1400px; /* permitir muy gran previsualización en pantallas anchas */
+  max-height: 94vh; /* casi toda la altura de la ventana */
+  overflow: hidden; /* manejar scroll interno si hace falta */
+  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  display: flex;
+  gap: 24px;
+  position: relative; /* para posicionar el botón cerrar dentro del modal */
+}
+.preview-image {
+  flex: 0 0 60%; /* imagen ocupa 60% del ancho del modal */
+  min-width: 520px; /* asegurar que la imagen se vea grande en pantallas medias y grandes */
+  max-height: 94vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f7f7;
+}
+.preview-image img {
+  width: auto;
+  height: 90vh; /* imagen grande que aprovecha la altura de la ventana */
+  display: block;
+  object-fit: contain; /* mantener toda la imagen visible */
+}
+.preview-body {
+  flex: 0 0 40%; /* cuerpo ocupa 40% del ancho */
+  padding: 36px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.preview-body h4 {
+  margin-top: 0;
+  font-size: 1.9rem;
+}
+.preview-body p {
+  color: var(--text-gray);
+  margin-bottom: 18px;
+}
+.preview-price {
+  font-size: 2rem;
+  color: var(--primary-red);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.preview-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.preview-actions .btn {
+  padding: 12px 22px;
+  border-radius: 10px;
+}
+.preview-actions .btn-preview-order {
+  background: var(--primary-red);
+  color: var(--warm-white);
+  border: none;
+  box-shadow: 0 8px 20px rgba(199, 44, 22, 0.18);
+  transition: background 180ms ease, transform 120ms ease;
+}
+.preview-actions .btn-preview-order:hover,
+.preview-actions .btn-preview-order:focus {
+  background: var(--deep-red);
+  transform: translateY(-2px);
+}
+.preview-actions .btn-preview-add {
+  background: transparent;
+  color: var(--dark-navy);
+  border: 1px solid var(--light-gray);
+}
+.preview-actions .btn-preview-add:hover,
+.preview-actions .btn-preview-add:focus {
+  background: rgba(231,76,60,0.04);
+  border-color: var(--primary-red);
+}
+.preview-close {
+  position: absolute;
+  right: 20px;
+  top: 18px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  font-size: 1.6rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+@media (max-width: 767.98px) {
+  .preview-modal {
+    flex-direction: column;
+  }
+  .preview-image { min-width: 100%; }
+  .preview-body { padding: 16px; }
+}
+
+/* Extra responsive: si la pantalla es muy pequeña, limitar la altura de la imagen para evitar overflow excesivo */
+@media (max-width: 480px) {
+  .preview-image img { height: 50vh; }
+  .preview-body h4 { font-size: 1.25rem; }
+  .preview-price { font-size: 1.3rem; }
+}
+
+/* Forzar visibilidad del botón de Envío Gratis cuando existan conflictos de cascada */
+.visible-claim {
+  display: block !important;
+  position: relative !important;
+  z-index: 50 !important;
+  margin-top: 10px !important;
+  background: var(--primary-red) !important;
+  color: var(--warm-white) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important;
+}
+
+/* Mover el botón 'Reclamar Oferta' 500px hacia abajo dentro de la tarjeta
+   Envío Gratis. Usamos top con position:relative y !important para forzar
+   el desplazamiento incluso si hay reglas en cascada conflictivas. */
+.promo-card.small.promo-shift .visible-claim {
+  position: relative !important;
+  top: 500px !important;
+  /* aumentar z-index para que quede por encima de otros elementos */
+  z-index: 60 !important;
+}
+
+/* Ajustes específicos para la tarjeta destacada (Happy Hour) y el botón
+   Evita que el botón sobresalga fuera de la tarjeta en pantallas grandes.
+   - Se fuerza layout flex en pantallas anchas para que la imagen y el contenido
+     compartan el ancho correctamente.
+   - El botón deja de ser 100% en desktop y pasa a ancho automático para no
+     romper el flujo. En móviles mantiene 100% para accesibilidad. */
+@media (min-width: 992px) {
+  .promo-card.featured {
+    display: flex;
+    align-items: center;
+    gap: 0; /* controlar separaciones internas con padding */
+    overflow: hidden; /* cortar cualquier contenido sobrante */
+  }
+
+  .promo-card.featured .promo-content {
+    flex: 1 1 50%;
+    padding: 40px;
+    box-sizing: border-box;
+    min-width: 0; /* importante para evitar overflow con textos muy largos */
+  }
+
+  .promo-card.featured .promo-image {
+    flex: 1 1 50%;
+    height: 300px;
+    min-width: 0;
+  }
+
+  /* El botón no debe ocupar 100% en la vista desktop dentro de la tarjeta
+     destacada; se muestra como inline-block y respeta el espacio disponible. */
+  .promo-card.featured .btn-claim-promo {
+    width: auto;
+    display: inline-block;
+    padding: 12px 30px;
+    white-space: nowrap;
+    min-width: 140px;
+  }
+}
+
+/* Hacer que los botones de las tarjetas de promoción no excedan el ancho
+   del contenedor y estén centrados en desktop (mejora consistencia visual).
+ */
+@media (min-width: 992px) {
+  .promo-card .btn-claim-promo {
+    width: auto !important;
+    max-width: 260px;
+    display: inline-block;
+    align-self: center !important;
+    box-sizing: border-box;
+    padding: 12px 28px;
+  }
+}
+
+/* En móviles mantener full-width para facilidad de uso */
+@media (max-width: 991.98px) {
+  .promo-card .btn-claim-promo {
+    width: 100% !important;
+    align-self: stretch !important;
+  }
+}
+
+/* En pantallas pequeñas mantenemos el comportamiento ancho completo para
+   facilitar la interacción táctil. */
+@media (max-width: 991.98px) {
+  .promo-card.featured {
+    display: block;
+  }
+
+  .promo-card.featured .btn-claim-promo {
+    width: 100%;
+    display: block;
+  }
+}
+
+/* Regla final y específica: forzar un ancho fijo en desktop para todos los
+   botones de promociones, asegurando consistencia visual y evitando que
+   uno se vea más largo que los demás. Se aplica después de las otras reglas
+   para garantizar prioridad en la cascada. */
+@media (min-width: 992px) {
+  .promotions-section .promo-card .btn-claim-promo {
+    width: 220px !important;
+    max-width: 220px !important;
+    align-self: center !important;
+    display: inline-block !important;
+    padding: 10px 20px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Botón compacto específico (por ejemplo Happy Hour) */
+@media (min-width: 992px) {
+  .promotions-section .promo-card .btn-claim-compact {
+    width: 200px !important;
+    max-width: 200px !important;
+    padding: 6px 14px !important; /* reducir padding vertical */
+    font-size: 0.92rem !important;
+    line-height: 1.1 !important;
+    border-radius: 18px !important;
+    align-self: center !important;
+    display: inline-block !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .promotions-section .promo-card .btn-claim-compact {
+    width: 100% !important;
+    align-self: stretch !important;
+    padding: 8px 14px !important; /* ligeramente más alto en móvil para accesibilidad */
+  }
+}
+
+/* promo-shift utility removed (was used for Envío Gratis card) */
+
 /* Footer */
 footer {
   background: linear-gradient(135deg, var(--dark-navy) 0%, #34495e 100%);
   color: var(--warm-white);
+  /* Separación extra para evitar solapamientos con botones u otros elementos */
+  /* Aumentado según pedido para empujar el footer más abajo */
+  margin-top: 280px;
   padding: 60px 0 30px;
+  position: relative;
+  z-index: 1;
 }
 
 .footer-section h5 {

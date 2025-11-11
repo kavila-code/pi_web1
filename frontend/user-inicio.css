@@ -30,15 +30,31 @@ input.form-control:focus-visible {
 }
 
 /* Welcome Hero Section */
+
 .welcome-hero {
-  background: linear-gradient(135deg, var(--primary-red) 0%, var(--orange-accent) 100%);
+  /* Usar la misma imagen y overlay que la hero principal (homepage) */
+  background: linear-gradient(rgba(231, 76, 60, 0.85), rgba(192, 57, 43, 0.85)),
+              url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
   color: var(--warm-white);
-  padding: 4rem 0 3rem 0;
+  /* Aumentar padding-top para bajar el contenido visualmente */
+  padding: 7rem 0 3rem 0;
   margin-top: -1px; /* Para eliminar gap del navbar */
+  position: relative;
+  min-height: 70vh; /* mantiene buena proporción para el hero */
+}
+
+.welcome-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.2);
 }
 
 .welcome-content {
-  padding: 2rem 0;
+  padding: 3rem 0; /* empujar el contenido hacia abajo dentro del hero */
 }
 
 .welcome-title {
@@ -46,11 +62,20 @@ input.form-control:focus-visible {
   font-weight: 700;
   margin-bottom: 1rem;
   line-height: 1.2;
+  color: var(--warm-white); /* hacer todo el título blanco por defecto */
 }
 
 .welcome-title .highlight {
-  color: var(--golden-yellow);
+  color: var(--warm-white); /* override para que la parte resaltada también sea blanca */
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Saludo: '¡Hola!' en blanco para mejor contraste sobre el hero */
+.welcome-title #personalGreeting {
+  color: var(--warm-white);
+  display: inline-block;
+  margin-right: 0.6rem;
+  font-weight: 600;
 }
 
 .welcome-subtitle {

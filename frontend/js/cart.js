@@ -212,7 +212,8 @@ function calculateTotals() {
 
 // Guardar carrito
 function saveCart() {
-  localStorage.setItem("cart", JSON.stringify(cart));
+  // Usar setCartSafe para evitar guardar si no hay sesión
+  setCartSafe(cart);
 }
 
 // Mostrar carrito vacío

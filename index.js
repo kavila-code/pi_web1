@@ -24,8 +24,12 @@ app.use('/frontend', express.static('frontend'));
 app.use('/public', express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Servir archivos subidos
 // Servir imágenes centralizadas (carpeta IMAGENES creada en la raíz del repo)
-app.use('/imagenes/comida', express.static(path.join(__dirname, 'IMAGENES', 'COMIDA')));
-app.use('/imagenes/restaurantes', express.static(path.join(__dirname, 'IMAGENES', 'RESTAURANTES')));
+const imagenesComidaPath = path.join(__dirname, 'IMAGENES', 'COMIDA');
+const imagenesRestPath = path.join(__dirname, 'IMAGENES', 'RESTAURANTES');
+console.log('Static images carpeta comida:', imagenesComidaPath);
+console.log('Static images carpeta restaurantes:', imagenesRestPath);
+app.use('/imagenes/comida', express.static(imagenesComidaPath));
+app.use('/imagenes/restaurantes', express.static(imagenesRestPath));
 
 // Middlewares
 app.use(express.json());
@@ -37,6 +41,7 @@ app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.path}`);
   next();
 });
+
 
 
 

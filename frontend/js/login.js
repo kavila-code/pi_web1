@@ -67,7 +67,21 @@ if (loginFormElement) {
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
 
-        // Redireccionar según los roles
+        // Si existe una intención guardada (después de intentar añadir/ordenar sin login),
+        // redirigimos allí primero y limpiamos la key.
+        try {
+          const redirect = sessionStorage.getItem('afterLoginRedirect');
+          if (redirect) {
+            sessionStorage.removeItem('afterLoginRedirect');
+            window.location.href = redirect;
+            return;
+          }
+        } catch (e) {
+          // Si sessionStorage no está disponible por algún motivo, continuar con el flujo normal
+          console.warn('No se pudo leer sessionStorage.afterLoginRedirect:', e);
+        }
+
+        // Redireccionar según los roles si no hay redirect pendiente
         const roles = result.user.roles || [];
 
         console.log("👤 Usuario:", result.user.email);

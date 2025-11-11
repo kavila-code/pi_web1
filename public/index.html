@@ -25,7 +25,13 @@
       <div class="container">
         <!-- Brand a la izquierda -->
         <a class="navbar-brand d-flex align-items-center" href="#">
-          <i class="bi bi-truck me-2"></i>
+          <!-- Inline simple logo SVG (fork + knife) to replace generic truck icon -->
+          <svg class="me-2" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,0.08)" />
+            <path d="M9 3v9" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M11 3v9" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 21c1-3 4-4 6-4s5 1 6 4" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
           <span>DomiTulua</span>
         </a>
 
@@ -66,12 +72,8 @@
 
             <!-- Acciones del navbar -->
             <div class="navbar-actions">
-              <button class="btn-cart" title="Carrito">
-                <i class="bi bi-bag"></i>
-                <span class="cart-count">0</span>
-              </button>
               <a href="/login" class="btn-login">
-                <i class="bi bi-person me-1"></i>
+                <i class="bi bi-person me-1" aria-hidden="true"></i>
                 Iniciar Sesión
               </a>
             </div>
@@ -595,23 +597,25 @@
 
           <!-- Promociones secundarias -->
           <div class="col-lg-4">
-            <div class="promo-card small mb-4">
+            <div class="promo-card small mb-4 compact-pizza">
               <div class="promo-content">
                 <h4>🍕 Pizza Doble</h4>
                 <p>Compra 1 pizza y llévate la segunda al 50%</p>
                 <div class="promo-code">
                   <span>PIZZA2X1</span>
                 </div>
+                <button class="btn-claim-promo btn-claim-compact" type="button" aria-label="Reclamar código PIZZA2X1">Reclamar Oferta</button>
               </div>
             </div>
 
-            <div class="promo-card small">
+            <div class="promo-card small mb-4 compact-enviogratis">
               <div class="promo-content">
                 <h4>🚚 Envío Gratis</h4>
                 <p>En pedidos mayores a $25.000</p>
                 <div class="promo-code">
                   <span>ENVIOGRATIS</span>
                 </div>
+                <button class="btn-claim-promo btn-claim-compact" type="button" aria-label="Reclamar código ENVIOGRATIS">Reclamar Oferta</button>
               </div>
             </div>
           </div>
@@ -631,7 +635,7 @@
                   <span class="old-price">$45.000</span>
                   <span class="new-price">$31.500</span>
                 </div>
-                <button class="btn-claim-promo">Reclamar Oferta</button>
+                <button class="btn-claim-promo btn-claim-compact">Reclamar Oferta</button>
               </div>
             </div>
           </div>

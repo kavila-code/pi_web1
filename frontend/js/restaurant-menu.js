@@ -302,6 +302,14 @@ function updateModalPrice() {
 
 // Agregar al carrito desde modal
 function addToCart() {
+  // Comprobar autenticación antes de permitir agregar
+  const tokenCheck = localStorage.getItem('token');
+  console.log('restaurant-menu.addToCart called, token=', tokenCheck);
+  if (!tokenCheck) {
+    try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
+    window.location.href = '/login';
+    return;
+  }
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const specialInst = document.getElementById("specialInstructions");
   const specialInstructions = specialInst ? specialInst.value.trim() : "";
@@ -311,7 +319,7 @@ function addToCart() {
     if (!confirm("Tu carrito tiene productos de otro restaurante. ¿Deseas vaciarlo y agregar este producto?")) {
       return;
     }
-    localStorage.setItem("cart", "[]");
+  if (!setCartSafe([])) return;
     cart.length = 0;
   }
 
@@ -337,7 +345,7 @@ function addToCart() {
     });
   }
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+  if (!setCartSafe(cart)) return;
   updateCartBadge();
   showToast(`${selectedProduct.name} agregado al carrito`);
 
@@ -350,6 +358,14 @@ function addToCart() {
 
 // Agregar rápido al carrito (sin modal)
 function quickAddToCart(productId) {
+  // Comprobar autenticación antes de permitir agregar
+  const tokenCheck = localStorage.getItem('token');
+  console.log('restaurant-menu.quickAddToCart called, token=', tokenCheck, 'productId=', productId);
+  if (!tokenCheck) {
+    try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
+    window.location.href = '/login';
+    return;
+  }
   const product = allProducts.find((p) => p.id === productId);
   if (!product) return;
 
@@ -380,7 +396,7 @@ function quickAddToCart(productId) {
     });
   }
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+  if (!setCartSafe(cart)) return;
   updateCartBadge();
   showToast(`${product.name} agregado al carrito`);
 }
