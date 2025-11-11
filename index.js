@@ -23,6 +23,9 @@ const __dirname = path.dirname(__filename);
 app.use('/frontend', express.static('frontend'));
 app.use('/public', express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Servir archivos subidos
+// Servir imágenes centralizadas (carpeta IMAGENES creada en la raíz del repo)
+app.use('/imagenes/comida', express.static(path.join(__dirname, 'IMAGENES', 'COMIDA')));
+app.use('/imagenes/restaurantes', express.static(path.join(__dirname, 'IMAGENES', 'RESTAURANTES')));
 
 // Middlewares
 app.use(express.json());
