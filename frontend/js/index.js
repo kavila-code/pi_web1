@@ -455,6 +455,26 @@ function setupMenuPreviews() {
 // initialize previews when DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
   setupMenuPreviews();
+  // also attach handlers to 'Ver Menú' buttons to show the auth-required modal on homepage
+  try {
+    document.querySelectorAll('.btn-view-restaurant').forEach((btn) => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (err) {}
+        try {
+          if (typeof openAuthRequiredModal === 'function') {
+            openAuthRequiredModal('Si no estás autenticado');
+          } else {
+            showClaimToast('Si no estás autenticado');
+          }
+        } catch (err) {
+          showClaimToast('Si no estás autenticado');
+        }
+      });
+    });
+  } catch (e) {
+    // ignore if DOM not ready or function missing
+  }
 });
 
 // --- Guard global para botones de order/add que no tengan handler explícito ---
