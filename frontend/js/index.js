@@ -246,6 +246,20 @@ document.addEventListener("DOMContentLoaded", function () {
 function setupClaimPromoButtons() {
   document.querySelectorAll('.btn-claim-promo').forEach((btn) => {
     btn.addEventListener('click', function () {
+      // En homepage, abrir modal de acceso requerido en lugar de ejecutar la acción
+      try {
+        if (IS_HOMEPAGE) {
+          try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
+          if (typeof openAuthRequiredModal === 'function') {
+            openAuthRequiredModal('Si no estás autenticado');
+          } else {
+            showClaimToast('Si no estás autenticado');
+          }
+          return;
+        }
+      } catch (err) {
+        // fallthrough to original behavior
+      }
       const promo = btn.closest('.promo-content');
       let code = '';
       const span = promo && promo.querySelector('.promo-code span');
