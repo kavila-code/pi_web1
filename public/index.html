@@ -45,33 +45,31 @@
 
         <!-- Todo el contenido a la derecha -->
         <div class="collapse navbar-collapse" id="navbarNav">
-          <div class="d-flex align-items-center w-100 justify-content-end">
-            <!-- Links de navegación -->
-            <ul class="navbar-nav me-0">
-              <li class="nav-item">
-                <a class="nav-link" href="#inicio">
-                  <i class="bi bi-house me-1"></i>Inicio
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#servicios">
-                  <i class="bi bi-grid-3x3-gap me-1"></i>Servicios
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#menu">
-                  <i class="bi bi-collection me-1"></i>Menú
-                </a>
-              </li>
-            </ul>
-
-            <!-- Acciones del navbar -->
-            <div class="navbar-actions">
-              <a href="/login" class="btn-login">
-                <i class="bi bi-person me-1" aria-hidden="true"></i>
-                Iniciar Sesión
+          <!-- Links de navegación alineados a la izquierda -->
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#inicio">
+                <i class="bi bi-house me-1"></i>Inicio
               </a>
-            </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#servicios">
+                <i class="bi bi-grid-3x3-gap me-1"></i>Servicios
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#menu">
+                <i class="bi bi-collection me-1"></i>Menú
+              </a>
+            </li>
+          </ul>
+
+          <!-- Acciones del navbar alineadas a la derecha: Unificar markup y clases con user-inicio -->
+          <div class="navbar-actions d-flex align-items-center">
+            <a href="/login" class="btn btn-login d-flex align-items-center">
+              <i class="bi bi-person me-1" aria-hidden="true"></i>
+              Iniciar Sesión
+            </a>
           </div>
         </div>
       </div>
