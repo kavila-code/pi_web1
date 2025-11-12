@@ -46,6 +46,16 @@ function loadCart() {
 async function loadRestaurantInfo() {
   const restaurantId = cart[0].restaurant_id;
 
+  // If no restaurant_id was recorded (e.g. homepage items), skip fetching
+  if (!restaurantId) {
+    restaurant = null;
+    const restaurantNameElement = document.getElementById("restaurantName");
+    if (restaurantNameElement) {
+      restaurantNameElement.textContent = "Varios restaurantes";
+    }
+    return;
+  }
+
   try {
     const response = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
     const data = await response.json();

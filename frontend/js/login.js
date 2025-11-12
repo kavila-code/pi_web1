@@ -81,22 +81,12 @@ if (loginFormElement) {
           console.warn('No se pudo leer sessionStorage.afterLoginRedirect:', e);
         }
 
-        // Redireccionar según los roles si no hay redirect pendiente
-        const roles = result.user.roles || [];
-
-        console.log("👤 Usuario:", result.user.email);
-        console.log("🎭 Roles:", roles);
-
-        // Prioridad: admin > delivery > user
-        if (roles.includes("admin")) {
-          console.log("✅ Redirigiendo a Admin Dashboard");
-          window.location.href = "/admin-dashboard";
-        } else if (roles.includes("delivery") || roles.includes("domiciliario")) {
-          console.log("✅ Redirigiendo a Delivery Dashboard");
-          window.location.href = "/delivery-dashboard";
-        } else {
-          console.log("✅ Redirigiendo a User Dashboard");
-          window.location.href = "/user-dashboard";
+        // Redirigir siempre al User Dashboard (usar URL absoluta solicitada)
+        try {
+          window.location.href = 'http://localhost:3000/user-dashboard';
+        } catch (e) {
+          // Fallback relativo
+          window.location.href = '/user-dashboard';
         }
       } else {
         alert("Error: " + result.msg);
@@ -132,8 +122,23 @@ if (registerFormElement) {
       const result = await response.json();
 
       if (result.ok) {
-        alert("¡Registro exitoso!");
-        showLoginForm();
+        // Guardar token y usuario recibido y redirigir al dashboard de usuario
+        try {
+          if (result.token) {
+            localStorage.setItem('token', result.token);
+          }
+          if (result.user) {
+            localStorage.setItem('user', JSON.stringify(result.user));
+          }
+        } catch (e) {
+          console.warn('No se pudo guardar token/user en localStorage:', e);
+        }
+
+        try {
+          window.location.href = 'http://localhost:3000/user-dashboard';
+        } catch (e) {
+          window.location.href = '/user-dashboard';
+        }
       } else {
         alert("Error: " + result.msg);
       }

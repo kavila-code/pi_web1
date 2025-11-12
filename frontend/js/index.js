@@ -190,21 +190,89 @@ function updateCartCount() {
   }
 }
 
+// Initialize cart count from persistent storage on load
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    const cur = JSON.parse(localStorage.getItem('cart') || '[]');
+    cartCount = Array.isArray(cur) ? cur.reduce((s, it) => s + (it.quantity || 1), 0) : 0;
+    updateCartCount();
+  } catch (e) {
+    // ignore
+  }
+});
+
 // Agregar al carrito
 // Agregar al carrito
 function addToCart() {
-  // Si no está autenticado, redirigir a login
+  // deprecated compatibility wrapper - prefer addItemToCart(item)
   const token = localStorage.getItem('token');
-  console.log('index.addToCart called, token=', token);
   if (!token) {
-    // Mostrar aviso en vez de redirigir
     try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
     showClaimToast('Debes iniciar sesión');
     return;
   }
 
+  // If a preview overlay is active, add that item
+  const overlay = document.getElementById('menuPreviewOverlay');
+  if (overlay && overlay.classList.contains('active')) {
+    const item = {
+      product_name: overlay.dataset.title || '',
+      product_price: parseFloat((overlay.dataset.price || '').replace(/[^0-9.,]/g, '').replace(/\./g,'').replace(/,/g,'.')) || 0,
+      product_image: overlay.dataset.img || '',
+      quantity: 1,
+    };
+    addItemToCart(item);
+    return;
+  }
+
+  // fallback simple counter-only behavior
   cartCount++;
   updateCartCount();
+}
+
+// Add a full item object into the persistent cart used by checkout
+function addItemToCart(item) {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
+      showClaimToast('Debes iniciar sesión');
+      return;
+    }
+
+    const key = 'cart';
+    const cur = JSON.parse(localStorage.getItem(key) || '[]');
+
+    // Normalize price to number
+    const price = Number(item.product_price || item.price || 0);
+
+    // Try to find by name
+    const idx = cur.findIndex(c => String(c.product_name) === String(item.product_name));
+    if (idx >= 0) {
+      cur[idx].quantity = (cur[idx].quantity || 1) + (item.quantity || 1);
+    } else {
+      cur.push(Object.assign({ quantity: 1 }, {
+        product_id: item.product_id || null,
+        product_name: item.product_name || item.name || 'Item',
+        product_price: price,
+        product_image: item.product_image || item.image || '',
+        quantity: item.quantity || 1
+      }));
+    }
+
+    localStorage.setItem(key, JSON.stringify(cur));
+
+    // update simple counter and UI
+    cartCount = cur.reduce((s, it) => s + (it.quantity || 1), 0);
+    updateCartCount();
+
+    // if there's a cart preview element, show it (if using cart.js preview it's separate)
+    const preview = document.getElementById('cartPreview');
+    if (preview) preview.style.display = 'block';
+
+  } catch (err) {
+    console.error('addItemToCart error', err);
+  }
 }
 
 // Funcionalidad de filtros del menú
@@ -459,8 +527,24 @@ function setupMenuPreviews() {
           return;
         }
 
-        addToCart();
-        showClaimToast('Agregado al carrito');
+        // Build item object from card DOM and add to persistent cart
+        try {
+          const titleEl = card.querySelector('.menu-content h4');
+          const priceEl = card.querySelector('.menu-footer .price');
+          const imgEl = card.querySelector('.menu-image img');
+          const title = titleEl ? titleEl.textContent.trim() : 'Item';
+          const priceText = priceEl ? priceEl.textContent.trim() : '0';
+          const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(/\./g,'').replace(/,/g,'.')) || 0;
+          const img = imgEl ? imgEl.src : '';
+          const item = { product_name: title, product_price: price, product_image: img, quantity: 1 };
+          addItemToCart(item);
+          showClaimToast('Agregado al carrito');
+        } catch (err) {
+          console.error('Error adding item from card', err);
+          // fallback
+          addToCart();
+          showClaimToast('Agregado al carrito');
+        }
       });
     }
   });
@@ -647,6 +731,31 @@ function enforceAuthOnInteractiveButtons() {
 // Ejecutar enforcement en DOM ready
 document.addEventListener('DOMContentLoaded', function () {
   enforceAuthOnInteractiveButtons();
+});
+
+// Hero CTA: abrir modal de acceso requerido en homepage
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    if (!IS_HOMEPAGE) return;
+    document.querySelectorAll('.btn-primary-custom').forEach((btn) => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (err) {}
+        try {
+          if (typeof openAuthRequiredModal === 'function') {
+            openAuthRequiredModal('Acceso requerido');
+          } else {
+            showClaimToast('Acceso requerido');
+          }
+        } catch (err) {
+          showClaimToast('Acceso requerido');
+        }
+      });
+    });
+  } catch (err) {
+    // no bloquear si algo sale mal
+    console.warn('Error binding hero auth modal:', err);
+  }
 });
 
 // Restaurant buttons keep default behavior (no redirect added)

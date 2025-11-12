@@ -146,6 +146,60 @@
       updateQty: updateQty,
       readCart: readCart
     };
+
+    // Expose a small toast helper using Bootstrap Toasts
+    function showToast(message, opts = {}) {
+      try {
+        const containerId = 'globalToastContainer';
+        let container = document.getElementById(containerId);
+        if (!container) {
+          container = document.createElement('div');
+          container.id = containerId;
+          container.className = 'position-fixed top-0 end-0 p-3';
+          container.style.zIndex = 10800;
+          document.body.appendChild(container);
+        }
+
+        const toastId = 'toast-' + Date.now();
+        const toastEl = document.createElement('div');
+        toastEl.id = toastId;
+        toastEl.className = 'toast align-items-center text-bg-primary border-0';
+        toastEl.role = 'alert';
+        toastEl.ariaLive = 'assertive';
+        toastEl.ariaAtomic = 'true';
+        toastEl.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">${escapeHtml(message)}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+          </div>
+        `;
+
+        container.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, { delay: opts.delay || 2500 });
+        toast.show();
+        // remove from DOM after hidden
+        toastEl.addEventListener('hidden.bs.toast', () => { try { toastEl.remove(); } catch (e) {} });
+        return toast;
+      } catch (err) {
+        console.warn('showToast error:', err);
+      }
+    }
+
+    window.showToast = showToast;
+
+    // Si hay una intención pendiente (usuario intentó ordenar antes de loguearse), procesarla ahora
+    try {
+      const pending = sessionStorage.getItem('pending_cart_item');
+      if (pending) {
+        const item = JSON.parse(pending);
+        if (item) {
+          addToCart(item);
+        }
+        sessionStorage.removeItem('pending_cart_item');
+      }
+    } catch (e) {
+      console.warn('No se pudo procesar pending_cart_item:', e);
+    }
   });
 
 })();
