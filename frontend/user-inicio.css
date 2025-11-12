@@ -47,6 +47,13 @@
   background: rgba(231, 76, 60, 0.08);
 }
 
+/* Aumentar ligeramente el ancho horizontal del botón 'Mi Cuenta' en la vista user-inicio
+   Incremento aproximado de 6px a cada lado para que no quede tan pegado al borde. */
+.user-inicio-body .btn-login {
+  padding-left: 34px; /* antes 28px en global */
+  padding-right: 34px; /* antes 28px en global */
+}
+
 /* Search Section */
 .search-section {
   margin-top: 2rem;
