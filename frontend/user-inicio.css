@@ -1,70 +1,8 @@
 /* User Inicio Page Styles */
-:root {
-  /* Complemento de variables usadas solo en esta vista */
-  --dark-gray: #2c3e50;
-  --medium-gray: #6c757d;
-  --golden-yellow: #f1c40f;
-  --card-border: rgba(0, 0, 0, 0.06);
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-.user-inicio-body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  min-height: 100vh;
-}
-
-/* Accesibilidad: estados de foco visibles */
-button:focus-visible,
-a:focus-visible,
-.filter-btn:focus-visible,
-.favorite-toggle:focus-visible,
-.btn:focus-visible,
-.form-select:focus-visible,
-input.form-control:focus-visible {
-  outline: 3px solid var(--orange-accent);
-  outline-offset: 2px;
-}
-
-/* Welcome Hero Section */
-
-.welcome-hero {
-  /* Usar la misma imagen y overlay que la hero principal (homepage) */
-  background: linear-gradient(rgba(231, 76, 60, 0.85), rgba(192, 57, 43, 0.85)),
-              url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
-  color: var(--warm-white);
-  /* Aumentar padding-top para bajar el contenido visualmente */
-  padding: 7rem 0 3rem 0;
-  margin-top: -1px; /* Para eliminar gap del navbar */
-  position: relative;
-  min-height: 70vh; /* mantiene buena proporción para el hero */
-}
-
-.welcome-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.2);
-}
-
 .welcome-content {
   padding: 3rem 0; /* empujar el contenido hacia abajo dentro del hero */
+  text-align: center; /* centrar texto dentro del hero */
 }
-
-.welcome-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  line-height: 1.2;
-  color: var(--warm-white); /* hacer todo el título blanco por defecto */
-}
-
 .welcome-title .highlight {
   color: var(--warm-white); /* override para que la parte resaltada también sea blanca */
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -123,6 +61,27 @@ input.form-control:focus-visible {
   box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   border-radius: 50px;
   overflow: hidden;
+}
+
+/* Alineación central de la fila del hero y elementos internos */
+.welcome-hero .row {
+  justify-content: center; /* centrar columnas dentro del container */
+}
+
+.welcome-hero .col-lg-8,
+.welcome-hero .col-lg-4 {
+  display: flex;
+  align-items: center;
+}
+
+.welcome-hero .welcome-content {
+  /* limitar ancho para una lectura agradable en pantallas grandes */
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.search-bar .input-group {
+  margin: 0 auto; /* centrar la barra de búsqueda */
 }
 
 .search-bar .input-group-text {
