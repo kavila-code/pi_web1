@@ -58,8 +58,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-right: 0rem; /* Espacio natural del borde */
-  padding-left: 0rem; /* Equilibrar ambos lados */
+  /* Dar padding lateral para evitar que los elementos queden pegados al borde
+     (proporciona la misma distancia a izquierda y derecha). En pantallas
+     grandes las media queries ajustarán a valores mayores. */
+  padding-right: 1rem;
+  padding-left: 1rem;
 }
 
 /* Navbar brand - con espacio natural */
@@ -236,11 +239,13 @@ body {
   color: var(--primary-red);
   border: none;
   font-weight: 600;
-  padding: 8px 18px;
+  /* Aumentar padding horizontal para que el botón sea más ancho y no quede
+     pegado al borde del navbar. Mantener padding vertical compacto. */
+  padding: 10px 28px;
   border-radius: 22px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   text-decoration: none;
   display: flex;
   align-items: center;
