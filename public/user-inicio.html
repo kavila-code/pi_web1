@@ -61,6 +61,28 @@
 
           <!-- Acciones del navbar alineadas a la derecha: usar misma estructura y clases que en index.html -->
           <div class="navbar-actions d-flex align-items-center">
+            <!-- Cart button -->
+            <div class="me-2 position-relative">
+              <button id="cartButton" class="btn-cart" aria-label="Carrito">
+                <i class="bi bi-cart3"></i>
+                <span class="cart-count" id="cartCount">0</span>
+              </button>
+              <!-- Cart preview (hidden; toggled by JS) -->
+              <div id="cartPreview" class="cart-preview shadow-sm bg-white rounded" style="display:none;">
+                <div class="p-3">
+                  <h6 class="mb-2">Tu carrito</h6>
+                  <div id="cartItemsContainer">
+                    <p class="text-muted">Tu carrito está vacío.</p>
+                  </div>
+                  <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <strong id="cartTotal">Total: $0</strong>
+                    <div>
+                      <a href="/public/checkout.html" id="gotoCheckout" class="btn btn-primary btn-sm">Ir a pagar</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="nav-item dropdown ms-2">
               <a
                 class="btn btn-login dropdown-toggle d-flex align-items-center"

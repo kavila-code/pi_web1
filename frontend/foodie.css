@@ -225,6 +225,34 @@ body {
   font-size: 0.72rem;
 }
 
+/* Cart preview dropdown in navbar */
+.cart-preview {
+  position: absolute;
+  top: 56px; /* debajo de la navbar (ajustable si navbar cambia de altura) */
+  right: 0;
+  z-index: 2000;
+  width: 340px;
+  max-height: 60vh;
+  overflow: auto;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--bright-red);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
 
 .btn-info:hover {
   background: var(--warm-white);

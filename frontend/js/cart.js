@@ -1,3 +1,154 @@
+// Simple cart manager for previewing items in the navbar on user-inicio
+(function () {
+  const STORAGE_KEY = 'cart_items_v1';
+
+  function readCart() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch (e) {
+      console.error('Error leyendo carrito', e);
+      return [];
+    }
+  }
+
+  function writeCart(cart) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    renderCartCount();
+  }
+
+  function addToCart(item) {
+    const cart = readCart();
+    const idx = cart.findIndex((c) => c.id === item.id);
+    if (idx >= 0) {
+      cart[idx].qty = (cart[idx].qty || 1) + (item.qty || 1);
+    } else {
+      cart.push(Object.assign({ qty: 1 }, item));
+    }
+    writeCart(cart);
+    showCartPreview();
+  }
+
+  function removeFromCart(id) {
+    let cart = readCart();
+    cart = cart.filter((c) => String(c.id) !== String(id));
+    writeCart(cart);
+    renderCartPreview();
+  }
+
+  function updateQty(id, qty) {
+    const cart = readCart();
+    const idx = cart.findIndex((c) => c.id === id);
+    if (idx >= 0) {
+      cart[idx].qty = qty > 0 ? qty : 1;
+      writeCart(cart);
+      renderCartPreview();
+    }
+  }
+
+  function calcTotal(cart) {
+    return cart.reduce((s, it) => s + (Number(it.price || 0) * (it.qty || 1)), 0);
+  }
+
+  function formatCurrency(v) {
+    try { return '$' + Number(v).toLocaleString('es-CO'); } catch(e){ return '$' + v; }
+  }
+
+  function renderCartCount() {
+    const countEl = document.getElementById('cartCount');
+    if (!countEl) return;
+    const cart = readCart();
+    const totalQty = cart.reduce((s, i) => s + (i.qty || 1), 0);
+    countEl.textContent = totalQty;
+    countEl.style.display = totalQty > 0 ? 'flex' : 'none';
+  }
+
+  function renderCartPreview() {
+    const container = document.getElementById('cartItemsContainer');
+    const totalEl = document.getElementById('cartTotal');
+    if (!container || !totalEl) return;
+    const cart = readCart();
+    container.innerHTML = '';
+    if (!cart.length) {
+      container.innerHTML = '<p class="text-muted">Tu carrito está vacío.</p>';
+      totalEl.textContent = 'Total: $0';
+      return;
+    }
+
+    cart.forEach((it) => {
+      const row = document.createElement('div');
+      row.className = 'd-flex align-items-center mb-2';
+      row.innerHTML = `
+        <div style="flex:1">
+          <div class="fw-bold">${escapeHtml(it.name || 'Item')}</div>
+          <div class="text-muted small">${it.qty} x ${formatCurrency(it.price || 0)}</div>
+        </div>
+        <div class="ms-2 text-end">
+          <button class="btn btn-sm btn-outline-danger btn-remove" data-id="${it.id}">Eliminar</button>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+
+    totalEl.textContent = 'Total: ' + formatCurrency(calcTotal(cart));
+  }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; }); }
+
+  function showCartPreview() {
+    renderCartCount();
+    renderCartPreview();
+    const preview = document.getElementById('cartPreview');
+    if (!preview) return;
+    preview.style.display = 'block';
+  }
+
+  function hideCartPreview() {
+    const preview = document.getElementById('cartPreview');
+    if (!preview) return;
+    preview.style.display = 'none';
+  }
+
+  function toggleCartPreview() {
+    const preview = document.getElementById('cartPreview');
+    if (!preview) return;
+    if (preview.style.display === 'block') hideCartPreview(); else showCartPreview();
+  }
+
+  // Click outside to close
+  document.addEventListener('click', function (ev) {
+    const preview = document.getElementById('cartPreview');
+    const btn = document.getElementById('cartButton');
+    if (!preview || !btn) return;
+    if (preview.style.display !== 'block') return;
+    if (preview.contains(ev.target) || btn.contains(ev.target)) return;
+    hideCartPreview();
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('cartButton');
+    if (btn) btn.addEventListener('click', function (e) { e.preventDefault(); toggleCartPreview(); });
+
+    // Delegate for remove buttons inside preview
+    document.getElementById('cartPreview')?.addEventListener('click', function (e) {
+      const rem = e.target.closest('.btn-remove');
+      if (rem) {
+        const id = rem.getAttribute('data-id');
+        removeFromCart(id);
+      }
+    });
+
+    renderCartCount();
+    renderCartPreview();
+    // expose api for other scripts
+    window.cartAPI = {
+      addToCart: addToCart,
+      removeFromCart: removeFromCart,
+      updateQty: updateQty,
+      readCart: readCart
+    };
+  });
+
+})();
 // DomiTuluá - Shopping Cart JavaScript
 
 let cart = [];
