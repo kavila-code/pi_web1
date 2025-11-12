@@ -904,12 +904,9 @@ body {
   display: block;
 }
 
-/* Override: usar la imagen local como fondo de la tarjeta destacada */
 .promo-card.featured {
-  /* degradado semitransparente sobre la imagen para mantener legibilidad */
-  background: linear-gradient(135deg, rgba(231,76,60,0.55), rgba(192,57,43,0.55)), url('/imagenes/comida/COMIDA%20DESCUENTO.jpg');
-  background-size: cover;
-  background-position: center top;
+  /* usar el gradiente por defecto como fondo (sin imagen) */
+  background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
   color: var(--warm-white);
   display: block;
   min-height: 300px;
@@ -920,7 +917,13 @@ body {
 /* Asegurar que la sección de contenido mantenga un fondo/transparencia adecuada */
 .promo-card.featured .promo-content {
   background: transparent;
-  padding-top: 24px; /* reducir un poco el padding superior si la imagen toca el borde */
+  padding-top: 24px; /* reducir un poco el padding superior */
+}
+
+/* Hacer el párrafo principal de la tarjeta destacada en color blanco */
+.promo-card.featured .promo-content p {
+  color: var(--warm-white) !important;
+  opacity: 1 !important;
 }
 
 .promo-badge {
