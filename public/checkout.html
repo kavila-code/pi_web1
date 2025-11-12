@@ -14,25 +14,26 @@
     />
     <link rel="stylesheet" href="/frontend/foodie.css" />
     <style>
+      /* Usar la paleta roja definida en foodie.css */
       .checkout-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--primary-red) 0%, var(--deep-red) 100%);
+        color: var(--warm-white);
         padding: 30px 0;
         margin-bottom: 40px;
       }
 
       .checkout-card {
-        background: white;
+        background: var(--warm-white);
         border-radius: 15px;
         padding: 30px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow);
         margin-bottom: 25px;
       }
 
       .section-title {
         font-size: 1.3rem;
         font-weight: bold;
-        color: #667eea;
+        color: var(--primary-red);
         margin-bottom: 20px;
         display: flex;
         align-items: center;
@@ -40,35 +41,36 @@
       }
 
       .payment-method {
-        border: 2px solid #e0e0e0;
+        border: 2px solid var(--light-gray);
         border-radius: 10px;
         padding: 15px;
         cursor: pointer;
         transition: all 0.3s;
         margin-bottom: 10px;
+        background: transparent;
       }
 
       .payment-method:hover {
-        border-color: #667eea;
-        background: #f8f9ff;
+        border-color: var(--primary-red);
+        background: rgba(231,76,60,0.03);
       }
 
       .payment-method.selected {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #f8f9ff 0%, #f3f4ff 100%);
+        border-color: var(--primary-red);
+        background: linear-gradient(135deg, rgba(231,76,60,0.04) 0%, rgba(243,156,18,0.02) 100%);
       }
 
       .payment-method input[type="radio"] {
         width: 20px;
         height: 20px;
-        accent-color: #667eea;
+        accent-color: var(--primary-red);
       }
 
       .order-summary-item {
         display: flex;
         justify-content: space-between;
         padding: 10px 0;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--light-gray);
       }
 
       .order-summary-item:last-child {
@@ -78,15 +80,15 @@
       .total-amount {
         font-size: 1.5rem;
         font-weight: bold;
-        color: #667eea;
+        color: var(--primary-red);
         padding: 15px 0;
-        border-top: 2px solid #667eea;
+        border-top: 2px solid var(--primary-red);
         margin-top: 15px;
       }
 
       .place-order-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--primary-red) 0%, var(--deep-red) 100%);
+        color: var(--warm-white);
         border: none;
         border-radius: 25px;
         padding: 15px;
@@ -107,15 +109,15 @@
 
       .form-control:focus,
       .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        border-color: var(--primary-red);
+        box-shadow: 0 0 0 0.2rem rgba(231,76,60,0.12);
       }
 
       .product-mini-item {
         display: flex;
         gap: 10px;
         padding: 10px;
-        background: #f8f9fa;
+        background: var(--light-cream);
         border-radius: 10px;
         margin-bottom: 10px;
       }
@@ -133,7 +135,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.45);
         display: none;
         align-items: center;
         justify-content: center;
@@ -141,7 +143,7 @@
       }
 
       .spinner-content {
-        background: white;
+        background: var(--warm-white);
         padding: 40px;
         border-radius: 20px;
         text-align: center;
@@ -152,7 +154,7 @@
     <!-- Navbar -->
     <nav
       class="navbar navbar-expand-lg navbar-dark"
-      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      style="background: linear-gradient(135deg, var(--primary-red) 0%, var(--deep-red) 100%)"
     >
       <div class="container">
         <a class="navbar-brand fw-bold" href="/public/cart.html">
@@ -342,11 +344,7 @@
     <!-- Loading Overlay -->
     <div class="spinner-overlay" id="loadingOverlay">
       <div class="spinner-content">
-        <div
-          class="spinner-border text-primary"
-          style="width: 3rem; height: 3rem"
-          role="status"
-        >
+        <div class="spinner-border text-danger" style="width: 3rem; height: 3rem" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
         <p class="mt-3 mb-0 fw-bold">Procesando tu pedido...</p>
