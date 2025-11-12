@@ -880,8 +880,9 @@ body {
 .promo-card.featured {
   background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
   color: var(--warm-white);
-  display: flex;
-  align-items: center;
+  /* Mostrar la tarjeta destacada en columna para que la imagen quede encima
+     del contenido y ocupe todo el ancho de la tarjeta. */
+  display: block;
   min-height: 300px;
 }
 
@@ -891,14 +892,16 @@ body {
 }
 
 .promo-card.featured .promo-image {
-  flex: 1;
-  height: 300px;
+  /* Ajuste para imagen full-width dentro de la tarjeta destacada */
+  width: 100%;
+  height: auto;
 }
 
 .promo-card.featured .promo-image img {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: cover;
+  display: block;
 }
 
 .promo-badge {
@@ -1380,23 +1383,22 @@ body {
    - El botón deja de ser 100% en desktop y pasa a ancho automático para no
      romper el flujo. En móviles mantiene 100% para accesibilidad. */
 @media (min-width: 992px) {
+  /* Mantener la imagen encima del contenido incluso en pantallas grandes
+     para que ocupe todo el ancho de la tarjeta y quede más arriba. */
   .promo-card.featured {
-    display: flex;
-    align-items: center;
-    gap: 0; /* controlar separaciones internas con padding */
+    display: block;
     overflow: hidden; /* cortar cualquier contenido sobrante */
   }
 
   .promo-card.featured .promo-content {
-    flex: 1 1 50%;
     padding: 40px;
     box-sizing: border-box;
     min-width: 0; /* importante para evitar overflow con textos muy largos */
   }
 
   .promo-card.featured .promo-image {
-    flex: 1 1 50%;
-    height: 300px;
+    width: 100%;
+    height: auto;
     min-width: 0;
   }
 
@@ -3073,25 +3075,25 @@ body {
 .promo-card.featured {
   background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
   color: var(--warm-white);
-  display: flex;
-  align-items: center;
+  /* Mostrar imagen encima del contenido y en full-width */
+  display: block;
   min-height: 300px;
 }
 
 .promo-card.featured .promo-content {
-  flex: 1;
   padding: 40px;
 }
 
 .promo-card.featured .promo-image {
-  flex: 1;
-  height: 300px;
+  width: 100%;
+  height: auto;
 }
 
 .promo-card.featured .promo-image img {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: cover;
+  display: block;
 }
 
 .promo-badge {
