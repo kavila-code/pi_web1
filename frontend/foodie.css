@@ -4039,3 +4039,9 @@ footer {
     font-size: 1rem;
   }
 }
+
+/* Aumentar padding del botón de login sólo en la homepage (pequeño ajuste: +6px a cada lado) */
+.homepage-body .btn-login {
+  padding-left: 34px;
+  padding-right: 34px;
+}
