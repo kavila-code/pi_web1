@@ -56,6 +56,71 @@ async function addMissingRestaurants() {
         delivery_cost: 2500,
         minimum_order: 10000,
         logo_url: '/IMAGENES/RESTAURANTES/heladeria%20tropical.jpg'
+      },
+      {
+        name: 'La Casa de las Empanadas',
+        description: 'Las mejores empanadas caseras de la región',
+        address: 'Calle 15 #10-35',
+        phone: '3123456789',
+        category: 'Comida Rápida',
+        rating: 4.4,
+        delivery_time_min: 15,
+        delivery_time_max: 25,
+        delivery_cost: 2000,
+        minimum_order: 10000,
+        logo_url: '/IMAGENES/RESTAURANTES/la%20casa%20de%20las%20empanadas.png'
+      },
+      {
+        name: 'Pollo Dorado',
+        description: 'Pollo asado y comida criolla',
+        address: 'Avenida 7 #14-20',
+        phone: '3187654321',
+        category: 'Pollo',
+        rating: 4.5,
+        delivery_time_min: 20,
+        delivery_time_max: 30,
+        delivery_cost: 3000,
+        minimum_order: 12000,
+        logo_url: '/IMAGENES/RESTAURANTES/pollo%20dorado.png'
+      },
+      {
+        name: 'Parrilla Los Amigos',
+        description: 'Carnes a la parrilla y asados tradicionales',
+        address: 'Carrera 11 #22-40',
+        phone: '3156781234',
+        category: 'Parrilla',
+        rating: 4.6,
+        delivery_time_min: 30,
+        delivery_time_max: 45,
+        delivery_cost: 4000,
+        minimum_order: 20000,
+        logo_url: '/IMAGENES/RESTAURANTES/parrilla%20los%20amigos.jpg'
+      },
+      {
+        name: 'Sabor Valluno',
+        description: 'Comida típica del Valle del Cauca',
+        address: 'Calle 18 #9-15',
+        phone: '3198761234',
+        category: 'Típica',
+        rating: 4.7,
+        delivery_time_min: 25,
+        delivery_time_max: 35,
+        delivery_cost: 3500,
+        minimum_order: 15000,
+        logo_url: '/IMAGENES/RESTAURANTES/sabor%20valluno.jpg'
+      },
+      {
+        name: 'Azteca Mexicano',
+        description: 'Auténtica comida mexicana',
+        address: 'Avenida 8 #16-25',
+        phone: '3145672345',
+        category: 'Mexicana',
+        rating: 4.6,
+        delivery_time_min: 25,
+        delivery_time_max: 35,
+        delivery_cost: 3500,
+        minimum_order: 14000,
+        logo_url: '/IMAGENES/RESTAURANTES/AZTECA%20MEXICANO.jpg'
       }
     ];
 
