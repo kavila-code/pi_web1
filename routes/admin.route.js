@@ -14,6 +14,7 @@ router.get("/dashboard/stats", AdminController.getDashboardStats);
 
 // Users management
 router.get("/users", AdminController.getUsers);
+router.put("/users/:id", AdminController.updateUser);
 
 // Orders management
 router.get("/orders", AdminController.getOrders);

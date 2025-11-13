@@ -181,9 +181,59 @@ const getRestaurants = async (req, res) => {
   }
 };
 
+// Actualizar un usuario
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { username, email, cedula, nombre, apellidos, telefono1, telefono2, direccion, municipio, departamento } = req.body;
+
+    console.log('🔄 updateUser: actualizando usuario', userId);
+
+    // Validar que el usuario existe
+    const userCheck = await req.db.query('SELECT uid FROM users WHERE uid = $1', [userId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ ok: false, message: 'Usuario no encontrado' });
+    }
+
+    // Actualizar usuario
+    const updateQuery = `
+      UPDATE users 
+      SET 
+        username = $1,
+        email = $2,
+        cedula = $3,
+        nombre = $4,
+        apellidos = $5,
+        telefono1 = $6,
+        telefono2 = $7,
+        direccion = $8,
+        municipio = $9,
+        departamento = $10
+      WHERE uid = $11
+      RETURNING *
+    `;
+
+    const values = [username, email, cedula, nombre, apellidos, telefono1, telefono2, direccion, municipio, departamento, userId];
+    const result = await req.db.query(updateQuery, values);
+
+    console.log('✅ updateUser: usuario actualizado exitosamente');
+
+    return res.json({
+      ok: true,
+      message: 'Usuario actualizado exitosamente',
+      user: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ updateUser error:', error);
+    return res.status(500).json({ ok: false, message: 'Error al actualizar el usuario' });
+  }
+};
+
 export const AdminController = {
   getDashboardStats,
   getUsers,
   getOrders,
-  getRestaurants
+  getRestaurants,
+  updateUser
 };

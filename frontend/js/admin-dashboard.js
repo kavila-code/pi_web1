@@ -1367,10 +1367,16 @@ async function loadUsers() {
     
     // Aplicar filtros
     if (roleFilter) {
+      console.log(`🔍 Filtrando por rol: "${roleFilter}"`);
       users = users.filter(user => {
         const roles = user.roles || [];
-        return roles.includes(roleFilter);
+        const hasRole = roles.includes(roleFilter);
+        if (hasRole) {
+          console.log(`  ✓ Usuario ${user.username} tiene rol ${roleFilter}`, roles);
+        }
+        return hasRole;
       });
+      console.log(`📊 Usuarios después de filtrar por rol: ${users.length}`);
     }
     
     if (searchTerm) {
@@ -1383,9 +1389,14 @@ async function loadUsers() {
       );
     }
 
-    // Actualizar contador
+    // Actualizar contador con información de filtros
     if (usersCount) {
-      usersCount.textContent = `Total: ${totalFromServer} usuario${totalFromServer !== 1 ? 's' : ''}`;
+      let countText = `Total: ${users.length}`;
+      if (roleFilter || searchTerm) {
+        countText += ` de ${totalFromServer}`;
+      }
+      countText += ` usuario${users.length !== 1 ? 's' : ''}`;
+      usersCount.textContent = countText;
     }
 
     // Mostrar usuarios
@@ -1575,9 +1586,94 @@ async function viewUser(userId) {
 }
 
 // Función para editar un usuario
-function editUser(userId) {
-  alert(`Editar usuario #${userId} - Funcionalidad en desarrollo`);
+// Función para editar un usuario
+async function editUser(userId) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/admin/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al cargar datos del usuario');
+    }
+
+    const data = await response.json();
+    const user = data.user;
+
+    // Rellenar el formulario con los datos del usuario
+    document.getElementById('editUserId').value = user.id;
+    document.getElementById('editUsername').value = user.username || '';
+    document.getElementById('editEmail').value = user.email || '';
+    document.getElementById('editCedula').value = user.cedula || '';
+    document.getElementById('editNombre').value = user.nombre || '';
+    document.getElementById('editApellidos').value = user.apellidos || '';
+    document.getElementById('editTelefono1').value = user.telefono1 || '';
+    document.getElementById('editTelefono2').value = user.telefono2 || '';
+    document.getElementById('editDireccion').value = user.direccion || '';
+    document.getElementById('editMunicipio').value = user.municipio || '';
+    document.getElementById('editDepartamento').value = user.departamento || '';
+
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+    modal.show();
+
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al cargar los datos del usuario');
+  }
 }
+
+// Función para guardar los cambios del usuario
+document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const userId = document.getElementById('editUserId').value;
+  const userData = {
+    username: document.getElementById('editUsername').value,
+    email: document.getElementById('editEmail').value,
+    cedula: document.getElementById('editCedula').value,
+    nombre: document.getElementById('editNombre').value,
+    apellidos: document.getElementById('editApellidos').value,
+    telefono1: document.getElementById('editTelefono1').value,
+    telefono2: document.getElementById('editTelefono2').value,
+    direccion: document.getElementById('editDireccion').value,
+    municipio: document.getElementById('editMunicipio').value,
+    departamento: document.getElementById('editDepartamento').value
+  };
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/admin/users/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Usuario actualizado exitosamente');
+      
+      // Cerrar el modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+      modal.hide();
+      
+      // Recargar la lista de usuarios
+      loadUsers();
+    } else {
+      alert(data.message || 'Error al actualizar el usuario');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al actualizar el usuario');
+  }
+});
 
 // Función para eliminar un usuario
 async function deleteUser(userId) {
