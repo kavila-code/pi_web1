@@ -767,6 +767,10 @@ body {
   transition: all 0.3s ease;
   height: 100%;
   border: 3px solid transparent;
+  /* bajar la tarjeta 50px para crear el desplazamiento solicitado */
+  margin-top: 50px;
+  /* borde superior rojo para unificar con la paleta principal */
+  border-top: 6px solid var(--primary-red);
 }
 
 .restaurant-card:hover {
@@ -796,15 +800,16 @@ body {
   position: absolute;
   top: 15px;
   right: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--orange-accent);
+  /* usar gradiente rojo para destacar y un color de texto claro */
+  background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+  color: var(--warm-white);
   padding: 8px 12px;
   border-radius: 20px;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 5px;
-  backdrop-filter: blur(5px);
+  gap: 8px;
+  box-shadow: 0 6px 18px rgba(199, 44, 22, 0.12);
 }
 
 .restaurant-content {
@@ -4044,4 +4049,36 @@ footer {
 .homepage-body .btn-login {
   padding-left: 34px;
   padding-right: 34px;
+}
+
+/* Hacer que el botón 'Mi Cuenta' tenga el mismo tamaño horizontal y vertical
+   que en la página user-inicio en vistas de escritorio. Mantener overrides
+   para móviles definidos en media queries. */
+@media (min-width: 769px) {
+  .btn-login {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 34px;
+    padding-right: 34px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Aumentar el tamaño horizontal del botón 'Mi Cuenta' solo en la página de Restaurantes */
+@media (min-width: 769px) {
+  .restaurants-page .btn-login {
+    padding-left: 44px;
+    padding-right: 44px;
+    /* opcional: ajustar font-size si quieres que el texto visualmente se vea mejor */
+    font-size: 0.98rem;
+  }
+}
+
+/* Aumentar el tamaño horizontal del botón 'Mi Cuenta' solo en la página de Restaurant Menu */
+@media (min-width: 769px) {
+  .restaurant-menu-page .btn-login {
+    padding-left: 44px;
+    padding-right: 44px;
+    font-size: 0.98rem;
+  }
 }

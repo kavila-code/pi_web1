@@ -40,16 +40,91 @@ async function loadRestaurants() {
   try {
     const data = await authenticatedFetch("http://localhost:3000/api/v1/restaurants");
 
-    if (data && data.ok) {
+    // Si la API responde con datos, usarla como fuente de la verdad
+    if (data && data.ok && Array.isArray(data.data) && data.data.length > 0) {
       allRestaurants = data.data;
-      filteredRestaurants = [...allRestaurants];
-      renderRestaurants();
     } else {
-      showError("Error al cargar restaurantes");
+      // Si la API no responde o devuelve vacío, usar las tarjetas estáticas
+      // que están en el HTML como fallback visual.
+      if (containerEl) {
+        const staticCards = Array.from(containerEl.querySelectorAll('.restaurant-card'));
+        if (staticCards.length > 0) {
+          allRestaurants = staticCards.map((card, idx) => {
+            const img = card.querySelector('img');
+            const name = card.querySelector('.restaurant-content h4')?.textContent.trim() || `Restaurante ${idx + 1}`;
+            const description = card.querySelector('.restaurant-description')?.textContent.trim() || '';
+            const ratingText = card.querySelector('.restaurant-rating span')?.textContent.trim();
+            const rating = ratingText ? parseFloat(ratingText) : null;
+            const deliveryTimeText = card.querySelector('.delivery-time')?.textContent.trim() || '';
+            // extraer números del tiempo (ej. "30-45 min")
+            const delivery_time = deliveryTimeText.replace(/[^0-9\-]/g, '') || '';
+            const deliveryFeeText = card.querySelector('.delivery-cost')?.textContent.trim() || '';
+            const feeMatch = deliveryFeeText.match(/[0-9\.,]+/);
+            const delivery_fee = feeMatch ? parseInt(feeMatch[0].replace(/\./g, '').replace(/,/g, '')) : 0;
+            const logo_url = img ? img.getAttribute('src') : '';
+            // intentar tomar un id desde data-id si el HTML lo tiene, si no usar índice + 1
+            const id = card.dataset.id ? card.dataset.id : idx + 1;
+
+            return {
+              id,
+              name,
+              description,
+              rating,
+              delivery_time,
+              delivery_fee,
+              logo_url,
+            };
+          });
+        } else {
+          // No hay datos y no hay fallback estático: mostrar error
+          showError('Error al cargar restaurantes');
+        }
+      } else {
+        showError('Error al cargar restaurantes');
+      }
     }
+
+    filteredRestaurants = [...allRestaurants];
+    renderRestaurants();
   } catch (error) {
     console.error("Error:", error);
-    showError("Error de conexión");
+    // En caso de excepción, intentar usar el contenido estático ya presente
+    if (containerEl) {
+      const staticCards = Array.from(containerEl.querySelectorAll('.restaurant-card'));
+      if (staticCards.length > 0) {
+        allRestaurants = staticCards.map((card, idx) => {
+          const img = card.querySelector('img');
+          const name = card.querySelector('.restaurant-content h4')?.textContent.trim() || `Restaurante ${idx + 1}`;
+          const description = card.querySelector('.restaurant-description')?.textContent.trim() || '';
+          const ratingText = card.querySelector('.restaurant-rating span')?.textContent.trim();
+          const rating = ratingText ? parseFloat(ratingText) : null;
+          const deliveryTimeText = card.querySelector('.delivery-time')?.textContent.trim() || '';
+          const delivery_time = deliveryTimeText.replace(/[^0-9\-]/g, '') || '';
+          const deliveryFeeText = card.querySelector('.delivery-cost')?.textContent.trim() || '';
+          const feeMatch = deliveryFeeText.match(/[0-9\.,]+/);
+          const delivery_fee = feeMatch ? parseInt(feeMatch[0].replace(/\./g, '').replace(/,/g, '')) : 0;
+          const logo_url = img ? img.getAttribute('src') : '';
+          const id = card.dataset.id ? card.dataset.id : idx + 1;
+
+          return {
+            id,
+            name,
+            description,
+            rating,
+            delivery_time,
+            delivery_fee,
+            logo_url,
+          };
+        });
+
+        filteredRestaurants = [...allRestaurants];
+        renderRestaurants();
+      } else {
+        showError("Error de conexión");
+      }
+    } else {
+      showError("Error de conexión");
+    }
   } finally {
     if (loadingEl) loadingEl.style.display = "none";
   }

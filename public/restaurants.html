@@ -82,12 +82,21 @@
         background-color: var(--primary-red);
         border-color: var(--primary-red);
       }
+      /* Ajuste: subir la barra de filtros 200px respecto a la posición previa
+         (actualmente estaba en 150px). Resultado = 150 - 200 = -50px.
+         Usamos margin-top negativo para elevar el bloque; añadimos transición
+         para que el cambio sea suave. Si prefieres evitar negativo, puedo
+         moverlo a 0 o ajustar otra estrategia. */
+      .filters {
+        margin-top: 0px; /* bajado 50px desde la posición previa */
+        transition: margin-top 240ms ease;
+      }
     </style>
   </head>
-  <body>
+  <body class="restaurants-page">
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
       <div class="container">
-           <a class="navbar-brand d-flex align-items-center" href="/public/index.html">
+           <a class="navbar-brand d-flex align-items-center" href="/public/user-inicio.html">
              <i class="bi bi-truck me-2"></i>
              <span>DomiTulua</span>
            </a>
@@ -103,16 +112,65 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/public/user-dashboard.html"
-                >Mi cuenta</a
+          <div class="navbar-actions d-flex align-items-center">
+            <div class="nav-item dropdown ms-2">
+              <a
+                class="btn btn-login dropdown-toggle d-flex align-items-center"
+                href="#"
+                id="userMenuBtnRestaurants"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/public/cart.html">Carrito</a>
-            </li>
-          </ul>
+                <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                <span id="userGreetingRestaurants">Mi Cuenta</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuBtnRestaurants">
+                <li>
+                  <a class="dropdown-item" href="/public/user-dashboard.html">
+                    <i class="bi bi-speedometer2"></i> Mi Dashboard
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/public/my-orders.html">
+                    <i class="bi bi-bag"></i> Mis Pedidos
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#favoritos">
+                    <i class="bi bi-heart"></i> Favoritos
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="ms-3 position-relative">
+              <button id="cartButton" class="btn-cart" aria-label="Carrito">
+                <i class="bi bi-cart3"></i>
+                <span class="cart-count" id="cartCount">0</span>
+              </button>
+              <div id="cartPreview" class="cart-preview shadow-sm bg-white rounded" style="display:none;">
+                <div class="p-3">
+                  <h6 class="mb-2">Tu carrito</h6>
+                  <div id="cartItemsContainer">
+                    <p class="text-muted">Tu carrito está vacío.</p>
+                  </div>
+                  <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <strong id="cartTotal">Total: $0</strong>
+                    <div>
+                      <a href="/public/checkout.html" id="gotoCheckout" class="btn btn-primary btn-sm">Ir a pagar</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
@@ -133,6 +191,7 @@
             <option value="delivery_fee">Costo de envío</option>
           </select>
         </div>
+        
       </div>
 
       <div class="filters mb-3">
@@ -168,7 +227,140 @@
         <div class="mt-2 text-muted">Cargando restaurantes...</div>
       </div>
 
-      <div class="row g-3" id="restaurantsContainer"></div>
+      <div class="row g-3" id="restaurantsContainer">
+        <!-- Restaurante cards copiadas desde public/index.html como fallback visual -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="/imagenes/restaurantes/LA%20BELLA%20ITALIA.jpg" alt="Restaurante Italiano" />
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>4.8</span>
+              </div>
+            </div>
+            <div class="restaurant-content">
+              <h4>La Bella Italia</h4>
+              <p class="restaurant-category">Comida Italiana</p>
+              <p class="restaurant-description">Auténtica cocina italiana con ingredientes frescos</p>
+              <div class="restaurant-info">
+                <span class="delivery-time"><i class="bi bi-clock"></i>30-45 min</span>
+                <span class="delivery-cost"><i class="bi bi-truck"></i>$3.000</span>
+              </div>
+              <button class="btn-view-restaurant">Ver Menú</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="/imagenes/restaurantes/SAKURA%20SUSHI.jpg" alt="Restaurante Japonés" />
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>4.9</span>
+              </div>
+            </div>
+            <div class="restaurant-content">
+              <h4>Sakura Sushi</h4>
+              <p class="restaurant-category">Comida Japonesa</p>
+              <p class="restaurant-description">Los mejores sushi y rolls de la ciudad</p>
+              <div class="restaurant-info">
+                <span class="delivery-time"><i class="bi bi-clock"></i>25-40 min</span>
+                <span class="delivery-cost"><i class="bi bi-truck"></i>$2.500</span>
+              </div>
+              <button class="btn-view-restaurant">Ver Menú</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="/imagenes/restaurantes/burger-master.jpg" alt="Hamburguesas" />
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>4.7</span>
+              </div>
+            </div>
+            <div class="restaurant-content">
+              <h4>Burger Master</h4>
+              <p class="restaurant-category">Hamburguesas Gourmet</p>
+              <p class="restaurant-description">Las hamburguesas más jugosas y sabrosas</p>
+              <div class="restaurant-info">
+                <span class="delivery-time"><i class="bi bi-clock"></i>20-35 min</span>
+                <span class="delivery-cost"><i class="bi bi-truck"></i>$3.500</span>
+              </div>
+              <button class="btn-view-restaurant">Ver Menú</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="/imagenes/restaurantes/AZTECA%20MEXICANO.jpg" alt="Comida Mexicana" />
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>4.6</span>
+              </div>
+            </div>
+            <div class="restaurant-content">
+              <h4>Azteca Mexicana</h4>
+              <p class="restaurant-category">Comida Mexicana</p>
+              <p class="restaurant-description">Sabores auténticos de México</p>
+              <div class="restaurant-info">
+                <span class="delivery-time"><i class="bi bi-clock"></i>35-50 min</span>
+                <span class="delivery-cost"><i class="bi bi-truck"></i>$4.000</span>
+              </div>
+              <button class="btn-view-restaurant">Ver Menú</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="/imagenes/restaurantes/GREEN%20LIFE.jpg" alt="Comida Saludable" />
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>4.8</span>
+              </div>
+            </div>
+            <div class="restaurant-content">
+              <h4>Green Life</h4>
+              <p class="restaurant-category">Comida Saludable</p>
+              <p class="restaurant-description">Ensaladas frescas y platos nutritivos</p>
+              <div class="restaurant-info">
+                <span class="delivery-time"><i class="bi bi-clock"></i>15-30 min</span>
+                <span class="delivery-cost"><i class="bi bi-truck"></i>$2.000</span>
+              </div>
+              <button class="btn-view-restaurant">Ver Menú</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img src="/imagenes/restaurantes/sabor%20valluno.jpg" alt="Comida Colombiana" />
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill"></i>
+                <span>4.9</span>
+              </div>
+            </div>
+            <div class="restaurant-content">
+              <h4>Sabor Valluno</h4>
+              <p class="restaurant-category">Comida Tradicional</p>
+              <p class="restaurant-description">Lo mejor de la gastronomía vallecaucana</p>
+              <div class="restaurant-info">
+                <span class="delivery-time"><i class="bi bi-clock"></i>40-55 min</span>
+                <span class="delivery-cost"><i class="bi bi-truck"></i>$3.000</span>
+              </div>
+              <button class="btn-view-restaurant">Ver Menú</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <footer class="border-top py-4 mt-5">

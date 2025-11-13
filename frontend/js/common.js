@@ -344,13 +344,31 @@ function setupCartPreviewButton() {
   document.addEventListener('DOMContentLoaded', function () {
     const btn = document.querySelector('.btn-cart');
     if (!btn) return;
+
+    // Inicializar el badge del carrito al cargar la página
+    try {
+      const initialCart = getCart();
+      const initialTotal = Array.isArray(initialCart) ? initialCart.reduce((s, it) => s + (it.quantity || 0), 0) : 0;
+      const badgeInit = document.querySelector('.cart-count');
+      if (badgeInit) {
+        badgeInit.textContent = initialTotal;
+        badgeInit.style.display = initialTotal > 0 ? 'flex' : 'none';
+      }
+    } catch (err) {
+      // Silenciar errores de lectura
+      console.warn('Error inicializando contador de carrito:', err);
+    }
+
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       // update count from cart (in case other pages modified it)
       const cart = getCart();
       const totalItems = cart.reduce((s, it) => s + (it.quantity || 0), 0);
       const badge = document.querySelector('.cart-count');
-      if (badge) badge.textContent = totalItems;
+      if (badge) {
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'flex' : 'none';
+      }
       openCartPreview();
     });
   });

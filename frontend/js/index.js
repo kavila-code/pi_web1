@@ -421,12 +421,12 @@ function ensurePreviewModal() {
       try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
       try {
         if (typeof openAuthRequiredModal === 'function') {
-          openAuthRequiredModal('Si no estás autenticado');
+          openAuthRequiredModal('Acceso requerido');
         } else {
-          showClaimToast('Si no estás autenticado');
+          showClaimToast('Acceso requerido');
         }
       } catch (err) {
-        showClaimToast('Si no estás autenticado');
+        showClaimToast('Acceso requerido');
       }
       return;
     }
@@ -441,12 +441,12 @@ function ensurePreviewModal() {
       try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
       try {
         if (typeof openAuthRequiredModal === 'function') {
-          openAuthRequiredModal('Si no estás autenticado');
+          openAuthRequiredModal('Acceso requerido');
         } else {
-          showClaimToast('Si no estás autenticado');
+          showClaimToast('Acceso requerido');
         }
       } catch (err) {
-        showClaimToast('Si no estás autenticado');
+        showClaimToast('Acceso requerido');
       }
       return;
     }
@@ -517,12 +517,12 @@ function setupMenuPreviews() {
           try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (err) {}
           try {
             if (typeof openAuthRequiredModal === 'function') {
-              openAuthRequiredModal('Si no estás autenticado');
+              openAuthRequiredModal('Acceso requerido');
             } else {
-              showClaimToast('Si no estás autenticado');
+              showClaimToast('Acceso requerido');
             }
           } catch (err) {
-            showClaimToast('Si no estás autenticado');
+            showClaimToast('Acceso requerido');
           }
           return;
         }
@@ -550,9 +550,40 @@ function setupMenuPreviews() {
   });
 }
 
+/**
+ * Interceptor exclusivo para la homepage: asegurar que al pulsar el
+ * botón de carrito dentro de las tarjetas de comida se muestre
+ * el modal/preview 'Acceso requerido'. Se registra en captura para
+ * ejecutarse antes que otros handlers.
+ */
+function setupHomepageCardAddGuards() {
+  document.addEventListener('click', function (e) {
+    if (!IS_HOMEPAGE) return;
+
+    const btn = e.target.closest('.menu-item .btn-add-cart');
+    if (!btn) return;
+
+    // Bloquear la acción y mostrar modal de acceso requerido
+    try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (err) {}
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      if (typeof openAuthRequiredModal === 'function') {
+        openAuthRequiredModal('Acceso requerido');
+      } else {
+        showClaimToast('Acceso requerido');
+      }
+    } catch (err) {
+      showClaimToast('Acceso requerido');
+    }
+  }, true); // capture phase
+}
+
 // initialize previews when DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
   setupMenuPreviews();
+  setupHomepageCardAddGuards();
   // also attach handlers to 'Ver Menú' buttons to show the auth-required modal on homepage
   try {
     document.querySelectorAll('.btn-view-restaurant').forEach((btn) => {
@@ -698,10 +729,18 @@ function enforceAuthOnInteractiveButtons() {
       if (!(btn instanceof HTMLButtonElement || btn.tagName === 'A' || btn.matches('button'))) return;
 
       if (!token) {
-        try { btn.disabled = true; } catch (e) {}
+        // If we're on the homepage, avoid setting the disabled attribute so
+        // clicks can still be captured and we can show the 'Acceso requerido' modal.
+        if (!IS_HOMEPAGE) {
+          try { btn.disabled = true; } catch (e) {}
+          // ensure aria-disabled for accessibility
+          try { btn.setAttribute('aria-disabled', 'true'); } catch (e) {}
+        } else {
+          // On homepage keep buttons interactive but mark visually as blocked
+          try { btn.removeAttribute('disabled'); } catch (e) {}
+          try { btn.removeAttribute('aria-disabled'); } catch (e) {}
+        }
         btn.classList.add('auth-blocked');
-        // ensure aria-disabled for accessibility
-        btn.setAttribute('aria-disabled', 'true');
       } else {
         try { btn.disabled = false; } catch (e) {}
         btn.classList.remove('auth-blocked');

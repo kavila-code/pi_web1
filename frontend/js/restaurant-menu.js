@@ -6,12 +6,9 @@ let selectedProduct = null;
 let modalQuantity = 1;
 let restaurantId = null;
 
-// Verificar autenticación y obtener ID del restaurante
-const token = localStorage.getItem("token");
-if (!token) {
-  window.location.href = "/login";
-}
 
+// Obtener ID del restaurante desde la URL (no forzamos login aquí para permitir
+// ver menús públicamente; la acción de agregar al carrito seguirá requiriendo auth).
 const urlParams = new URLSearchParams(window.location.search);
 restaurantId = urlParams.get("id");
 
@@ -38,21 +35,97 @@ document.addEventListener("DOMContentLoaded", () => {
 // Cargar datos del restaurante
 async function loadRestaurant() {
   try {
-    const response = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
-    const data = await response.json();
+    // Intentar primero una petición pública (sin token). Algunos backends
+    // permiten lectura pública de restaurantes. Si falla o responde 401/403,
+    // intentamos authenticatedFetch cuando haya token.
+    let data = null;
+    try {
+      const resp = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
+      data = await resp.json();
+    } catch (err) {
+      console.debug('Petición pública al restaurante falló:', err);
+      data = null;
+    }
 
-    if (data.ok) {
+    // Si la petición pública no devolvió datos válidos, y hay token, intentar con authenticatedFetch
+    if ((!data || !data.ok) && getToken()) {
+      try {
+        data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
+      } catch (err) {
+        console.debug('authenticatedFetch fallo:', err);
+        data = null;
+      }
+    }
+
+    if (data && data.ok) {
       restaurant = data.data;
       renderRestaurantHeader();
       loadProducts();
-    } else {
-      alert("Error al cargar el restaurante");
-      window.location.href = "/public/restaurants.html";
+      return;
     }
+
+    // Si llegamos aquí, la API no devolvió el restaurante. Intentar fallback local
+    console.warn('API no devolvió restaurante, intentando fallback local');
+    const localSource = window._CURRENT_RESTAURANTS || (typeof getAllRestaurants === 'function' ? getAllRestaurants() : []);
+    const found = Array.isArray(localSource) ? localSource.find(r => String(r.id) === String(restaurantId)) : null;
+    if (found) {
+      // Mapear campos del fallback a la estructura esperada por la UI
+      restaurant = {
+        id: found.id,
+        name: found.name || found.title || `Restaurante ${found.id}`,
+        description: found.category || found.description || '',
+        rating: found.rating || 0,
+        delivery_time: (found.deliveryTimeMin ? `${found.deliveryTimeMin}-${found.deliveryTimeMin + 15} min` : found.delivery_time) || '30-45 min',
+        delivery_fee: found.deliveryFee || found.delivery_fee || 0,
+        logo_url: found.image || found.logo_url || ''
+      };
+
+      renderRestaurantHeader();
+      // No tenemos un listado de productos locales aquí; mostrar mensaje vacío
+      const container = document.getElementById('productsContainer');
+      if (container) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No hay productos disponibles para este restaurante (modo offline)</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    alert('Error al cargar el restaurante');
+    window.location.href = '/public/restaurants.html';
   } catch (error) {
     console.error("Error:", error);
-    alert("Error al cargar el restaurante");
-    window.location.href = "/public/restaurants.html";
+    // Intentar fallback local también en caso de excepción
+    const localSource = window._CURRENT_RESTAURANTS || (typeof getAllRestaurants === 'function' ? getAllRestaurants() : []);
+    const found = Array.isArray(localSource) ? localSource.find(r => String(r.id) === String(restaurantId)) : null;
+    if (found) {
+      restaurant = {
+        id: found.id,
+        name: found.name || found.title || `Restaurante ${found.id}`,
+        description: found.category || found.description || '',
+        rating: found.rating || 0,
+        delivery_time: (found.deliveryTimeMin ? `${found.deliveryTimeMin}-${found.deliveryTimeMin + 15} min` : found.delivery_time) || '30-45 min',
+        delivery_fee: found.deliveryFee || found.delivery_fee || 0,
+        logo_url: found.image || found.logo_url || ''
+      };
+      renderRestaurantHeader();
+      const container = document.getElementById('productsContainer');
+      if (container) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
+            <p class="mt-3 text-muted">No hay productos disponibles para este restaurante (modo offline)</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    alert('Error al cargar el restaurante');
+    window.location.href = '/public/restaurants.html';
   }
 }
 
@@ -78,8 +151,8 @@ function renderRestaurantHeader() {
 // Cargar productos
 async function loadProducts() {
   try {
-    const response = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}/products`);
-    const data = await response.json();
+    const data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}/products`);
+    if (!data) return; // authenticatedFetch handled logout or error
 
     if (data.ok) {
       allProducts = data.data;
@@ -104,10 +177,10 @@ async function loadProducts() {
 // Cargar categorías
 async function loadCategories() {
   try {
-    const response = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}/products/categories`);
-    const data = await response.json();
+  const data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}/products/categories`);
+  if (!data) return;
 
-    if (data.ok && data.data.length > 0) {
+  if (data.ok && data.data.length > 0) {
       const container = document.getElementById("categoriesMenu");
       if (!container) return;
       
