@@ -50,15 +50,20 @@ const getUsers = async (req, res) => {
         u.username,
         u.email,
         u.created_at,
-        u.cedula,
-        u.nombre,
-        u.apellidos,
-        u.telefono1,
-        u.telefono2,
-        u.direccion,
+        -- Datos básicos (pueden existir en users o en user_details)
+        COALESCE(u.cedula, ud.cedula) AS cedula,
+        COALESCE(u.nombre, ud.nombre) AS nombre,
+        COALESCE(u.apellidos, ud.apellidos) AS apellidos,
+        COALESCE(u.telefono1, ud.telefono1) AS telefono1,
+        COALESCE(u.telefono2, ud.telefono2) AS telefono2,
+        COALESCE(u.direccion, ud.direccion) AS direccion,
+        -- En users hay strings municipio/departamento, en user_details solo ids
         u.municipio,
-        u.departamento
+        u.departamento,
+        ud.municipio_id,
+        ud.departamento_id
       FROM users u
+      LEFT JOIN user_details ud ON ud.user_id = u.uid
       ORDER BY u.created_at DESC
     `;
 
@@ -86,6 +91,8 @@ const getUsers = async (req, res) => {
           direccion: user.direccion,
           municipio: user.municipio,
           departamento: user.departamento,
+          municipio_id: user.municipio_id,
+          departamento_id: user.departamento_id,
           roles: roles.length ? roles : ['cliente']
         };
       })
@@ -97,6 +104,55 @@ const getUsers = async (req, res) => {
   } catch (error) {
     console.error('🔥 Error al obtener usuarios:', error);
     return res.status(500).json({ ok: false, msg: 'Error al obtener usuarios', error: error.message });
+  }
+};
+
+// Obtener un usuario por ID
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Datos del usuario
+    const userQuery = `
+      SELECT 
+        u.uid as id,
+        u.username,
+        u.email,
+        u.created_at,
+        COALESCE(u.cedula, ud.cedula) AS cedula,
+        COALESCE(u.nombre, ud.nombre) AS nombre,
+        COALESCE(u.apellidos, ud.apellidos) AS apellidos,
+        COALESCE(u.telefono1, ud.telefono1) AS telefono1,
+        COALESCE(u.telefono2, ud.telefono2) AS telefono2,
+        COALESCE(u.direccion, ud.direccion) AS direccion,
+        u.municipio,
+        u.departamento,
+        ud.municipio_id,
+        ud.departamento_id
+      FROM users u
+      LEFT JOIN user_details ud ON ud.user_id = u.uid
+      WHERE u.uid = $1
+      LIMIT 1
+    `;
+
+    const userResult = await req.db.query(userQuery, [id]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ ok: false, message: 'Usuario no encontrado' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Roles del usuario
+    const rolesResult = await req.db.query(
+      'SELECT role FROM user_roles WHERE user_id = $1',
+      [user.id]
+    );
+    const roles = rolesResult.rows.map(r => r.role);
+
+    return res.json({ ok: true, user: { ...user, roles } });
+  } catch (error) {
+    console.error('🔥 Error al obtener usuario por id:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener el usuario' });
   }
 };
 
@@ -233,6 +289,7 @@ const updateUser = async (req, res) => {
 export const AdminController = {
   getDashboardStats,
   getUsers,
+  getUserById,
   getOrders,
   getRestaurants,
   updateUser

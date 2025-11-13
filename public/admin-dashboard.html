@@ -4,39 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Admin - DomiTulua</title>
-
     <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      <!DOCTYPE
-      html
-    />
-    <html lang="es">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Dashboard Admin - DomiTulua</title>
-
-        <!-- Bootstrap CSS -->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-        />
-        <!-- Bootstrap Icons -->
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-        />
-        <!-- Google Fonts -->
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <!-- Custom CSS -->
-        <link rel="stylesheet" href="/frontend/foodie.css" />
-        <link rel="stylesheet" href="/frontend/admin-dashboard.css" />
-      </head>
-      <body>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/frontend/foodie.css" />
+    <link rel="stylesheet" href="/frontend/admin-dashboard.css" />
+  </head>
+  <body>
         <div class="d-flex">
           <!-- Sidebar -->
           <aside id="sidebar" class="sidebar bg-light border-end">
@@ -604,13 +582,17 @@
                       </div>
 
                       <div class="mb-3">
-                        <label for="editMunicipio" class="form-label">Municipio</label>
-                        <input type="text" class="form-control" id="editMunicipio" />
+                        <label for="editDepartamento" class="form-label">Departamento</label>
+                        <select class="form-select" id="editDepartamento">
+                          <option value="">Seleccione un departamento</option>
+                        </select>
                       </div>
 
                       <div class="mb-3">
-                        <label for="editDepartamento" class="form-label">Departamento</label>
-                        <input type="text" class="form-control" id="editDepartamento" />
+                        <label for="editMunicipio" class="form-label">Municipio</label>
+                        <select class="form-select" id="editMunicipio" disabled>
+                          <option value="">Primero seleccione un departamento</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -650,6 +632,3 @@
         <script src="/frontend/js/admin-dashboard.js"></script>
       </body>
     </html>
-    if (data.success) {
-  </head>
-</html>

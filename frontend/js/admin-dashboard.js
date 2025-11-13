@@ -1,6 +1,18 @@
 // Variables globales
 let sidebarOpen = true;
 
+// Función auxiliar para manejar errores de autenticación
+function handleAuthError(response) {
+  if (response.status === 401 || response.status === 403) {
+    alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+    return true;
+  }
+  return false;
+}
+
 // Función para alternar sidebar
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -126,6 +138,15 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     console.error("Logout button not found!");
   }
+
+  // Inicializar selects de Departamento/Municipio en el modal de edición
+  initEditUserLocationSelects();
+
+  // Manejar envío del formulario de edición
+  const editForm = document.getElementById("editUserForm");
+  if (editForm) {
+    editForm.addEventListener("submit", onEditUserSubmit);
+  }
 });
 
 // Función para cargar datos del dashboard (usuarios, pedidos, restaurantes, ingresos)
@@ -228,6 +249,436 @@ if (window.innerWidth <= 992) {
   document.getElementById("sidebar").classList.add("collapsed");
   document.querySelector(".main-content").classList.add("expanded");
 }
+
+// (Eliminado catálogo duplicado y helpers duplicados para evitar errores de redeclaración)
+
+// ====== Catálogo de Colombia (Departamentos y Municipios) ======
+// Nota: valores de <option> serán los nombres (strings) para enviar al backend tal como espera.
+const AD_DEPARTAMENTOS = {
+  1: "Amazonas",
+  2: "Antioquia",
+  3: "Arauca",
+  4: "Atlántico",
+  5: "Bolívar",
+  6: "Boyacá",
+  7: "Caldas",
+  8: "Caquetá",
+  9: "Casanare",
+  10: "Cauca",
+  11: "Cesar",
+  12: "Chocó",
+  13: "Córdoba",
+  14: "Cundinamarca",
+  15: "Guainía",
+  16: "Guaviare",
+  17: "Huila",
+  18: "La Guajira",
+  19: "Magdalena",
+  20: "Meta",
+  21: "Nariño",
+  22: "Norte de Santander",
+  23: "Putumayo",
+  24: "Quindío",
+  25: "Risaralda",
+  26: "San Andrés y Providencia",
+  27: "Santander",
+  28: "Sucre",
+  29: "Tolima",
+  30: "Valle del Cauca",
+  31: "Vaupés",
+  32: "Vichada",
+};
+
+const AD_MUNICIPIOS = {
+  1: [
+    { id: "1", nombre: "Leticia" },
+    { id: "2", nombre: "Puerto Nariño" },
+    { id: "3", nombre: "Tarapacá" },
+    { id: "4", nombre: "La Chorrera" },
+    { id: "5", nombre: "Puerto Arica" },
+    { id: "6", nombre: "Mirití-Paraná" },
+  ],
+  2: [
+    { id: "7", nombre: "Medellín" },
+    { id: "8", nombre: "Bello" },
+    { id: "9", nombre: "Itagüí" },
+    { id: "10", nombre: "Envigado" },
+    { id: "11", nombre: "Rionegro" },
+    { id: "12", nombre: "Apartadó" },
+  ],
+  3: [
+    { id: "13", nombre: "Arauca" },
+    { id: "14", nombre: "Arauquita" },
+    { id: "15", nombre: "Tame" },
+    { id: "16", nombre: "Fortul" },
+    { id: "17", nombre: "Saravena" },
+    { id: "18", nombre: "Puerto Rondón" },
+  ],
+  4: [
+    { id: "19", nombre: "Barranquilla" },
+    { id: "20", nombre: "Soledad" },
+    { id: "21", nombre: "Malambo" },
+    { id: "22", nombre: "Sabanalarga" },
+    { id: "23", nombre: "Galapa" },
+    { id: "24", nombre: "Baranoa" },
+  ],
+  5: [
+    { id: "25", nombre: "Cartagena" },
+    { id: "26", nombre: "Turbaco" },
+    { id: "27", nombre: "Magangué" },
+    { id: "28", nombre: "El Carmen de Bolívar" },
+    { id: "29", nombre: "Arjona" },
+    { id: "30", nombre: "Santa Catalina" },
+  ],
+  6: [
+    { id: "31", nombre: "Tunja" },
+    { id: "32", nombre: "Duitama" },
+    { id: "33", nombre: "Sogamoso" },
+    { id: "34", nombre: "Chiquinquirá" },
+    { id: "35", nombre: "Paipa" },
+    { id: "36", nombre: "Tibasosa" },
+  ],
+  7: [
+    { id: "37", nombre: "Manizales" },
+    { id: "38", nombre: "Chinchiná" },
+    { id: "39", nombre: "La Dorada" },
+    { id: "40", nombre: "Villamaría" },
+    { id: "41", nombre: "Neira" },
+    { id: "42", nombre: "Anserma" },
+  ],
+  8: [
+    { id: "43", nombre: "Florencia" },
+    { id: "44", nombre: "San Vicente del Caguán" },
+    { id: "45", nombre: "Belén de los Andaquíes" },
+    { id: "46", nombre: "Puerto Rico" },
+  ],
+  9: [
+    { id: "47", nombre: "Yopal" },
+    { id: "48", nombre: "Aguazul" },
+    { id: "49", nombre: "Villanueva" },
+    { id: "50", nombre: "Tauramena" },
+  ],
+  10: [
+    { id: "51", nombre: "Popayán" },
+    { id: "52", nombre: "Santander de Quilichao" },
+    { id: "53", nombre: "Puerto Tejada" },
+    { id: "54", nombre: "Patía" },
+  ],
+  11: [
+    { id: "55", nombre: "Valledupar" },
+    { id: "56", nombre: "Agustín Codazzi" },
+    { id: "57", nombre: "Bosconia" },
+    { id: "58", nombre: "Aguachica" },
+  ],
+  12: [
+    { id: "59", nombre: "Quibdó" },
+    { id: "60", nombre: "Istmina" },
+    { id: "61", nombre: "Tadó" },
+    { id: "62", nombre: "Condoto" },
+  ],
+  13: [
+    { id: "63", nombre: "Montería" },
+    { id: "64", nombre: "Lorica" },
+    { id: "65", nombre: "Sahagún" },
+    { id: "66", nombre: "Tierralta" },
+  ],
+  14: [
+    { id: "67", nombre: "Bogotá" },
+    { id: "68", nombre: "Soacha" },
+    { id: "69", nombre: "Zipaquirá" },
+    { id: "70", nombre: "Facatativá" },
+  ],
+  15: [
+    { id: "71", nombre: "Inírida" },
+  ],
+  16: [
+    { id: "72", nombre: "San José del Guaviare" },
+  ],
+  17: [
+    { id: "73", nombre: "Neiva" },
+    { id: "74", nombre: "Pitalito" },
+    { id: "75", nombre: "Garzón" },
+    { id: "76", nombre: "La Plata" },
+  ],
+  18: [
+    { id: "77", nombre: "Riohacha" },
+    { id: "78", nombre: "Maicao" },
+    { id: "79", nombre: "Uribia" },
+    { id: "80", nombre: "Fonseca" },
+  ],
+  19: [
+    { id: "81", nombre: "Santa Marta" },
+    { id: "82", nombre: "Ciénaga" },
+    { id: "83", nombre: "Fundación" },
+    { id: "84", nombre: "Aracataca" },
+  ],
+  20: [
+    { id: "85", nombre: "Villavicencio" },
+    { id: "86", nombre: "Acacías" },
+    { id: "87", nombre: "Granada" },
+    { id: "88", nombre: "Puerto López" },
+  ],
+  21: [
+    { id: "89", nombre: "Pasto" },
+    { id: "90", nombre: "Ipiales" },
+    { id: "91", nombre: "Tumaco" },
+    { id: "92", nombre: "Túquerres" },
+  ],
+  22: [
+    { id: "93", nombre: "Cúcuta" },
+    { id: "94", nombre: "Ocaña" },
+    { id: "95", nombre: "Pamplona" },
+    { id: "96", nombre: "Villa del Rosario" },
+  ],
+  23: [
+    { id: "97", nombre: "Mocoa" },
+    { id: "98", nombre: "Puerto Asís" },
+    { id: "99", nombre: "Orito" },
+    { id: "100", nombre: "Sibundoy" },
+  ],
+  24: [
+    { id: "101", nombre: "Armenia" },
+    { id: "102", nombre: "Calarcá" },
+    { id: "103", nombre: "La Tebaida" },
+    { id: "104", nombre: "Montenegro" },
+  ],
+  25: [
+    { id: "105", nombre: "Pereira" },
+    { id: "106", nombre: "Dosquebradas" },
+    { id: "107", nombre: "Santa Rosa de Cabal" },
+  ],
+  26: [
+    { id: "108", nombre: "San Andrés" },
+    { id: "109", nombre: "Providencia" },
+  ],
+  27: [
+    { id: "110", nombre: "Bucaramanga" },
+    { id: "111", nombre: "Floridablanca" },
+    { id: "112", nombre: "Girón" },
+    { id: "113", nombre: "Piedecuesta" },
+  ],
+  28: [
+    { id: "114", nombre: "Sincelejo" },
+    { id: "115", nombre: "Corozal" },
+    { id: "116", nombre: "Tolú" },
+    { id: "117", nombre: "San Marcos" },
+  ],
+  29: [
+    { id: "118", nombre: "Ibagué" },
+    { id: "119", nombre: "Espinal" },
+    { id: "120", nombre: "Melgar" },
+    { id: "121", nombre: "Honda" },
+  ],
+  30: [
+    { id: "122", nombre: "Cali" },
+    { id: "123", nombre: "Palmira" },
+    { id: "124", nombre: "Buenaventura" },
+    { id: "125", nombre: "Tuluá" },
+    { id: "126", nombre: "Buga" },
+  ],
+  31: [
+    { id: "127", nombre: "Mitú" },
+  ],
+  32: [
+    { id: "128", nombre: "Puerto Carreño" },
+  ],
+};
+
+function ad_findDepartamentoIdByName(nombre) {
+  if (!nombre) return null;
+  const norm = (s) => (s || "").toString().trim().toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  const target = norm(nombre);
+  for (const [id, n] of Object.entries(AD_DEPARTAMENTOS)) {
+    const cand = norm(n);
+    if (cand === target || cand.includes(target) || target.includes(cand)) return id;
+  }
+  return null;
+}
+
+function ad_populateDepartamentos(select) {
+  if (!select) return;
+  const current = select.value;
+  // Mantener primera opción
+  const first = select.querySelector("option:first-child");
+  select.innerHTML = "";
+  if (first && first.value === "") select.appendChild(first);
+  else select.insertAdjacentHTML("beforeend", '<option value="">Seleccione un departamento</option>');
+
+  Object.keys(AD_DEPARTAMENTOS)
+    .sort((a, b) => AD_DEPARTAMENTOS[a].localeCompare(AD_DEPARTAMENTOS[b]))
+    .forEach((id) => {
+      const nombre = AD_DEPARTAMENTOS[id];
+      const opt = document.createElement("option");
+      opt.value = nombre; // enviamos nombre al backend
+      opt.textContent = nombre;
+      opt.dataset.depId = id; // por si se requiere
+      select.appendChild(opt);
+    });
+
+  if (current) select.value = current;
+}
+
+function ad_populateMunicipios(select, departamentoNombre, preselectNombre) {
+  if (!select) return;
+  const depId = ad_findDepartamentoIdByName(departamentoNombre);
+  select.disabled = true;
+  select.innerHTML = '<option value="">Primero seleccione un departamento</option>';
+  if (!depId || !AD_MUNICIPIOS[depId]) return;
+
+  select.disabled = false;
+  select.innerHTML = '<option value="">Seleccione un municipio</option>';
+  AD_MUNICIPIOS[depId].forEach((m) => {
+    const opt = document.createElement("option");
+    opt.value = m.nombre; // enviamos nombre al backend
+    opt.textContent = m.nombre;
+    select.appendChild(opt);
+  });
+  if (preselectNombre) select.value = preselectNombre;
+}
+
+function initEditUserLocationSelects() {
+  const depSelect = document.getElementById("editDepartamento");
+  const munSelect = document.getElementById("editMunicipio");
+  if (!depSelect || !munSelect) return;
+
+  // Poblar departamentos inicialmente
+  ad_populateDepartamentos(depSelect);
+
+  // Cuando cambia el departamento, repoblar municipios
+  depSelect.addEventListener("change", function () {
+    ad_populateMunicipios(munSelect, depSelect.value, null);
+  });
+
+  // Al abrir el modal, intentar preseleccionar valores existentes
+  const editModal = document.getElementById("editUserModal");
+  if (editModal) {
+    editModal.addEventListener("shown.bs.modal", function () {
+      // Si algún script de llenado previo ya puso el valor (string), respetarlo
+      const currentDep = depSelect.value || depSelect.getAttribute("data-current") || "";
+      if (currentDep) depSelect.value = currentDep;
+      ad_populateMunicipios(munSelect, depSelect.value, munSelect.value || munSelect.getAttribute("data-current") || "");
+    });
+  }
+}
+
+// ====== Edición de Usuario (abrir modal con datos y guardar) ======
+async function fetchAdminUserById(userId) {
+  try {
+    const token = localStorage.getItem("token");
+    const resp = await fetch(`/api/v1/admin/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (handleAuthError(resp)) return null;
+    if (!resp.ok) {
+      console.error("Error al obtener usuario:", resp.status);
+      return null;
+    }
+    const data = await resp.json();
+    return data && (data.user || data.data || data);
+  } catch (err) {
+    console.error("fetchAdminUserById error:", err);
+    return null;
+  }
+}
+
+function fillEditUserForm(user) {
+  if (!user) return;
+  const $ = (id) => document.getElementById(id);
+  $("editUserId").value = user.id || user.uid || "";
+  $("editUsername").value = user.username || "";
+  $("editEmail").value = user.email || "";
+  $("editCedula").value = user.cedula || "";
+  $("editNombre").value = user.nombre || "";
+  $("editApellidos").value = user.apellidos || "";
+  $("editTelefono1").value = user.telefono1 || "";
+  $("editTelefono2").value = user.telefono2 || "";
+  $("editDireccion").value = user.direccion || "";
+
+  const depSelect = $("editDepartamento");
+  const munSelect = $("editMunicipio");
+  const departamento = user.departamento || "";
+  const municipio = user.municipio || "";
+
+  // Asegurarnos de que departamentos están cargados
+  ad_populateDepartamentos(depSelect);
+  // Intentar mapear el nombre guardado al catálogo para mostrarlo seleccionado
+  const depId = ad_findDepartamentoIdByName(departamento);
+  const depNombreCatalogo = depId ? AD_DEPARTAMENTOS[depId] : (departamento || "");
+  // Setear y poblar municipios con preselección
+  depSelect.value = depNombreCatalogo || "";
+  // Guardar como data-current por si al abrir el modal se recalcula
+  depSelect.setAttribute("data-current", depNombreCatalogo || "");
+  munSelect.setAttribute("data-current", municipio || "");
+  ad_populateMunicipios(munSelect, depNombreCatalogo, municipio || "");
+}
+
+async function onEditUserSubmit(e) {
+  e.preventDefault();
+  const $ = (id) => document.getElementById(id);
+  const userId = $("editUserId").value;
+  const body = {
+    username: $("editUsername").value.trim(),
+    email: $("editEmail").value.trim(),
+    cedula: $("editCedula").value.trim(),
+    nombre: $("editNombre").value.trim(),
+    apellidos: $("editApellidos").value.trim(),
+    telefono1: $("editTelefono1").value.trim(),
+    telefono2: $("editTelefono2").value.trim(),
+    direccion: $("editDireccion").value.trim(),
+    municipio: $("editMunicipio").value || "",
+    departamento: $("editDepartamento").value || "",
+  };
+
+  try {
+    const token = localStorage.getItem("token");
+    const resp = await fetch(`/api/v1/admin/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (handleAuthError(resp)) return;
+    const data = await resp.json();
+    if (resp.ok && (data.ok || data.success !== false)) {
+      try { showToast("Usuario actualizado correctamente", "success"); } catch (_) { alert("Usuario actualizado correctamente"); }
+      // Cerrar modal
+      const modalEl = document.getElementById("editUserModal");
+      if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.hide();
+      }
+      // Recargar listado si existe función
+      if (typeof loadUsers === "function") {
+        try { await loadUsers(); } catch (_) {}
+      }
+    } else {
+      const msg = data && (data.message || data.msg) || "No se pudo actualizar";
+      try { showToast(msg, "error"); } catch (_) { alert(msg); }
+    }
+  } catch (err) {
+    console.error("onEditUserSubmit error:", err);
+    try { showToast("Error de red al actualizar", "error"); } catch (_) { alert("Error de red al actualizar"); }
+  }
+}
+
+// Exponer función global para el botón lápiz
+window.editUser = async function (userId) {
+  const user = await fetchAdminUserById(userId);
+  if (!user) {
+    try { showToast("No se pudo cargar el usuario", "error"); } catch (_) { alert("No se pudo cargar el usuario"); }
+    return;
+  }
+  fillEditUserForm(user);
+  const modalEl = document.getElementById("editUserModal");
+  if (modalEl) {
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+  }
+};
 
 // === FUNCIONES PARA SOLICITUDES DE DOMICILIARIOS ===
 
@@ -1355,6 +1806,10 @@ async function loadUsers() {
       }
     });
 
+    if (handleAuthError(response)) {
+      return;
+    }
+
     if (!response.ok) {
       throw new Error('Error al cargar usuarios');
     }
@@ -1523,6 +1978,26 @@ async function viewUser(userId) {
       minute: '2-digit'
     }) : 'N/A';
 
+    // Resolver nombres para ubicaciones si vienen como IDs desde user_details
+    const depNameResolved = (() => {
+      if (user.departamento) return user.departamento;
+      if (typeof user.departamento_id !== 'undefined' && user.departamento_id !== null) {
+        const dep = AD_DEPARTAMENTOS[user.departamento_id];
+        return dep || '';
+      }
+      return '';
+    })();
+    const munNameResolved = (() => {
+      if (user.municipio) return user.municipio;
+      const depId = user.departamento_id;
+      if (depId && AD_MUNICIPIOS[depId]) {
+        const list = AD_MUNICIPIOS[depId];
+        const found = list.find(m => (m.id+'' === (user.municipio_id+'')) || (m.nombre === user.municipio));
+        return found ? found.nombre : '';
+      }
+      return '';
+    })();
+
     // Mostrar detalles del usuario
     modalContent.innerHTML = `
       <div class="row">
@@ -1566,8 +2041,8 @@ async function viewUser(userId) {
           <div class="card">
             <div class="card-body">
               <p class="mb-2"><strong>Dirección:</strong> ${user.direccion || 'No proporcionada'}</p>
-              <p class="mb-2"><strong>Municipio:</strong> ${user.municipio || 'No proporcionado'}</p>
-              <p class="mb-0"><strong>Departamento:</strong> ${user.departamento || 'No proporcionado'}</p>
+              <p class="mb-2"><strong>Municipio:</strong> ${munNameResolved || 'No proporcionado'}</p>
+              <p class="mb-0"><strong>Departamento:</strong> ${depNameResolved || 'No proporcionado'}</p>
             </div>
           </div>
         </div>
@@ -1585,95 +2060,7 @@ async function viewUser(userId) {
   }
 }
 
-// Función para editar un usuario
-// Función para editar un usuario
-async function editUser(userId) {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`/api/v1/admin/users/${userId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al cargar datos del usuario');
-    }
-
-    const data = await response.json();
-    const user = data.user;
-
-    // Rellenar el formulario con los datos del usuario
-    document.getElementById('editUserId').value = user.id;
-    document.getElementById('editUsername').value = user.username || '';
-    document.getElementById('editEmail').value = user.email || '';
-    document.getElementById('editCedula').value = user.cedula || '';
-    document.getElementById('editNombre').value = user.nombre || '';
-    document.getElementById('editApellidos').value = user.apellidos || '';
-    document.getElementById('editTelefono1').value = user.telefono1 || '';
-    document.getElementById('editTelefono2').value = user.telefono2 || '';
-    document.getElementById('editDireccion').value = user.direccion || '';
-    document.getElementById('editMunicipio').value = user.municipio || '';
-    document.getElementById('editDepartamento').value = user.departamento || '';
-
-    // Mostrar el modal
-    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-    modal.show();
-
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error al cargar los datos del usuario');
-  }
-}
-
-// Función para guardar los cambios del usuario
-document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const userId = document.getElementById('editUserId').value;
-  const userData = {
-    username: document.getElementById('editUsername').value,
-    email: document.getElementById('editEmail').value,
-    cedula: document.getElementById('editCedula').value,
-    nombre: document.getElementById('editNombre').value,
-    apellidos: document.getElementById('editApellidos').value,
-    telefono1: document.getElementById('editTelefono1').value,
-    telefono2: document.getElementById('editTelefono2').value,
-    direccion: document.getElementById('editDireccion').value,
-    municipio: document.getElementById('editMunicipio').value,
-    departamento: document.getElementById('editDepartamento').value
-  };
-
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`/api/v1/admin/users/${userId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userData)
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert('Usuario actualizado exitosamente');
-      
-      // Cerrar el modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-      modal.hide();
-      
-      // Recargar la lista de usuarios
-      loadUsers();
-    } else {
-      alert(data.message || 'Error al actualizar el usuario');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error al actualizar el usuario');
-  }
-});
+// (Eliminado duplicado de editUser y submit handler; se usa window.editUser + onEditUserSubmit definidos arriba)
 
 // Función para eliminar un usuario
 async function deleteUser(userId) {
