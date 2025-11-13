@@ -23,6 +23,18 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/frontend/foodie.css" />
     <link rel="stylesheet" href="/frontend/user-dashboard.css" />
+    <style>
+      /* Estilos para el botón 'Mis Pedidos' en el navbar */
+      .custom-orders-link .header-icon {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+      }
+
+      .custom-orders-link .header-icon.small-icon {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+      }
+    </style>
   </head>
 
   <body class="user-dashboard-body">
@@ -203,7 +215,10 @@
               >
             </li> -->
             <li class="nav-item">
-              <a class="nav-link" href="#orders">Mis Pedidos</a>
+              <a class="nav-link d-flex align-items-center justify-content-end custom-orders-link" href="/public/my-orders.html">
+                <span class="me-2">Mis Pedidos</span>
+                <span class="header-icon small-icon" aria-hidden="true"><i class="bi bi-bag"></i></span>
+              </a>
             </li>
           </ul>
 
