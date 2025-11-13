@@ -193,8 +193,9 @@ function updateCartCount() {
 // Initialize cart count from persistent storage on load
 document.addEventListener('DOMContentLoaded', function () {
   try {
-    const cur = JSON.parse(localStorage.getItem('cart') || '[]');
-    cartCount = Array.isArray(cur) ? cur.reduce((s, it) => s + (it.quantity || 1), 0) : 0;
+    // Usar cart_items_v1 para ser compatible con cart.js
+    const cur = JSON.parse(localStorage.getItem('cart_items_v1') || '[]');
+    cartCount = Array.isArray(cur) ? cur.reduce((s, it) => s + (it.qty || 1), 0) : 0;
     updateCartCount();
   } catch (e) {
     // ignore
@@ -240,30 +241,50 @@ function addItemToCart(item) {
       return;
     }
 
-    const key = 'cart';
+    // Si cart.js está cargado (window.cartAPI disponible), usar su API
+    if (window.cartAPI && window.cartAPI.addToCart) {
+      const cartItem = {
+        id: item.product_id || item.id || Date.now(),
+        name: item.product_name || item.name || 'Item',
+        price: Number(item.product_price || item.price || 0),
+        image: item.product_image || item.image || '',
+        qty: item.quantity || item.qty || 1
+      };
+      window.cartAPI.addToCart(cartItem);
+      
+      // Actualizar contador local
+      const cart = window.cartAPI.readCart();
+      cartCount = cart.reduce((s, it) => s + (it.qty || 1), 0);
+      updateCartCount();
+      return;
+    }
+
+    // Fallback al comportamiento anterior si cart.js no está cargado
+    const key = 'cart_items_v1';
     const cur = JSON.parse(localStorage.getItem(key) || '[]');
 
     // Normalize price to number
     const price = Number(item.product_price || item.price || 0);
+    const itemId = item.product_id || item.id || Date.now();
 
-    // Try to find by name
-    const idx = cur.findIndex(c => String(c.product_name) === String(item.product_name));
+    // Try to find by id
+    const idx = cur.findIndex(c => c.id === itemId);
     if (idx >= 0) {
-      cur[idx].quantity = (cur[idx].quantity || 1) + (item.quantity || 1);
+      cur[idx].qty = (cur[idx].qty || 1) + (item.quantity || item.qty || 1);
     } else {
-      cur.push(Object.assign({ quantity: 1 }, {
-        product_id: item.product_id || null,
-        product_name: item.product_name || item.name || 'Item',
-        product_price: price,
-        product_image: item.product_image || item.image || '',
-        quantity: item.quantity || 1
-      }));
+      cur.push({
+        id: itemId,
+        name: item.product_name || item.name || 'Item',
+        price: price,
+        image: item.product_image || item.image || '',
+        qty: item.quantity || item.qty || 1
+      });
     }
 
     localStorage.setItem(key, JSON.stringify(cur));
 
     // update simple counter and UI
-    cartCount = cur.reduce((s, it) => s + (it.quantity || 1), 0);
+    cartCount = cur.reduce((s, it) => s + (it.qty || 1), 0);
     updateCartCount();
 
     // if there's a cart preview element, show it (if using cart.js preview it's separate)

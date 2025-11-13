@@ -239,7 +239,8 @@ function setCartSafe(cartArr) {
   }
 
   try {
-    localStorage.setItem('cart', JSON.stringify(cartArr));
+    // Usar cart_items_v1 para compatibilidad con cart.js
+    localStorage.setItem('cart_items_v1', JSON.stringify(cartArr));
     return true;
   } catch (e) {
     console.error('Error saving cart:', e);
@@ -250,7 +251,8 @@ function setCartSafe(cartArr) {
 /* --- Cart preview modal (top navbar) --- */
 function getCart() {
   try {
-    return JSON.parse(localStorage.getItem('cart') || '[]');
+    // Usar cart_items_v1 para compatibilidad
+    return JSON.parse(localStorage.getItem('cart_items_v1') || '[]');
   } catch (e) {
     console.warn('Error parsing cart from localStorage', e);
     return [];

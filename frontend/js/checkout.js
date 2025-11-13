@@ -30,7 +30,20 @@ function loadUserData() {
 
 // Cargar carrito
 function loadCart() {
-  cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  // Usar cart_items_v1 para compatibilidad
+  const rawCart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
+  
+  // Convertir formato cart_items_v1 a formato esperado por checkout
+  cart = rawCart.map(item => ({
+    product_id: item.id || item.product_id,
+    product_name: item.name || item.product_name || 'Item',
+    product_price: item.price || item.product_price || 0,
+    product_image: item.image || item.product_image || '',
+    quantity: item.qty || item.quantity || 1,
+    special_instructions: item.special_instructions || null,
+    restaurant_id: item.restaurant_id,
+    restaurant_name: item.restaurant_name
+  }));
 
   if (cart.length === 0) {
     alert("Tu carrito está vacío");

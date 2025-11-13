@@ -221,7 +221,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Cargar carrito
 function loadCart() {
-  cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  // Usar cart_items_v1 para compatibilidad
+  const rawCart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
+  
+  // Convertir formato cart_items_v1 a formato de cart.html si es necesario
+  cart = rawCart.map(item => ({
+    product_id: item.id || item.product_id,
+    product_name: item.name || item.product_name || 'Item',
+    product_price: item.price || item.product_price || 0,
+    product_image: item.image || item.product_image || '',
+    quantity: item.qty || item.quantity || 1,
+    special_instructions: item.special_instructions || null,
+    restaurant_id: item.restaurant_id,
+    restaurant_name: item.restaurant_name
+  }));
 
   if (cart.length === 0) {
     showEmptyCart();
@@ -417,8 +430,25 @@ function calculateTotals() {
 
 // Guardar carrito
 function saveCart() {
+  // Convertir al formato cart_items_v1 antes de guardar
+  const cart_v1 = cart.map(item => ({
+    id: item.product_id || item.id,
+    name: item.product_name || item.name,
+    price: item.product_price || item.price,
+    image: item.product_image || item.image,
+    qty: item.quantity || item.qty || 1,
+    special_instructions: item.special_instructions || null,
+    restaurant_id: item.restaurant_id,
+    restaurant_name: item.restaurant_name
+  }));
+  
   // Usar setCartSafe para evitar guardar si no hay sesión
-  setCartSafe(cart);
+  // Pero setCartSafe ahora guarda en cart_items_v1
+  try {
+    localStorage.setItem('cart_items_v1', JSON.stringify(cart_v1));
+  } catch (e) {
+    console.error('Error guardando carrito:', e);
+  }
 }
 
 // Mostrar carrito vacío

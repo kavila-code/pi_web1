@@ -383,7 +383,37 @@ function addToCart() {
     window.location.href = '/login';
     return;
   }
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+  // Si cart.js está cargado, usar su API
+  if (window.cartAPI && window.cartAPI.addToCart) {
+    const specialInst = document.getElementById("specialInstructions");
+    const specialInstructions = specialInst ? specialInst.value.trim() : "";
+
+    const cartItem = {
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      image: selectedProduct.image_url,
+      qty: modalQuantity,
+      restaurant_id: restaurantId,
+      restaurant_name: restaurant.name,
+      special_instructions: specialInstructions || null
+    };
+
+    window.cartAPI.addToCart(cartItem);
+    updateCartBadge();
+    showToast(`${selectedProduct.name} agregado al carrito`);
+
+    const modalElement = document.getElementById("productModal");
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) modalInstance.hide();
+    }
+    return;
+  }
+
+  // Fallback al comportamiento anterior
+  const cart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
   const specialInst = document.getElementById("specialInstructions");
   const specialInstructions = specialInst ? specialInst.value.trim() : "";
 
@@ -399,19 +429,19 @@ function addToCart() {
   // Buscar si ya existe
   const existingIndex = cart.findIndex(
     (item) =>
-      item.product_id === selectedProduct.id &&
+      item.id === selectedProduct.id &&
       item.special_instructions === specialInstructions
   );
 
   if (existingIndex >= 0) {
-    cart[existingIndex].quantity += modalQuantity;
+    cart[existingIndex].qty += modalQuantity;
   } else {
     cart.push({
-      product_id: selectedProduct.id,
-      product_name: selectedProduct.name,
-      product_price: selectedProduct.price,
-      product_image: selectedProduct.image_url,
-      quantity: modalQuantity,
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      image: selectedProduct.image_url,
+      qty: modalQuantity,
       special_instructions: specialInstructions || null,
       restaurant_id: restaurantId,
       restaurant_name: restaurant.name,
@@ -442,13 +472,53 @@ function quickAddToCart(productId) {
   const product = allProducts.find((p) => p.id === productId);
   if (!product) return;
 
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  // Si cart.js está cargado, usar su API
+  if (window.cartAPI && window.cartAPI.addToCart) {
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url,
+      qty: 1,
+      restaurant_id: restaurantId,
+      restaurant_name: restaurant.name
+    };
+
+    window.cartAPI.addToCart(cartItem);
+    updateCartBadge();
+    showToast(`${product.name} agregado al carrito`);
+    return;
+  }
+
+  // Fallback al comportamiento anterior
+  const cart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
 
   // Verificar restaurante
   if (cart.length > 0 && cart[0].restaurant_id !== restaurantId) {
     openProductModal(productId);
     return;
   }
+
+  const existingIndex = cart.findIndex((item) => item.id === product.id);
+
+  if (existingIndex >= 0) {
+    cart[existingIndex].qty++;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url,
+      qty: 1,
+      restaurant_id: restaurantId,
+      restaurant_name: restaurant.name,
+    });
+  }
+
+  if (!setCartSafe(cart)) return;
+  updateCartBadge();
+  showToast(`${product.name} agregado al carrito`);
+}
 
   const existingIndex = cart.findIndex(
     (item) => item.product_id === productId && !item.special_instructions
@@ -476,9 +546,10 @@ function quickAddToCart(productId) {
 
 // Actualizar badge del carrito
 function updateCartBadge() {
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  // Usar cart_items_v1 para compatibilidad con cart.js
+  const cart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
   const badge = document.getElementById("cartBadge");
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
 
   if (badge) {
     if (totalItems > 0) {
@@ -487,6 +558,13 @@ function updateCartBadge() {
     } else {
       badge.style.display = "none";
     }
+  }
+
+  // También actualizar el contador en el navbar si existe
+  const cartCount = document.getElementById("cartCount");
+  if (cartCount) {
+    cartCount.textContent = totalItems;
+    cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
   }
 }
 
