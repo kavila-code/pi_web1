@@ -1270,6 +1270,92 @@
                 <!-- Se llenará dinámicamente -->
               </div>
             </div>
+
+            <!-- Pedidos Disponibles Section -->
+            <div id="delivery-orders-section" class="content-section">
+              <div class="section-header">
+                <h2><i class="bi bi-truck me-2"></i>Pedidos Disponibles</h2>
+                <p class="text-muted">Pedidos pendientes de recoger</p>
+              </div>
+              <div id="availableOrdersList" class="orders-list">
+                <div class="text-center py-5">
+                  <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                  <p class="text-muted mt-3">Cargando pedidos disponibles...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mis Entregas Section -->
+            <div id="my-deliveries-section" class="content-section">
+              <div class="section-header">
+                <h2><i class="bi bi-list-check me-2"></i>Mis Entregas</h2>
+                <p class="text-muted">Historial de entregas realizadas</p>
+              </div>
+              <div id="myDeliveriesList" class="orders-list">
+                <div class="text-center py-5">
+                  <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                  <p class="text-muted mt-3">Cargando tus entregas...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mis Ganancias Section -->
+            <div id="delivery-earnings-section" class="content-section">
+              <div class="section-header">
+                <h2><i class="bi bi-cash-coin me-2"></i>Mis Ganancias</h2>
+                <p class="text-muted">Resumen de tus ganancias</p>
+              </div>
+              <div class="row mb-4">
+                <div class="col-md-4">
+                  <div class="card text-center">
+                    <div class="card-body">
+                      <h6 class="text-muted">Ganancias Totales</h6>
+                      <h2 class="text-success" id="totalEarnings">$0</h2>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card text-center">
+                    <div class="card-body">
+                      <h6 class="text-muted">Este Mes</h6>
+                      <h2 class="text-primary" id="monthEarnings">$0</h2>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card text-center">
+                    <div class="card-body">
+                      <h6 class="text-muted">Entregas Completadas</h6>
+                      <h2 class="text-info" id="completedDeliveries">0</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="earningsDetails" class="card">
+                <div class="card-body">
+                  <h5>Detalle de Ganancias</h5>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Pedido</th>
+                          <th>Ganancia</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody id="earningsTableBody">
+                        <tr>
+                          <td colspan="4" class="text-center text-muted">
+                            No hay datos de ganancias aún
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1535,6 +1621,97 @@
     <script src="/frontend/js/user-dashboard.js"></script>
 
     <script>
+      // ========== FUNCIONES GLOBALES PARA DOMICILIARIOS ==========
+      // Definidas al inicio para que estén disponibles cuando se creen elementos dinámicos
+      
+      // Función para mostrar secciones (compatible con ambos formatos)
+      window.showContent = function(sectionName) {
+        console.log("=== showContent llamado con:", sectionName);
+        
+        // Ocultar todas las secciones
+        const sections = document.querySelectorAll(".content-section");
+        sections.forEach((section) => {
+          section.classList.remove("active");
+        });
+
+        // Mostrar la sección seleccionada
+        const targetSection = document.getElementById(sectionName + "-section");
+        console.log("Sección objetivo:", targetSection);
+        
+        if (targetSection) {
+          targetSection.classList.add("active");
+          console.log("Sección activada:", sectionName);
+          
+          // Hacer scroll hacia arriba
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          console.error("No se encontró la sección:", sectionName + "-section");
+        }
+
+        // Actualizar menú activo - remover de todos
+        const menuItems = document.querySelectorAll(".menu-item");
+        menuItems.forEach((item) => {
+          item.classList.remove("active");
+        });
+        
+        // Agregar clase active al elemento clickeado
+        // Buscar el elemento del menú que corresponde a esta sección
+        const activeMenuItem = document.querySelector(`.menu-item[onclick*="${sectionName}"]`);
+        if (activeMenuItem) {
+          activeMenuItem.classList.add("active");
+        }
+
+        // Cargar datos específicos según la sección
+        switch(sectionName) {
+          case 'delivery-orders':
+            console.log("Cargando pedidos disponibles...");
+            if (typeof loadAvailableOrders === 'function') loadAvailableOrders();
+            break;
+          case 'my-deliveries':
+            console.log("Cargando mis entregas...");
+            if (typeof loadMyDeliveries === 'function') loadMyDeliveries();
+            break;
+          case 'delivery-earnings':
+            console.log("Cargando ganancias...");
+            if (typeof loadEarnings === 'function') loadEarnings();
+            break;
+        }
+      };
+
+      // Función para aceptar un pedido
+      window.acceptDelivery = async function(orderId) {
+        if (!confirm('¿Deseas aceptar este pedido para entrega?')) return;
+        
+        try {
+          const userStr = localStorage.getItem('user');
+          const user = userStr ? JSON.parse(userStr) : null;
+          
+          const response = await fetch(`/api/v1/orders/${orderId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+              delivery_user_id: user.id,
+              status: 'assigned'
+            })
+          });
+
+          if (response.ok) {
+            alert('¡Pedido aceptado! Ahora puedes verlo en "Mis Entregas"');
+            if (typeof loadAvailableOrders === 'function') loadAvailableOrders();
+          } else {
+            alert('Error al aceptar el pedido');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al aceptar el pedido');
+        }
+      };
+
+      // ========== FIN FUNCIONES GLOBALES ==========
+
       if (false) {
         /* moved to external: /frontend/js/user-dashboard.js */
         // Mostrar modal si falta info de user_details
@@ -1810,9 +1987,58 @@
           }
         }
 
+        // Función para actualizar el badge del rol
+        function updateRoleBadge(roles) {
+          console.log("=== ACTUALIZANDO ROL BADGE ===");
+          console.log("Roles recibidos:", roles);
+          
+          if (!roles || roles.length === 0) {
+            console.log("No hay roles, usando 'Usuario' por defecto");
+            const badge = document.getElementById("userRoleBadge");
+            if (badge) badge.textContent = "Usuario";
+            return;
+          }
+
+          let roleLabel = "";
+          const primaryRole = roles.includes("admin")
+            ? "admin"
+            : roles.includes("delivery") || roles.includes("domiciliario")
+            ? "delivery"
+            : roles[0];
+
+          console.log("Rol primario detectado:", primaryRole);
+
+          switch (primaryRole) {
+            case "admin":
+              roleLabel = "Administrador";
+              break;
+            case "delivery":
+            case "domiciliario":
+              roleLabel = "Domiciliario";
+              break;
+            case "cliente":
+            case "user":
+              roleLabel = "Cliente";
+              break;
+            default:
+              roleLabel = primaryRole.charAt(0).toUpperCase() + primaryRole.slice(1);
+          }
+
+          console.log("Etiqueta de rol final:", roleLabel);
+          const badge = document.getElementById("userRoleBadge");
+          if (badge) {
+            badge.textContent = roleLabel;
+            console.log("Badge actualizado exitosamente");
+          } else {
+            console.error("No se encontró el elemento userRoleBadge");
+          }
+        }
+
         // Cargar información del usuario
         // Cargar información del usuario
         function loadUserInfo(user) {
+          console.log("=== EJECUTANDO loadUserInfo ===");
+          console.log("Usuario completo:", user);
           document.getElementById("userName").textContent =
             user.username || "Usuario";
           document.getElementById("profileUserName").textContent =
@@ -1860,34 +2086,9 @@
               });
           }
 
-          // Mostrar el rol dinámicamente (ahora user.roles es un array)
+          // Actualizar el badge del rol
           const roles = user.roles || [];
-          if (roles.length > 0) {
-            let roleLabel = "";
-            const primaryRole = roles.includes("admin")
-              ? "admin"
-              : roles.includes("delivery")
-              ? "delivery"
-              : roles[0];
-
-            switch (primaryRole) {
-              case "admin":
-                roleLabel = "Administrador";
-                break;
-              case "delivery":
-              case "domiciliario":
-                roleLabel = "Domiciliario";
-                break;
-              case "cliente":
-              case "user":
-                roleLabel = "Cliente";
-                break;
-              default:
-                roleLabel = primaryRole || "Usuario";
-            }
-            const badge = document.getElementById("userRoleBadge");
-            if (badge) badge.textContent = roleLabel;
-          }
+          updateRoleBadge(roles);
 
           // Cargar estadísticas mock
           document.getElementById("totalOrders").textContent = "8";
@@ -1900,6 +2101,171 @@
         // Fin de loadUserInfo
 
         // Función para mostrar secciones
+        function showSection(sectionName) {
+          showContent(sectionName);
+        }
+
+        // Función para cargar pedidos disponibles
+        async function loadAvailableOrders() {
+          const container = document.getElementById("availableOrdersList");
+          container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
+
+          try {
+            const response = await fetch('/api/v1/orders?status=pending', {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+
+            if (response.ok) {
+              const orders = await response.json();
+              if (orders.length === 0) {
+                container.innerHTML = `
+                  <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No hay pedidos disponibles en este momento</p>
+                  </div>
+                `;
+              } else {
+                container.innerHTML = orders.map(order => `
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <div class="row align-items-center">
+                        <div class="col-md-8">
+                          <h5>Pedido #${order.id}</h5>
+                          <p class="mb-1"><i class="bi bi-shop me-2"></i><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
+                          <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
+                          <p class="mb-1"><i class="bi bi-cash me-2"></i><strong>Total:</strong> $${order.total_amount || 0}</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                          <button class="btn btn-primary" onclick="acceptDelivery(${order.id})">
+                            <i class="bi bi-check-circle me-1"></i>Aceptar Pedido
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `).join('');
+              }
+            } else {
+              throw new Error('Error al cargar pedidos');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            container.innerHTML = `
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                No se pudieron cargar los pedidos. Intenta de nuevo más tarde.
+              </div>
+            `;
+          }
+        }
+
+        // Función para cargar mis entregas
+        async function loadMyDeliveries() {
+          const container = document.getElementById("myDeliveriesList");
+          container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
+
+          try {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            
+            const response = await fetch(`/api/v1/orders?delivery_user_id=${user.id}`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+
+            if (response.ok) {
+              const orders = await response.json();
+              if (orders.length === 0) {
+                container.innerHTML = `
+                  <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No has realizado entregas aún</p>
+                  </div>
+                `;
+              } else {
+                container.innerHTML = orders.map(order => `
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-10">
+                          <h5>Pedido #${order.id}</h5>
+                          <p class="mb-1"><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
+                          <p class="mb-1"><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
+                          <p class="mb-1"><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleDateString('es-ES')}</p>
+                        </div>
+                        <div class="col-md-2 text-end">
+                          <span class="badge bg-success">Entregado</span>
+                          <p class="mt-2 mb-0"><strong>$${order.total_amount || 0}</strong></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `).join('');
+              }
+            } else {
+              throw new Error('Error al cargar entregas');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            container.innerHTML = `
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                No se pudieron cargar tus entregas. Intenta de nuevo más tarde.
+              </div>
+            `;
+          }
+        }
+
+        // Función para cargar ganancias
+        async function loadEarnings() {
+          try {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            
+            const response = await fetch(`/api/v1/orders?delivery_user_id=${user.id}&status=delivered`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+
+            if (response.ok) {
+              const orders = await response.json();
+              
+              // Calcular totales
+              const totalEarnings = orders.reduce((sum, order) => sum + (order.delivery_fee || 3000), 0);
+              const thisMonth = new Date().getMonth();
+              const monthOrders = orders.filter(o => new Date(o.created_at).getMonth() === thisMonth);
+              const monthEarnings = monthOrders.reduce((sum, order) => sum + (order.delivery_fee || 3000), 0);
+              
+              // Actualizar tarjetas
+              document.getElementById('totalEarnings').textContent = `$${totalEarnings.toLocaleString()}`;
+              document.getElementById('monthEarnings').textContent = `$${monthEarnings.toLocaleString()}`;
+              document.getElementById('completedDeliveries').textContent = orders.length;
+              
+              // Llenar tabla
+              const tbody = document.getElementById('earningsTableBody');
+              if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay datos de ganancias aún</td></tr>';
+              } else {
+                tbody.innerHTML = orders.map(order => `
+                  <tr>
+                    <td>${new Date(order.created_at).toLocaleDateString('es-ES')}</td>
+                    <td>#${order.id}</td>
+                    <td>$${(order.delivery_fee || 3000).toLocaleString()}</td>
+                    <td><span class="badge bg-success">Pagado</span></td>
+                  </tr>
+                `).join('');
+              }
+            }
+          } catch (error) {
+            console.error('Error al cargar ganancias:', error);
+          }
+        }
+
+        // Función para mostrar secciones (antigua - mantener compatibilidad)
         function showSection(sectionName) {
           // Ocultar todas las secciones
           const sections = document.querySelectorAll(".content-section");
@@ -2081,6 +2447,31 @@
         async function checkDeliveryApplication() {
           try {
             const token = localStorage.getItem("token");
+            
+            // Verificar si el usuario ya tiene rol de domiciliario
+            const userStr = localStorage.getItem('user');
+            console.log("=== CHECK DELIVERY APPLICATION ===");
+            console.log("User string:", userStr);
+            
+            if (userStr) {
+              const user = JSON.parse(userStr);
+              const roles = user.roles || [];
+              console.log("Roles del usuario:", roles);
+              
+              // Si ya es domiciliario aprobado, ocultar banner y mostrar menú
+              if (roles.includes('delivery') || roles.includes('domiciliario')) {
+                console.log("Usuario ES domiciliario - Ocultando banner");
+                const banner = document.getElementById("deliveryBanner");
+                if (banner) {
+                  banner.style.display = "none";
+                  console.log("Banner ocultado");
+                }
+                showDeliveryDriverMenu();
+                return;
+              } else {
+                console.log("Usuario NO es domiciliario");
+              }
+            }
 
             const response = await fetch(
               "/api/v1/delivery-applications/my-application",
@@ -2235,18 +2626,18 @@
             const deliveryMenu = document.createElement("div");
             deliveryMenu.id = "deliveryDriverMenu";
             deliveryMenu.innerHTML = `
-              <div class="menu-item" onclick="showContent('delivery-orders')">
+              <a href="#" class="menu-item" onclick="showContent('delivery-orders'); return false;">
                 <i class="bi bi-truck"></i>
                 <span>Pedidos Disponibles</span>
-              </div>
-              <div class="menu-item" onclick="showContent('my-deliveries')">
+              </a>
+              <a href="#" class="menu-item" onclick="showContent('my-deliveries'); return false;">
                 <i class="bi bi-list-check"></i>
                 <span>Mis Entregas</span>
-              </div>
-              <div class="menu-item" onclick="showContent('delivery-earnings')">
+              </a>
+              <a href="#" class="menu-item" onclick="showContent('delivery-earnings'); return false;">
                 <i class="bi bi-cash-coin"></i>
                 <span>Mis Ganancias</span>
-              </div>
+              </a>
             `;
             sidebar.appendChild(deliveryMenu);
           }

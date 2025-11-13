@@ -1299,4 +1299,196 @@ document.addEventListener("DOMContentLoaded", function () {
   if (window.location.hostname === "localhost") {
     setTimeout(window.debugDocuments, 2000);
   }
+
+  // Cargar usuarios al iniciar
+  loadUsers();
+  
+  // Agregar event listeners para filtros de usuarios
+  const searchUsers = document.getElementById('searchUsers');
+  const roleFilter = document.getElementById('roleFilter');
+  
+  if (searchUsers) {
+    searchUsers.addEventListener('input', debounce(loadUsers, 500));
+  }
+  
+  if (roleFilter) {
+    roleFilter.addEventListener('change', loadUsers);
+  }
 });
+
+// Función debounce para búsqueda
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Función para cargar usuarios desde la base de datos
+async function loadUsers() {
+  const tbody = document.getElementById('usersTableBody');
+  const usersCount = document.getElementById('usersCount');
+  const searchTerm = document.getElementById('searchUsers')?.value || '';
+  const roleFilter = document.getElementById('roleFilter')?.value || '';
+  
+  try {
+    // Mostrar loading
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </td>
+      </tr>
+    `;
+
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/v1/admin/users', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al cargar usuarios');
+    }
+
+    const raw = await response.json();
+    console.log('🔄 Respuesta /admin/users:', raw);
+    // Adaptar a ambos formatos (array directo o {ok, users, total})
+    let users = Array.isArray(raw) ? raw : (raw.users || []);
+    const totalFromServer = Array.isArray(raw) ? raw.length : (raw.total || users.length);
+    
+    // Aplicar filtros
+    if (roleFilter) {
+      users = users.filter(user => {
+        const roles = user.roles || [];
+        return roles.includes(roleFilter);
+      });
+    }
+    
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      users = users.filter(user => 
+        (user.username || '').toLowerCase().includes(term) ||
+        (user.email || '').toLowerCase().includes(term) ||
+        (user.nombre || '').toLowerCase().includes(term) ||
+        (user.apellidos || '').toLowerCase().includes(term)
+      );
+    }
+
+    // Actualizar contador
+    if (usersCount) {
+      usersCount.textContent = `Total: ${totalFromServer} usuario${totalFromServer !== 1 ? 's' : ''}`;
+    }
+
+    // Mostrar usuarios
+    if (users.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">
+            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+            <p class="mt-2">No se encontraron usuarios</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = users.map(user => {
+      const roles = user.roles || [];
+      const roleLabels = roles.map(role => {
+        const labels = {
+          'admin': '<span class="badge bg-danger">Admin</span>',
+          'delivery': '<span class="badge bg-info">Domiciliario</span>',
+          'domiciliario': '<span class="badge bg-info">Domiciliario</span>',
+          'cliente': '<span class="badge bg-secondary">Cliente</span>',
+          'user': '<span class="badge bg-secondary">Usuario</span>'
+        };
+        return labels[role] || `<span class="badge bg-secondary">${role}</span>`;
+      }).join(' ');
+
+      const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES') : 'N/A';
+      
+      return `
+        <tr>
+          <td>${user.id}</td>
+          <td><strong>${user.username || 'N/A'}</strong></td>
+          <td>${user.email || 'N/A'}</td>
+          <td>${user.nombre || ''} ${user.apellidos || ''}</td>
+          <td>${roleLabels || '<span class="badge bg-secondary">Cliente</span>'}</td>
+          <td>${user.telefono1 || 'N/A'}</td>
+          <td>${createdAt}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="viewUser(${user.id})" title="Ver detalles">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-warning" onclick="editUser(${user.id})" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteUser(${user.id})" title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center text-danger py-4">
+          <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+          <p class="mt-2">Error al cargar usuarios. Por favor, intenta de nuevo.</p>
+        </td>
+      </tr>
+    `;
+  }
+}
+
+// Función para ver detalles de un usuario
+function viewUser(userId) {
+  alert(`Ver detalles del usuario #${userId} - Funcionalidad en desarrollo`);
+}
+
+// Función para editar un usuario
+function editUser(userId) {
+  alert(`Editar usuario #${userId} - Funcionalidad en desarrollo`);
+}
+
+// Función para eliminar un usuario
+async function deleteUser(userId) {
+  if (!confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+    return;
+  }
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      alert('Usuario eliminado exitosamente');
+      loadUsers(); // Recargar la lista
+    } else {
+      alert('Error al eliminar el usuario');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al eliminar el usuario');
+  }
+}
+

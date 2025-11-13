@@ -43,9 +43,10 @@
             <div
               class="sidebar-header d-flex align-items-center justify-content-between p-3"
             >
-              <h4 class="mb-0">
-                <i class="bi bi-speedometer2 me-2"></i><span>Admin</span>
-              </h4>
+              <a href="/" class="text-decoration-none text-white d-flex align-items-center sidebar-brand" style="padding-left: 0.7rem;">
+                <i class="bi bi-truck me-2" style="font-size: 1.2rem; width: 20px; text-align: center;"></i>
+                <h4 class="mb-0" style="font-size: 1.3rem;"><span class="brand-text">DomiTulua</span></h4>
+              </a>
             </div>
             <nav class="sidebar-menu list-group list-group-flush">
               <button
@@ -102,14 +103,15 @@
                 </div>
                 <div class="user-details">
                   <div id="adminName" class="fw-semibold">Admin</div>
-                  <small class="text-muted" id="adminRole">Administrador</small>
+                  <small class="text-white" id="adminRole">Administrador</small>
                 </div>
               </div>
               <button
                 class="btn btn-sm btn-outline-danger w-100 mt-3 btn-logout"
                 type="button"
               >
-                Cerrar sesión
+                <i class="bi bi-box-arrow-right"></i>
+                <span class="logout-text">Cerrar sesión</span>
               </button>
             </div>
           </aside>
@@ -220,8 +222,57 @@
               </section>
 
               <section id="users-section" class="content-section">
-                <div class="alert alert-info">
-                  Gestión de usuarios próximamente.
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <h4 class="mb-0"><i class="bi bi-people me-2"></i>Gestión de Usuarios</h4>
+                  <div class="d-flex gap-2">
+                    <select id="roleFilter" class="form-select form-select-sm" style="width: auto">
+                      <option value="">Todos los roles</option>
+                      <option value="cliente">Cliente</option>
+                      <option value="domiciliario">Domiciliario</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                    <input
+                      id="searchUsers"
+                      class="form-control form-control-sm"
+                      placeholder="Buscar usuarios..."
+                      style="width: 250px"
+                    />
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Nombre</th>
+                            <th>Roles</th>
+                            <th>Teléfono</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                          <tr>
+                            <td colspan="8" class="text-center">
+                              <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div id="usersPagination" class="d-flex justify-content-between align-items-center mt-3">
+                      <div>
+                        <span id="usersCount">Total: 0 usuarios</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
 

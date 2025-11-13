@@ -31,7 +31,7 @@
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: linear-gradient(135deg, var(--dark-navy) 0%, #34495e 100%);
+  background: linear-gradient(135deg, var(--deep-red) 0%, #8B0000 100%);
   color: var(--warm-white);
   transition: all 0.3s ease;
   z-index: 1000;
@@ -80,6 +80,10 @@
 }
 
 .sidebar.collapsed .sidebar-header h4 span {
+  display: none;
+}
+
+.sidebar.collapsed .brand-text {
   display: none;
 }
 
@@ -192,6 +196,10 @@
 }
 
 .sidebar.collapsed .user-details {
+  display: none;
+}
+
+.sidebar.collapsed .logout-text {
   display: none;
 }
 

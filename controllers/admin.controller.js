@@ -42,43 +42,61 @@ const getDashboardStats = async (req, res) => {
 // Obtener lista de usuarios
 const getUsers = async (req, res) => {
   try {
-    // Aquí implementarías la lógica para obtener todos los usuarios
-    // Por ahora devolvemos datos mock
-    const users = [
-      {
-        uid: 1,
-        username: 'Juan Pérez',
-        email: 'juan@email.com',
-        role: 'user',
-        created_at: '2024-10-01',
-        status: 'active'
-      },
-      {
-        uid: 2,
-        username: 'María González',
-        email: 'maria@email.com',
-        role: 'user',
-        created_at: '2024-10-05',
-        status: 'active'
-      },
-      {
-        uid: 3,
-        username: 'Admin Principal',
-        email: 'admin@domitulua.com',
-        role: 'admin',
-        created_at: '2024-09-15',
-        status: 'active'
-      }
-    ];
+    console.log('🔎 getUsers: iniciando consulta de usuarios');
+    // Consultar todos los usuarios (la tabla users tiene las columnas directamente)
+    const query = `
+      SELECT 
+        u.uid as id,
+        u.username,
+        u.email,
+        u.created_at,
+        u.cedula,
+        u.nombre,
+        u.apellidos,
+        u.telefono1,
+        u.telefono2,
+        u.direccion,
+        u.municipio,
+        u.departamento
+      FROM users u
+      ORDER BY u.created_at DESC
+    `;
 
-    return res.json({
-      ok: true,
-      users,
-      total: users.length
-    });
+    const usersResult = await req.db.query(query);
+    console.log(`✅ getUsers: ${usersResult.rows.length} usuarios encontrados`);
+
+    // Obtener roles de cada usuario
+    const usersWithRoles = await Promise.all(
+      usersResult.rows.map(async (user) => {
+        const rolesResult = await req.db.query(
+          'SELECT role FROM user_roles WHERE user_id = $1',
+          [user.id]
+        );
+        const roles = rolesResult.rows.map(r => r.role);
+        return {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          created_at: user.created_at,
+          cedula: user.cedula,
+          nombre: user.nombre,
+          apellidos: user.apellidos,
+          telefono1: user.telefono1,
+          telefono2: user.telefono2,
+          direccion: user.direccion,
+          municipio: user.municipio,
+          departamento: user.departamento,
+          roles: roles.length ? roles : ['cliente']
+        };
+      })
+    );
+
+    console.log('✅ getUsers: roles asociados correctamente');
+    console.log(`📊 Total usuarios a enviar: ${usersWithRoles.length}`);
+    return res.json({ ok: true, users: usersWithRoles, total: usersWithRoles.length });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ ok: false, msg: 'Server error' });
+    console.error('🔥 Error al obtener usuarios:', error);
+    return res.status(500).json({ ok: false, msg: 'Error al obtener usuarios', error: error.message });
   }
 };
 

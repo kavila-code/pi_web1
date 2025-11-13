@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { db } from './database/connection.database.js';
 
 import userRouter from './routes/user.route.js';
 import adminRouter from './routes/admin.route.js';
@@ -39,6 +40,12 @@ app.use(cors());
 // Middleware de logging para debug
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.path}`);
+  next();
+});
+
+// Middleware para inyectar la conexión a la base de datos
+app.use((req, res, next) => {
+  req.db = db;
   next();
 });
 
