@@ -1456,8 +1456,122 @@ async function loadUsers() {
 }
 
 // Función para ver detalles de un usuario
-function viewUser(userId) {
-  alert(`Ver detalles del usuario #${userId} - Funcionalidad en desarrollo`);
+async function viewUser(userId) {
+  const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+  const modalContent = document.getElementById('userDetailsContent');
+  
+  // Mostrar loading
+  modalContent.innerHTML = `
+    <div class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando información del usuario...</p>
+    </div>
+  `;
+  
+  modal.show();
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/admin/users`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al cargar datos del usuario');
+    }
+
+    const data = await response.json();
+    const user = data.users.find(u => u.id === userId);
+    
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    // Formatear roles
+    const roles = user.roles || [];
+    const roleLabels = roles.map(role => {
+      const labels = {
+        'admin': '<span class="badge bg-danger">Administrador</span>',
+        'delivery': '<span class="badge bg-info">Domiciliario</span>',
+        'domiciliario': '<span class="badge bg-info">Domiciliario</span>',
+        'cliente': '<span class="badge bg-secondary">Cliente</span>',
+        'user': '<span class="badge bg-secondary">Usuario</span>'
+      };
+      return labels[role] || `<span class="badge bg-secondary">${role}</span>`;
+    }).join(' ');
+
+    const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) : 'N/A';
+
+    // Mostrar detalles del usuario
+    modalContent.innerHTML = `
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <h6 class="text-muted mb-2"><i class="bi bi-person-badge me-2"></i>Información Básica</h6>
+          <div class="card">
+            <div class="card-body">
+              <p class="mb-2"><strong>ID:</strong> ${user.id}</p>
+              <p class="mb-2"><strong>Usuario:</strong> ${user.username || 'N/A'}</p>
+              <p class="mb-2"><strong>Email:</strong> ${user.email || 'N/A'}</p>
+              <p class="mb-2"><strong>Roles:</strong> ${roleLabels || '<span class="badge bg-secondary">Sin roles</span>'}</p>
+              <p class="mb-0"><strong>Fecha de registro:</strong> ${createdAt}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <h6 class="text-muted mb-2"><i class="bi bi-person me-2"></i>Información Personal</h6>
+          <div class="card">
+            <div class="card-body">
+              <p class="mb-2"><strong>Cédula:</strong> ${user.cedula || 'No proporcionada'}</p>
+              <p class="mb-2"><strong>Nombre:</strong> ${user.nombre || 'No proporcionado'}</p>
+              <p class="mb-2"><strong>Apellidos:</strong> ${user.apellidos || 'No proporcionado'}</p>
+              <p class="mb-0"><strong>Nombre completo:</strong> ${user.nombre && user.apellidos ? `${user.nombre} ${user.apellidos}` : 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <h6 class="text-muted mb-2"><i class="bi bi-telephone me-2"></i>Contacto</h6>
+          <div class="card">
+            <div class="card-body">
+              <p class="mb-2"><strong>Teléfono 1:</strong> ${user.telefono1 || 'No proporcionado'}</p>
+              <p class="mb-0"><strong>Teléfono 2:</strong> ${user.telefono2 || 'No proporcionado'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <h6 class="text-muted mb-2"><i class="bi bi-geo-alt me-2"></i>Ubicación</h6>
+          <div class="card">
+            <div class="card-body">
+              <p class="mb-2"><strong>Dirección:</strong> ${user.direccion || 'No proporcionada'}</p>
+              <p class="mb-2"><strong>Municipio:</strong> ${user.municipio || 'No proporcionado'}</p>
+              <p class="mb-0"><strong>Departamento:</strong> ${user.departamento || 'No proporcionado'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+  } catch (error) {
+    console.error('Error al cargar detalles del usuario:', error);
+    modalContent.innerHTML = `
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Error al cargar los detalles del usuario. Por favor, intenta de nuevo.
+      </div>
+    `;
+  }
 }
 
 // Función para editar un usuario
