@@ -38,16 +38,21 @@ async function loadRestaurants() {
   if (loadingEl) loadingEl.style.display = "block";
 
   try {
+    console.log('Intentando cargar restaurantes desde API...');
     const data = await authenticatedFetch("http://localhost:3000/api/v1/restaurants");
+    console.log('Respuesta de API:', data);
 
     // Si la API responde con datos, usarla como fuente de la verdad
     if (data && data.ok && Array.isArray(data.data) && data.data.length > 0) {
+      console.log('Restaurantes cargados desde API:', data.data.length);
       allRestaurants = data.data;
     } else {
+      console.log('API no devolvió datos válidos, usando tarjetas estáticas');
       // Si la API no responde o devuelve vacío, usar las tarjetas estáticas
       // que están en el HTML como fallback visual.
       if (containerEl) {
         const staticCards = Array.from(containerEl.querySelectorAll('.restaurant-card'));
+        console.log('Tarjetas estáticas encontradas:', staticCards.length);
         if (staticCards.length > 0) {
           allRestaurants = staticCards.map((card, idx) => {
             const img = card.querySelector('img');
@@ -75,6 +80,7 @@ async function loadRestaurants() {
               logo_url,
             };
           });
+          console.log('Restaurantes parseados desde tarjetas:', allRestaurants);
         } else {
           // No hay datos y no hay fallback estático: mostrar error
           showError('Error al cargar restaurantes');
@@ -85,6 +91,7 @@ async function loadRestaurants() {
     }
 
     filteredRestaurants = [...allRestaurants];
+    console.log('Renderizando restaurantes, total:', filteredRestaurants.length);
     renderRestaurants();
   } catch (error) {
     console.error("Error:", error);
@@ -133,7 +140,12 @@ async function loadRestaurants() {
 // Renderizar restaurantes
 function renderRestaurants() {
   const container = document.getElementById("restaurantsContainer");
-  if (!container) return;
+  if (!container) {
+    console.error('No se encontró el contenedor restaurantsContainer');
+    return;
+  }
+
+  console.log('Renderizando restaurantes, cantidad:', filteredRestaurants.length);
 
   if (filteredRestaurants.length === 0) {
     container.innerHTML = `
@@ -147,12 +159,16 @@ function renderRestaurants() {
 
   container.innerHTML = filteredRestaurants
     .map(
-      (restaurant) => `
+      (restaurant) => {
+        const imageUrl = restaurant.logo_url || restaurant.image_url || "https://via.placeholder.com/400x250";
+        console.log('Renderizando restaurante:', restaurant.name, 'imagen:', imageUrl);
+        return `
         <div class="col-md-6 col-lg-4">
           <div class="card restaurant-card" onclick="goToMenu(${restaurant.id})">
             <div class="position-relative">
-              <img src="${restaurant.logo_url || "https://via.placeholder.com/400x250"}" 
-                   class="card-img-top" alt="${restaurant.name}">
+              <img src="${imageUrl}" 
+                   class="card-img-top" alt="${restaurant.name}"
+                   onerror="this.src='https://via.placeholder.com/400x250?text=Sin+Imagen'">
               ${restaurant.is_open ? '<span class="badge-open">Abierto</span>' : '<span class="badge-closed">Cerrado</span>'}
             </div>
             <div class="card-body">
@@ -167,7 +183,8 @@ function renderRestaurants() {
             </div>
           </div>
         </div>
-    `
+        `;
+      }
     )
     .join("");
 }
