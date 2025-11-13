@@ -14,8 +14,8 @@ async function updateRestaurantLogos() {
       { name: 'Pizza Palace', logo_url: '/IMAGENES/RESTAURANTES/LA%20BELLA%20ITALIA.jpg' },
       { name: 'Burger House', logo_url: '/IMAGENES/RESTAURANTES/burger-master.jpg' },
       { name: 'Sushi Zen', logo_url: '/IMAGENES/RESTAURANTES/SAKURA%20SUSHI.jpg' },
-      { name: 'Tacos El Charro', logo_url: '/IMAGENES/RESTAURANTES/taco-fiesta.jpg' },
-      { name: 'La Parrilla', logo_url: '/IMAGENES/RESTAURANTES/parrilla.jpg' }
+      { name: 'Tacos El Charro', logo_url: '/IMAGENES/RESTAURANTES/Tacos%20el%20charro.jpg' },
+      { name: 'La Parrilla', logo_url: '/IMAGENES/RESTAURANTES/La%20parrilla.jpg' }
     ];
 
     for (const restaurant of updates) {
