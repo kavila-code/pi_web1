@@ -311,16 +311,21 @@ function openCartPreview() {
   } else {
     let subtotal = 0;
     cart.forEach((item) => {
-      const itemTotal = (item.product_price || 0) * (item.quantity || 1);
+      // Compatibilidad con ambos formatos (cart_items_v1 y formato antiguo)
+      const name = item.product_name || item.name || 'Producto';
+      const price = (item.product_price != null ? item.product_price : item.price) || 0;
+      const quantity = (item.quantity != null ? item.quantity : item.qty) || 1;
+      const image = item.product_image || item.image || '/imagenes/comida/default.jpg';
+      const itemTotal = price * quantity;
       subtotal += itemTotal;
 
       const row = document.createElement('div');
       row.className = 'd-flex align-items-center mb-3';
       row.innerHTML = `
-        <img src="${item.product_image || '/imagenes/comida/default.jpg'}" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:8px; margin-right:12px">
+        <img src="${image}" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:8px; margin-right:12px">
         <div style="flex:1">
-          <div class="fw-bold">${item.product_name || 'Producto'}</div>
-          <div class="text-muted small">Cantidad: ${item.quantity || 1}</div>
+          <div class="fw-bold">${name}</div>
+          <div class="text-muted small">Cantidad: ${quantity}</div>
         </div>
         <div class="text-end fw-bold">${formatPrice(itemTotal)}</div>
       `;
@@ -350,7 +355,7 @@ function setupCartPreviewButton() {
     // Inicializar el badge del carrito al cargar la página
     try {
       const initialCart = getCart();
-      const initialTotal = Array.isArray(initialCart) ? initialCart.reduce((s, it) => s + (it.quantity || 0), 0) : 0;
+      const initialTotal = Array.isArray(initialCart) ? initialCart.reduce((s, it) => s + ((it.quantity != null ? it.quantity : it.qty) || 0), 0) : 0;
       const badgeInit = document.querySelector('.cart-count');
       if (badgeInit) {
         badgeInit.textContent = initialTotal;
@@ -365,7 +370,7 @@ function setupCartPreviewButton() {
       e.preventDefault();
       // update count from cart (in case other pages modified it)
       const cart = getCart();
-      const totalItems = cart.reduce((s, it) => s + (it.quantity || 0), 0);
+      const totalItems = cart.reduce((s, it) => s + ((it.quantity != null ? it.quantity : it.qty) || 0), 0);
       const badge = document.querySelector('.cart-count');
       if (badge) {
         badge.textContent = totalItems;
