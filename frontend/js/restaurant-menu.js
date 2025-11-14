@@ -58,9 +58,38 @@ async function loadRestaurant() {
     }
 
     if (data && data.ok) {
-      restaurant = data.data;
+      // Normalizar campos del restaurante para la UI
+      const r = data.data || {};
+      restaurant = {
+        id: r.id,
+        name: r.name,
+        description: r.description || '',
+        logo_url: r.logo_url || r.cover_image_url || '',
+        // Unificar delivery fee/time (backend usa delivery_cost y delivery_time_min/max)
+        delivery_fee: (r.delivery_fee != null ? r.delivery_fee : (r.delivery_cost != null ? r.delivery_cost : 0)),
+        delivery_time: r.delivery_time || ((r.delivery_time_min && r.delivery_time_max) ? `${r.delivery_time_min}-${r.delivery_time_max} min` : '30-45 min'),
+        minimum_order: r.minimum_order || 0,
+        rating: r.avg_rating || r.rating || 0,
+        delivery_time_min: r.delivery_time_min,
+        delivery_time_max: r.delivery_time_max
+      };
+
+      // Normalizar productos (el backend los incluye en data.data.products; evitamos llamar endpoints inexistentes)
+      allProducts = Array.isArray(r.products) ? r.products.map(p => ({
+        id: p.id,
+        name: p.name,
+        description: p.description || '',
+        price: p.price || 0,
+        category: p.category || 'Sin categoría',
+        image_url: p.image_url || p.image || p.product_image || null,
+        is_available: p.is_available !== false,
+        is_vegetarian: p.is_vegetarian || false,
+        is_vegan: p.is_vegan || false
+      })) : [];
+
       renderRestaurantHeader();
-      loadProducts();
+      populateCategoriesFromProducts();
+      renderProducts();
       return;
     }
 
@@ -142,69 +171,45 @@ function renderRestaurantHeader() {
   if (nameElement) nameElement.textContent = restaurant.name;
   if (descriptionElement) descriptionElement.textContent = restaurant.description || "";
   if (ratingElement) ratingElement.textContent = restaurant.rating || "0";
-  if (timeElement) timeElement.textContent = restaurant.delivery_time || "30-45 min";
-  if (feeElement) feeElement.textContent = (restaurant.delivery_fee || 0).toLocaleString();
+  if (timeElement) timeElement.textContent = restaurant.delivery_time || (restaurant.delivery_time_min && restaurant.delivery_time_max ? `${restaurant.delivery_time_min}-${restaurant.delivery_time_max} min` : "30-45 min");
+  const feeVal = (restaurant.delivery_fee != null ? restaurant.delivery_fee : (restaurant.delivery_cost != null ? restaurant.delivery_cost : 0));
+  if (feeElement) feeElement.textContent = Number(feeVal).toLocaleString();
   
   document.title = `${restaurant.name} - DomiTulua`;
 }
 
 // Cargar productos
 async function loadProducts() {
-  try {
-    const data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}/products`);
-    if (!data) return; // authenticatedFetch handled logout or error
-
-    if (data.ok) {
-      allProducts = data.data;
-      loadCategories();
-      renderProducts();
-    } else {
-      const container = document.getElementById("productsContainer");
-      if (container) {
-        container.innerHTML = `
-          <div class="text-center py-5">
-              <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
-              <p class="mt-3 text-muted">No hay productos disponibles</p>
-          </div>
-        `;
-      }
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  // Ya no se usa: productos vienen en /restaurants/:id
+  return;
 }
 
 // Cargar categorías
 async function loadCategories() {
-  try {
-  const data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}/products/categories`);
-  if (!data) return;
+  // Ya no se usa (categorías derivadas localmente)
+  return;
+}
 
-  if (data.ok && data.data.length > 0) {
-      const container = document.getElementById("categoriesMenu");
-      if (!container) return;
-      
-      container.innerHTML = `
-        <a href="#all" class="category-link active" onclick="scrollToCategory(event, 'all')">
-            <i class="bi bi-grid"></i> Todos
-        </a>
-      `;
-
-      data.data.forEach((cat) => {
-        const link = document.createElement("a");
-        link.href = `#${cat.category}`;
-        link.className = "category-link";
-        link.textContent = cat.category;
-        link.onclick = (e) => scrollToCategory(e, cat.category);
-        container.appendChild(link);
-      });
-
-      const categoryNav = document.getElementById("categoryNav");
-      if (categoryNav) categoryNav.style.display = "block";
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
+// Crear navegación de categorías desde los productos ya cargados
+function populateCategoriesFromProducts() {
+  const container = document.getElementById("categoriesMenu");
+  if (!container) return;
+  const categories = Array.from(new Set(allProducts.map(p => p.category))).sort();
+  container.innerHTML = `
+    <a href="#all" class="category-link active" onclick="scrollToCategory(event, 'all')">
+      <i class="bi bi-grid"></i> Todos
+    </a>
+  `;
+  categories.forEach(cat => {
+    const link = document.createElement('a');
+    link.href = `#${cat}`;
+    link.className = 'category-link';
+    link.textContent = cat;
+    link.onclick = (e) => scrollToCategory(e, cat);
+    container.appendChild(link);
+  });
+  const categoryNav = document.getElementById('categoryNav');
+  if (categoryNav && categories.length) categoryNav.style.display = 'block';
 }
 
 // Scroll a categoría
