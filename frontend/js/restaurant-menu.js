@@ -41,29 +41,29 @@ document.addEventListener("DOMContentLoaded", () => {
 // Cargar datos del restaurante
 async function loadRestaurant() {
   try {
-    // Intentar primero una petición pública (sin token). Algunos backends
-    // permiten lectura pública de restaurantes. Si falla o responde 401/403,
-    // intentamos authenticatedFetch cuando haya token.
+    console.log('[restaurant-menu] Iniciando carga restaurante id=', restaurantId);
     let data = null;
+    let publicError = null;
     try {
       const resp = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
       data = await resp.json();
+      console.log('[restaurant-menu] Respuesta pública:', data);
     } catch (err) {
-      console.debug('Petición pública al restaurante falló:', err);
-      data = null;
+      publicError = err;
+      console.warn('[restaurant-menu] Error fetch público', err);
     }
 
-    // Si la petición pública no devolvió datos válidos, y hay token, intentar con authenticatedFetch
+    // Si no ok y hay token intentar autenticado
     if ((!data || !data.ok) && getToken()) {
       try {
         data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
-      } catch (err) {
-        console.debug('authenticatedFetch fallo:', err);
-        data = null;
+        console.log('[restaurant-menu] Respuesta autenticada:', data);
+      } catch (err2) {
+        console.warn('[restaurant-menu] Error fetch autenticado', err2);
       }
     }
 
-    if (data && data.ok) {
+    if (data && data.ok && data.data) {
       // Normalizar campos del restaurante para la UI
       const r = data.data || {};
       restaurant = {
@@ -132,7 +132,7 @@ async function loadRestaurant() {
     alert('Error al cargar el restaurante');
     window.location.href = '/public/restaurants.html';
   } catch (error) {
-    console.error("Error:", error);
+    console.error("[restaurant-menu] Error general:", error);
     // Intentar fallback local también en caso de excepción
     const localSource = window._CURRENT_RESTAURANTS || (typeof getAllRestaurants === 'function' ? getAllRestaurants() : []);
     const found = Array.isArray(localSource) ? localSource.find(r => String(r.id) === String(restaurantId)) : null;
