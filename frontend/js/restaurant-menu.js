@@ -6,6 +6,12 @@ let selectedProduct = null;
 let modalQuantity = 1;
 let restaurantId = null;
 
+// Normaliza la ruta del logo para coincidir con el mount de Express (/imagenes)
+function normalizeLogo(path) {
+  if (!path) return '';
+  return path.replace(/^\/IMAGENES\/RESTAURANTES\//i, '/imagenes/restaurantes/');
+}
+
 
 // Obtener ID del restaurante desde la URL (no forzamos login aquí para permitir
 // ver menús públicamente; la acción de agregar al carrito seguirá requiriendo auth).
@@ -64,7 +70,7 @@ async function loadRestaurant() {
         id: r.id,
         name: r.name,
         description: r.description || '',
-        logo_url: r.logo_url || r.cover_image_url || '',
+        logo_url: normalizeLogo(r.logo_url || r.cover_image_url || ''),
         // Unificar delivery fee/time (backend usa delivery_cost y delivery_time_min/max)
         delivery_fee: (r.delivery_fee != null ? r.delivery_fee : (r.delivery_cost != null ? r.delivery_cost : 0)),
         delivery_time: r.delivery_time || ((r.delivery_time_min && r.delivery_time_max) ? `${r.delivery_time_min}-${r.delivery_time_max} min` : '30-45 min'),
@@ -106,7 +112,7 @@ async function loadRestaurant() {
         rating: found.rating || 0,
         delivery_time: (found.deliveryTimeMin ? `${found.deliveryTimeMin}-${found.deliveryTimeMin + 15} min` : found.delivery_time) || '30-45 min',
         delivery_fee: found.deliveryFee || found.delivery_fee || 0,
-        logo_url: found.image || found.logo_url || ''
+        logo_url: normalizeLogo(found.image || found.logo_url || '')
       };
 
       renderRestaurantHeader();
@@ -138,7 +144,7 @@ async function loadRestaurant() {
         rating: found.rating || 0,
         delivery_time: (found.deliveryTimeMin ? `${found.deliveryTimeMin}-${found.deliveryTimeMin + 15} min` : found.delivery_time) || '30-45 min',
         delivery_fee: found.deliveryFee || found.delivery_fee || 0,
-        logo_url: found.image || found.logo_url || ''
+        logo_url: normalizeLogo(found.image || found.logo_url || '')
       };
       renderRestaurantHeader();
       const container = document.getElementById('productsContainer');
@@ -167,7 +173,10 @@ function renderRestaurantHeader() {
   const timeElement = document.getElementById("restaurantTime");
   const feeElement = document.getElementById("restaurantFee");
 
-  if (logoElement) logoElement.src = restaurant.logo_url || "https://via.placeholder.com/100";
+  if (logoElement) {
+    logoElement.src = restaurant.logo_url || "https://via.placeholder.com/100";
+    logoElement.onerror = () => { logoElement.src = "https://via.placeholder.com/100?text=Logo"; };
+  }
   if (nameElement) nameElement.textContent = restaurant.name;
   if (descriptionElement) descriptionElement.textContent = restaurant.description || "";
   if (ratingElement) ratingElement.textContent = restaurant.rating || "0";
@@ -242,7 +251,18 @@ function renderProducts() {
     return acc;
   }, {});
 
-  container.innerHTML = Object.entries(byCategory)
+  const entries = Object.entries(byCategory);
+  if (entries.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-5">
+        <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
+        <p class="mt-3 text-muted">Este restaurante aún no tiene productos disponibles</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = entries
     .map(
       ([category, products]) => `
         <div class="mb-5" id="category-${category}">
