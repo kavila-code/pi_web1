@@ -1786,6 +1786,121 @@ function applyFilters() {
   });
 }
 
+// ===== Gestión de Restaurantes (Admin) =====
+async function adminLoadRestaurants() {
+  const tbody = document.getElementById('restaurantsTableBody');
+  const loading = document.getElementById('restaurantsLoading');
+  const empty = document.getElementById('restaurantsEmpty');
+  const status = document.getElementById('restaurantsStatusFilter')?.value || 'active';
+  const search = document.getElementById('restaurantsSearch')?.value?.trim() || '';
+
+  if (!tbody) return;
+
+  try {
+    loading?.classList.remove('d-none');
+    empty?.classList.add('d-none');
+    tbody.innerHTML = '';
+
+    const token = localStorage.getItem('token');
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (search) params.set('search', search);
+    const res = await fetch(`/api/v1/admin/restaurants?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudo cargar restaurantes');
+    }
+    const json = await res.json();
+    const data = json.restaurants || json.data || [];
+
+    if (!data.length) {
+      empty?.classList.remove('d-none');
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Sin resultados</td></tr>';
+      return;
+    }
+
+    const rows = data.map(r => {
+      const logo = normalizeLogoUrl(r.logo_url);
+      const stateBadge = r.is_active ? '<span class="badge bg-success">Aceptado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
+      const actions = r.is_active
+        ? `<button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>`
+        : `<button class="btn btn-sm btn-success" data-action="approve" data-id="${r.id}"><i class="bi bi-check2-circle"></i> Aprobar</button>`;
+      return `
+        <tr>
+          <td style="width:64px">
+            <img src="${logo}" alt="logo" width="48" height="48" class="rounded" onerror="this.src='/imagenes/restaurantes/placeholder.png'">
+          </td>
+          <td>
+            <div class="fw-semibold">${r.name}</div>
+            <div class="small text-muted">${r.address || ''}</div>
+          </td>
+          <td>${r.category || '-'}</td>
+          <td>
+            <div class="small">${r.phone || '-'}</div>
+            <div class="small text-muted">${r.email || ''}</div>
+          </td>
+          <td>${Number(r.total_orders || 0).toLocaleString()}</td>
+          <td>${Number(r.avg_rating || 0).toFixed(1)}</td>
+          <td>${stateBadge}</td>
+          <td class="d-flex gap-2">
+            ${actions}
+            <a class="btn btn-sm btn-outline-secondary" href="/restaurant.html?id=${r.id}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+          </td>
+        </tr>`;
+    }).join('');
+
+    tbody.innerHTML = rows;
+
+    // Wire actions
+    tbody.querySelectorAll('button[data-action]')?.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const action = e.currentTarget.getAttribute('data-action');
+        if (action === 'approve') await adminApproveRestaurant(id);
+        if (action === 'deactivate') await adminDeactivateRestaurant(id);
+      });
+    });
+  } catch (err) {
+    console.error('adminLoadRestaurants error:', err);
+    tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Error al cargar restaurantes</td></tr>';
+  } finally {
+    loading?.classList.add('d-none');
+  }
+}
+
+function normalizeLogoUrl(url) {
+  if (!url) return '/imagenes/restaurantes/placeholder.png';
+  return url.replace('/IMAGENES', '/imagenes');
+}
+
+async function adminApproveRestaurant(id) {
+  if (!confirm('¿Aprobar este restaurante?')) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/admin/restaurants/${id}/approve`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
+  const js = await res.json();
+  if (!res.ok || !js.ok) {
+    alert(js.message || 'No se pudo aprobar');
+    return;
+  }
+  showNotification('Restaurante aprobado', 'success', 3000);
+  adminLoadRestaurants();
+}
+
+async function adminDeactivateRestaurant(id) {
+  if (!confirm('¿Desactivar este restaurante?')) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/admin/restaurants/${id}/deactivate`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
+  const js = await res.json();
+  if (!res.ok || !js.ok) {
+    alert(js.message || 'No se pudo desactivar');
+    return;
+  }
+  showNotification('Restaurante desactivado', 'warning', 3000);
+  adminLoadRestaurants();
+}
+
 // Event listeners para los filtros
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("statusFilter")?.addEventListener("change", applyFilters);
@@ -1831,6 +1946,27 @@ document.addEventListener("DOMContentLoaded", function () {
   
   if (roleFilter) {
     roleFilter.addEventListener('change', loadUsers);
+  }
+
+  // ==== Gestión de Restaurantes (Admin) ====
+  const rsStatus = document.getElementById('restaurantsStatusFilter');
+  const rsSearch = document.getElementById('restaurantsSearch');
+  const rsRefresh = document.getElementById('restaurantsRefresh');
+  if (rsStatus) rsStatus.addEventListener('change', adminLoadRestaurants);
+  if (rsSearch) rsSearch.addEventListener('input', debounce(adminLoadRestaurants, 400));
+  if (rsRefresh) rsRefresh.addEventListener('click', adminLoadRestaurants);
+
+  // Cargar cuando se muestre la sección o al inicio si ya está activa
+  const restaurantsSection = document.getElementById('restaurants-section');
+  if (restaurantsSection) {
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === 'attributes' && m.attributeName === 'class' && restaurantsSection.classList.contains('active')) {
+          adminLoadRestaurants();
+        }
+      }
+    });
+    observer.observe(restaurantsSection, { attributes: true });
   }
 });
 

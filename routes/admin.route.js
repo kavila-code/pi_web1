@@ -24,5 +24,7 @@ router.get("/orders", AdminController.getOrders);
 
 // Restaurants management
 router.get("/restaurants", AdminController.getRestaurants);
+router.patch("/restaurants/:id/approve", AdminController.approveRestaurant);
+router.patch("/restaurants/:id/deactivate", AdminController.deactivateRestaurant);
 
 export default router;

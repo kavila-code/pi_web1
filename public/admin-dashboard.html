@@ -279,8 +279,45 @@
               </section>
 
               <section id="restaurants-section" class="content-section">
-                <div class="alert alert-info">
-                  Gestión de restaurantes próximamente.
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <h4 class="mb-0"><i class="bi bi-shop me-2"></i>Gestión de Restaurantes</h4>
+                  <div class="d-flex gap-2">
+                    <select id="restaurantsStatusFilter" class="form-select form-select-sm" style="width:auto">
+                      <option value="all">Todos</option>
+                      <option value="pending">Pendientes</option>
+                      <option value="active" selected>Aceptados</option>
+                    </select>
+                    <input id="restaurantsSearch" class="form-control form-control-sm" style="width:240px" placeholder="Buscar restaurante...">
+                    <button id="restaurantsRefresh" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-repeat"></i></button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-body">
+                    <div id="restaurantsLoading" class="text-center py-4 d-none">
+                      <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+                      <div class="mt-2">Cargando restaurantes...</div>
+                    </div>
+                    <div id="restaurantsEmpty" class="alert alert-secondary d-none">No hay restaurantes para mostrar.</div>
+                    <div class="table-responsive">
+                      <table class="table align-middle">
+                        <thead>
+                          <tr>
+                            <th>Logo</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Contacto</th>
+                            <th>Pedidos</th>
+                            <th>Rating</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody id="restaurantsTableBody">
+                          <tr><td colspan="8" class="text-center text-muted">Usa los filtros para cargar restaurantes</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </section>
 

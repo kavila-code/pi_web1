@@ -192,48 +192,76 @@ const getOrders = async (req, res) => {
   }
 };
 
-// Obtener lista de restaurantes
+// Obtener lista de restaurantes (admin) con filtros status/search
 const getRestaurants = async (req, res) => {
   try {
-    // Datos mock para restaurantes
-    const restaurants = [
-      {
-        id: 1,
-        name: 'Pizza Palace',
-        category: 'Italiana',
-        rating: 4.8,
-        orders_today: 234,
-        revenue_today: 2340,
-        status: 'active'
-      },
-      {
-        id: 2,
-        name: 'Burger House',
-        category: 'Comida Rápida',
-        rating: 4.6,
-        orders_today: 189,
-        revenue_today: 1890,
-        status: 'active'
-      },
-      {
-        id: 3,
-        name: 'Sushi Zen',
-        category: 'Japonesa',
-        rating: 4.9,
-        orders_today: 156,
-        revenue_today: 1560,
-        status: 'active'
-      }
-    ];
+    const status = (req.query.status || 'all').toLowerCase(); // 'all' | 'active' | 'pending'
+    const search = (req.query.search || '').trim();
 
-    return res.json({
-      ok: true,
-      restaurants,
-      total: restaurants.length
-    });
+    const params = [];
+    let where = '1=1';
+
+    if (status === 'active') where += ' AND r.is_active = true';
+    else if (status === 'pending') where += ' AND r.is_active = false';
+
+    if (search) {
+      params.push(`%${search}%`);
+      params.push(`%${search}%`);
+      where += ` AND (r.name ILIKE $${params.length-1} OR r.category ILIKE $${params.length})`;
+    }
+
+    const q = `
+      SELECT 
+        r.id,
+        r.name,
+        r.category,
+        r.address,
+        r.phone,
+        r.email,
+        r.logo_url,
+        r.is_active,
+        r.is_open,
+        COALESCE(AVG(o.rating),0)::numeric(10,2) AS avg_rating,
+        COUNT(o.id)::int AS total_orders
+      FROM restaurants r
+      LEFT JOIN orders o ON o.restaurant_id = r.id
+      WHERE ${where}
+      GROUP BY r.id
+      ORDER BY r.id DESC
+      LIMIT 200
+    `;
+
+    const { rows } = await req.db.query(q, params);
+    return res.json({ ok: true, restaurants: rows, total: rows.length });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ ok: false, msg: 'Server error' });
+    console.error('Error getRestaurants (admin):', error);
+    return res.status(500).json({ ok: false, msg: 'Error al obtener restaurantes' });
+  }
+};
+
+// Aprobar (activar) restaurante
+const approveRestaurant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await req.db.query('UPDATE restaurants SET is_active = true WHERE id = $1 RETURNING *', [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+    return res.json({ ok: true, message: 'Restaurante aprobado', restaurant: rows[0] });
+  } catch (error) {
+    console.error('Error approveRestaurant:', error);
+    return res.status(500).json({ ok: false, message: 'No se pudo aprobar el restaurante' });
+  }
+};
+
+// Desactivar restaurante
+const deactivateRestaurant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await req.db.query('UPDATE restaurants SET is_active = false WHERE id = $1 RETURNING *', [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+    return res.json({ ok: true, message: 'Restaurante desactivado', restaurant: rows[0] });
+  } catch (error) {
+    console.error('Error deactivateRestaurant:', error);
+    return res.status(500).json({ ok: false, message: 'No se pudo desactivar el restaurante' });
   }
 };
 
@@ -367,5 +395,7 @@ export const AdminController = {
   getRestaurants,
   updateUser,
   getOrdersByDay,
-  getPopularRestaurantsToday
+  getPopularRestaurantsToday,
+  approveRestaurant,
+  deactivateRestaurant
 };
