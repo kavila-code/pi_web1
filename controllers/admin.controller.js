@@ -267,11 +267,47 @@ const deactivateRestaurant = async (req, res) => {
 
 // Modelo Ecosistema (Presas-Depredadores)
 // S(t) = Tiendas activas, U(t) = Usuarios activos, I(t) = Incidencias
-// Índice de Salud del Ecosistema - Métricas clave de la plataforma
 const getEcosystemModel = async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
     
+    // S(t): Restaurantes activos por día (acumulado)
+    const restaurantsQ = `
+      SELECT 
+        DATE(created_at) AS date,
+        COUNT(*)::int AS count
+      FROM restaurants
+      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    const { rows: sData } = await req.db.query(restaurantsQ);
+
+    // U(t): Usuarios únicos haciendo pedidos por día
+    const usersQ = `
+      SELECT 
+        DATE(created_at) AS date,
+        COUNT(DISTINCT customer_id)::int AS count
+      FROM orders
+      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    const { rows: uData } = await req.db.query(usersQ);
+
+    // I(t): Incidencias (pedidos cancelados) por día
+    const incidentsQ = `
+      SELECT 
+        DATE(created_at) AS date,
+        COUNT(*)::int AS count
+      FROM orders
+      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+        AND status = 'cancelado'
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    const { rows: iData } = await req.db.query(incidentsQ);
+
     // Generar rango de fechas completo
     const dates = [];
     for (let i = days - 1; i >= 0; i--) {
@@ -280,87 +316,30 @@ const getEcosystemModel = async (req, res) => {
       dates.push(d.toISOString().split('T')[0]);
     }
 
-    // OFERTA: Restaurantes con pedidos activos por día (oferta real en operación)
-    const ofertaQ = `
-      SELECT 
-        DATE(o.created_at) AS date,
-        COUNT(DISTINCT o.restaurant_id)::int AS count
-      FROM orders o
-      JOIN restaurants r ON r.id = o.restaurant_id
-      WHERE o.created_at >= CURRENT_DATE - INTERVAL '${days} days'
-        AND o.status NOT IN ('cancelado')
-      GROUP BY DATE(o.created_at)
-      ORDER BY date ASC
-    `;
-    const { rows: ofertaData } = await req.db.query(ofertaQ);
-
-    // DEMANDA: Pedidos exitosos (confirmado, preparando, listo, en_camino, entregado)
-    const demandaQ = `
-      SELECT 
-        DATE(created_at) AS date,
-        COUNT(*)::int AS count
-      FROM orders
-      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
-        AND status IN ('confirmado', 'preparando', 'listo', 'en_camino', 'entregado')
-      GROUP BY DATE(created_at)
-      ORDER BY date ASC
-    `;
-    const { rows: demandaData } = await req.db.query(demandaQ);
-
-    // FRICCIÓN: Tasa de problemas (cancelados + pendientes >24h como % del total)
-    const friccionQ = `
-      SELECT 
-        DATE(created_at) AS date,
-        COUNT(*)::int AS total,
-        COUNT(CASE WHEN status = 'cancelado' THEN 1 END)::int AS cancelados,
-        COUNT(CASE WHEN status = 'pendiente' AND created_at < NOW() - INTERVAL '24 hours' THEN 1 END)::int AS estancados
-      FROM orders
-      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
-      GROUP BY DATE(created_at)
-      ORDER BY date ASC
-    `;
-    const { rows: friccionData } = await req.db.query(friccionQ);
-
-    // SATISFACCIÓN: Rating promedio de pedidos por día
-    const satisfaccionQ = `
-      SELECT 
-        DATE(created_at) AS date,
-        COALESCE(AVG(rating), 0)::numeric(10,2) AS avg_rating,
-        COUNT(CASE WHEN rating IS NOT NULL THEN 1 END)::int AS rated_orders
-      FROM orders
-      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
-        AND status = 'entregado'
-      GROUP BY DATE(created_at)
-      ORDER BY date ASC
-    `;
-    const { rows: satisfaccionData } = await req.db.query(satisfaccionQ);
-
-    // Mapear datos
-    const ofertaMap = {};
-    const demandaMap = {};
-    const friccionMap = {};
-    const satisfaccionMap = {};
+    // Mapear datos a fechas (acumular S(t) para tiendas)
+    const sMap = {};
+    const uMap = {};
+    const iMap = {};
     
-    ofertaData.forEach(r => ofertaMap[r.date] = r.count);
-    demandaData.forEach(r => demandaMap[r.date] = r.count);
-    friccionData.forEach(r => {
-      const total = r.total || 1;
-      friccionMap[r.date] = Math.round(((r.cancelados + r.estancados) / total) * 100);
-    });
-    satisfaccionData.forEach(r => satisfaccionMap[r.date] = parseFloat(r.avg_rating) || 0);
+    sData.forEach(r => sMap[r.date] = r.count);
+    uData.forEach(r => uMap[r.date] = r.count);
+    iData.forEach(r => iMap[r.date] = r.count);
 
-    const series = dates.map(date => ({
-      date,
-      oferta: ofertaMap[date] || 0,
-      demanda: demandaMap[date] || 0,
-      friccion: friccionMap[date] || 0,
-      satisfaccion: satisfaccionMap[date] || 0
-    }));
+    let accumulatedStores = 0;
+    const series = dates.map(date => {
+      accumulatedStores += (sMap[date] || 0);
+      return {
+        date,
+        S: accumulatedStores,
+        U: uMap[date] || 0,
+        I: iMap[date] || 0
+      };
+    });
 
     return res.json({ ok: true, data: series });
   } catch (error) {
     console.error('Error getEcosystemModel:', error);
-    return res.status(500).json({ ok: false, message: 'Error al obtener índice de salud' });
+    return res.status(500).json({ ok: false, message: 'Error al obtener modelo ecosistema' });
   }
 };
 
