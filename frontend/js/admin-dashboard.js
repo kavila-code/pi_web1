@@ -271,7 +271,7 @@ async function initChart() {
   }
 }
 
-// Inicializar gráfico del Modelo Ecosistema (Presas-Depredadores)
+// Inicializar Índice de Salud del Ecosistema
 async function initEcosystemChart() {
   try {
     const token = localStorage.getItem('token');
@@ -280,15 +280,16 @@ async function initEcosystemChart() {
     });
     if (!res.ok) {
       if (handleAuthError(res)) return;
-      throw new Error('No se pudo obtener modelo ecosistema');
+      throw new Error('No se pudo obtener índice de salud');
     }
     const payload = await res.json();
     const data = payload.data || [];
 
     const labels = data.map(d => d.date);
-    const S = data.map(d => d.S);
-    const U = data.map(d => d.U);
-    const I = data.map(d => d.I);
+    const oferta = data.map(d => d.oferta);
+    const demanda = data.map(d => d.demanda);
+    const friccion = data.map(d => d.friccion);
+    const satisfaccion = data.map(d => d.satisfaccion);
 
     const ctx = document.getElementById('ecosystemChart').getContext('2d');
 
@@ -298,69 +299,131 @@ async function initEcosystemChart() {
         labels,
         datasets: [
           {
-            label: 'S(t) - Tiendas activas',
-            data: S,
+            label: '🏪 Oferta (Restaurantes activos)',
+            data: oferta,
             borderColor: '#27ae60',
-            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-            borderWidth: 2,
+            backgroundColor: 'rgba(39, 174, 96, 0.15)',
+            borderWidth: 2.5,
             fill: true,
             tension: 0.4,
-            pointRadius: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
             pointBackgroundColor: '#fff',
-            pointBorderColor: '#27ae60'
+            pointBorderColor: '#27ae60',
+            yAxisID: 'y'
           },
           {
-            label: 'U(t) - Usuarios activos',
-            data: U,
+            label: '📦 Demanda (Pedidos exitosos)',
+            data: demanda,
             borderColor: '#3498db',
-            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-            borderWidth: 2,
+            backgroundColor: 'rgba(52, 152, 219, 0.15)',
+            borderWidth: 2.5,
             fill: true,
             tension: 0.4,
-            pointRadius: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
             pointBackgroundColor: '#fff',
-            pointBorderColor: '#3498db'
+            pointBorderColor: '#3498db',
+            yAxisID: 'y'
           },
           {
-            label: 'I(t) - Incidencias',
-            data: I,
+            label: '⚠️ Fricción (%)',
+            data: friccion,
             borderColor: '#e74c3c',
             backgroundColor: 'rgba(231, 76, 60, 0.1)',
             borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.3,
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#e74c3c',
+            yAxisID: 'y1'
+          },
+          {
+            label: '⭐ Satisfacción (Rating)',
+            data: satisfaccion,
+            borderColor: '#f39c12',
+            backgroundColor: 'rgba(243, 156, 18, 0.15)',
+            borderWidth: 2.5,
             fill: true,
             tension: 0.4,
-            pointRadius: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
             pointBackgroundColor: '#fff',
-            pointBorderColor: '#e74c3c'
+            pointBorderColor: '#f39c12',
+            yAxisID: 'y2'
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: { 
+          intersect: false, 
+          mode: 'index' 
+        },
         scales: {
-          y: { 
-            beginAtZero: true, 
-            grid: { color: 'rgba(0,0,0,0.08)' },
-            title: { display: true, text: 'Cantidad' }
+          y: {
+            type: 'linear',
+            position: 'left',
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            title: { display: true, text: 'Cantidad', font: { size: 11 } }
           },
-          x: { 
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            title: { display: true, text: 'Fecha' },
-            ticks: { maxTicksLimit: 10 }
+          y1: {
+            type: 'linear',
+            position: 'right',
+            beginAtZero: true,
+            max: 100,
+            grid: { display: false },
+            title: { display: true, text: 'Fricción (%)', font: { size: 11 }, color: '#e74c3c' },
+            ticks: { color: '#e74c3c' }
+          },
+          y2: {
+            type: 'linear',
+            position: 'right',
+            beginAtZero: true,
+            max: 5,
+            grid: { display: false },
+            title: { display: true, text: 'Rating ★', font: { size: 11 }, color: '#f39c12' },
+            ticks: { color: '#f39c12', stepSize: 1 }
+          },
+          x: {
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { maxTicksLimit: 12, font: { size: 10 } }
           }
         },
-        plugins: { 
-          legend: { 
+        plugins: {
+          legend: {
             display: true,
-            position: 'top'
+            position: 'top',
+            labels: { 
+              boxWidth: 12, 
+              padding: 12,
+              font: { size: 11 }
+            }
           },
           tooltip: {
-            mode: 'index',
-            intersect: false
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: 12,
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 11 },
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label.includes('Fricción')) {
+                  return label + ': ' + context.parsed.y + '%';
+                }
+                if (label.includes('Satisfacción')) {
+                  return label + ': ' + context.parsed.y.toFixed(1) + ' ★';
+                }
+                return label + ': ' + context.parsed.y;
+              }
+            }
           }
-        },
-        interaction: { intersect: false, mode: 'index' }
+        }
       }
     });
   } catch (err) {
