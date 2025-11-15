@@ -126,13 +126,17 @@ document.addEventListener("DOMContentLoaded", function () {
   // Inicializar gráfico
   initChart();
 
-  // Cargar restaurantes populares con filtro de rango
-  const rangeSelect = document.getElementById('popularRange');
-  const initialRange = rangeSelect ? rangeSelect.value : 'day';
-  loadPopularRestaurants(initialRange);
-  if (rangeSelect) {
-    rangeSelect.addEventListener('change', () => {
-      loadPopularRestaurants(rangeSelect.value);
+  // Cargar restaurantes populares (dashboard) fijo de hoy
+  loadPopularRestaurants('day');
+
+  // Reportes: versión con selector día/semana/mes
+  const reportsRange = document.getElementById('popularRangeReports');
+  if (reportsRange) {
+    // Carga inicial
+    loadPopularRestaurantsReports(reportsRange.value || 'day');
+    // Cambio de rango
+    reportsRange.addEventListener('change', () => {
+      loadPopularRestaurantsReports(reportsRange.value);
     });
   }
 
@@ -1558,6 +1562,51 @@ async function loadPopularRestaurants(range = 'day') {
     `).join('');
   } catch (err) {
     console.error('loadPopularRestaurants error:', err);
+    container.innerHTML = '<div class="text-danger py-3">Error al cargar restaurantes populares</div>';
+  }
+}
+
+// Variante para la sección de Reportes (usa otro contenedor)
+async function loadPopularRestaurantsReports(range = 'day') {
+  const container = document.getElementById('popularRestaurantsReportsContainer');
+  if (!container) return;
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`/api/v1/admin/dashboard/popular-restaurants?range=${encodeURIComponent(range)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudo obtener restaurantes populares');
+    }
+    const payload = await res.json();
+    const items = payload.data || [];
+    if (!items.length) {
+      container.innerHTML = '<div class="text-muted py-4 text-center">Sin pedidos en el periodo seleccionado</div>';
+      return;
+    }
+    container.innerHTML = items.map((r, idx) => `
+      <div class="d-flex align-items-center py-2 border-bottom ${idx===0?'pt-0':''}">
+        <div class="me-3 rounded-circle bg-light d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
+          <span class="fw-bold text-muted" style="font-size:0.9rem;">${idx+1}</span>
+        </div>
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="fw-semibold">${r.name}</div>
+            <div class="text-end small text-muted">Pedidos: <strong>${r.orders_today}</strong></div>
+          </div>
+          <div class="d-flex align-items-center gap-3 mt-1">
+            <div class="text-warning" aria-label="Rating">
+              <i class="bi bi-star-fill"></i>
+              <span class="small fw-semibold">${Number(r.rating).toFixed(1)}</span>
+            </div>
+            <div class="small text-muted">Ingresos: <strong>$${Number(r.revenue_today).toLocaleString()}</strong></div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('loadPopularRestaurantsReports error:', err);
     container.innerHTML = '<div class="text-danger py-3">Error al cargar restaurantes populares</div>';
   }
 }
