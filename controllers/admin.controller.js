@@ -286,11 +286,36 @@ const updateUser = async (req, res) => {
   }
 };
 
+// Pedidos por día de la semana (0=Domingo ... 6=Sábado en Postgres)
+const getOrdersByDay = async (req, res) => {
+  try {
+    const q = `
+      SELECT EXTRACT(DOW FROM created_at)::int AS dow, COUNT(*)::int AS total
+      FROM orders
+      GROUP BY 1
+    `;
+    const { rows } = await req.db.query(q);
+
+    // Mapear a arreglo Lunes..Domingo
+    const counts = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    for (const r of rows) counts[r.dow] = r.total;
+
+    // Orden lunes(1)..domingo(0)
+    const ordered = [counts[1], counts[2], counts[3], counts[4], counts[5], counts[6], counts[0]];
+
+    return res.json({ ok: true, labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], data: ordered });
+  } catch (error) {
+    console.error('Error getOrdersByDay:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener pedidos por día' });
+  }
+};
+
 export const AdminController = {
   getDashboardStats,
   getUsers,
   getUserById,
   getOrders,
   getRestaurants,
-  updateUser
+  updateUser,
+  getOrdersByDay
 };

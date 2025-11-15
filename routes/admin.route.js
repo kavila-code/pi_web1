@@ -11,6 +11,7 @@ router.use(adminMiddleware);
 
 // Dashboard statistics
 router.get("/dashboard/stats", AdminController.getDashboardStats);
+router.get("/dashboard/orders-by-day", AdminController.getOrdersByDay);
 
 // Users management
 router.get("/users", AdminController.getUsers);

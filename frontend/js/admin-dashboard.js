@@ -199,48 +199,59 @@ function updateDashboardStats(stats) {
       `<i class='bi bi-arrow-up'></i> ${stats.revenueTrend}`;
 }
 
-// Función para inicializar el gráfico
-function initChart() {
-  const ctx = document.getElementById("ordersChart").getContext("2d");
-  new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-      datasets: [
-        {
-          label: "Pedidos",
-          data: [65, 59, 80, 81, 56, 95, 40],
-          borderColor: "#e74c3c",
-          backgroundColor: "rgba(231, 76, 60, 0.1)",
+// Función para inicializar el gráfico (datos reales desde backend)
+async function initChart() {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/v1/admin/dashboard/orders-by-day', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudo obtener pedidos por día');
+    }
+    const payload = await res.json();
+    const labels = payload.labels || ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+    const series = payload.data || [0,0,0,0,0,0,0];
+
+    const ctx = document.getElementById('ordersChart').getContext('2d');
+
+    // Gradiente suave
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(231, 76, 60, 0.35)');
+    gradient.addColorStop(1, 'rgba(231, 76, 60, 0.05)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pedidos',
+          data: series,
+          borderColor: '#e74c3c',
+          backgroundColor: gradient,
           borderWidth: 3,
           fill: true,
           tension: 0.4,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: "rgba(0,0,0,0.1)",
-          },
-        },
-        x: {
-          grid: {
-            color: "rgba(0,0,0,0.1)",
-          },
-        },
+          pointRadius: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#e74c3c'
+        }]
       },
-      plugins: {
-        legend: {
-          display: false,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.08)' } },
+          x: { grid: { color: 'rgba(0,0,0,0.05)' } }
         },
-      },
-    },
-  });
+        plugins: { legend: { display: false } },
+        interaction: { intersect: false, mode: 'index' }
+      }
+    });
+  } catch (err) {
+    console.error('initChart error:', err);
+  }
 }
 
 // Responsive: cerrar sidebar en móviles al hacer clic en menu
