@@ -298,7 +298,7 @@ async function initEcosystemChart() {
         labels,
         datasets: [
           {
-            label: 'S(t) - Tiendas activas',
+            label: 'S(t) - Restaurantes activos',
             data: S,
             borderColor: '#27ae60',
             backgroundColor: 'rgba(39, 174, 96, 0.1)',
@@ -322,7 +322,7 @@ async function initEcosystemChart() {
             pointBorderColor: '#3498db'
           },
           {
-            label: 'I(t) - Incidencias',
+            label: 'I(t) - Pedidos cancelados',
             data: I,
             borderColor: '#e74c3c',
             backgroundColor: 'rgba(231, 76, 60, 0.1)',

@@ -265,19 +265,20 @@ const deactivateRestaurant = async (req, res) => {
   }
 };
 
-// Modelo Ecosistema (Presas-Depredadores)
-// S(t) = Tiendas activas, U(t) = Usuarios activos, I(t) = Incidencias
+// Indicadores de Actividad de la Plataforma
+// S(t) = Restaurantes activos, U(t) = Usuarios activos, I(t) = Pedidos cancelados
 const getEcosystemModel = async (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
     
-    // S(t): Restaurantes activos por día (acumulado)
+    // S(t): Restaurantes activos (is_active=true) acumulados por fecha
     const restaurantsQ = `
       SELECT 
         DATE(created_at) AS date,
         COUNT(*)::int AS count
       FROM restaurants
-      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      WHERE is_active = true
+        AND created_at >= CURRENT_DATE - INTERVAL '${days} days'
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `;
