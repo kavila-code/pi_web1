@@ -237,6 +237,47 @@ const getRestaurants = async (req, res) => {
   }
 };
 
+// Restaurantes con más pedidos hoy
+const getPopularRestaurantsToday = async (req, res) => {
+  try {
+    const q = `
+      SELECT 
+        r.id,
+        r.name,
+        COALESCE(r.rating, 0) AS base_rating,
+        COUNT(o.id)::int AS orders_today,
+        COALESCE(SUM(o.total), 0)::bigint AS revenue_today,
+        COALESCE(AVG(o.rating), 0)::numeric(10,2) AS avg_order_rating
+      FROM orders o
+      JOIN restaurants r ON r.id = o.restaurant_id
+      WHERE o.created_at::date = CURRENT_DATE
+      GROUP BY r.id, r.name, r.rating
+      ORDER BY orders_today DESC, revenue_today DESC
+      LIMIT 7
+    `;
+
+    const { rows } = await req.db.query(q);
+
+    // Calcular rating final en backend con fallback
+    const data = rows.map(r => {
+      const base = Number(r.base_rating) || 0;
+      const avgR = Number(r.avg_order_rating) || 0;
+      const rating = base > 0 ? base : (avgR > 0 ? avgR : 3.5);
+      return {
+        id: r.id,
+        name: r.name,
+        orders_today: r.orders_today,
+        revenue_today: Number(r.revenue_today) || 0,
+        rating: Math.min(5, Math.max(1, Math.round(rating * 10) / 10))
+      };
+    });
+
+    return res.json({ ok: true, data });
+  } catch (error) {
+    console.error('Error getPopularRestaurantsToday:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener restaurantes populares' });
+  }
+};
 // Actualizar un usuario
 const updateUser = async (req, res) => {
   try {
@@ -317,5 +358,6 @@ export const AdminController = {
   getOrders,
   getRestaurants,
   updateUser,
-  getOrdersByDay
+  getOrdersByDay,
+  getPopularRestaurantsToday
 };
