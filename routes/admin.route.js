@@ -13,6 +13,7 @@ router.use(adminMiddleware);
 router.get("/dashboard/stats", AdminController.getDashboardStats);
 router.get("/dashboard/orders-by-day", AdminController.getOrdersByDay);
 router.get("/dashboard/popular-restaurants", AdminController.getPopularRestaurantsToday);
+router.get("/dashboard/ecosystem-model", AdminController.getEcosystemModel);
 
 // Users management
 router.get("/users", AdminController.getUsers);

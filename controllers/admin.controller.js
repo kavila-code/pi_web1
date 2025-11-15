@@ -265,6 +265,84 @@ const deactivateRestaurant = async (req, res) => {
   }
 };
 
+// Modelo Ecosistema (Presas-Depredadores-Enfermedades)
+// S(t) = Tiendas activas, U(t) = Usuarios activos, I(t) = Incidencias
+const getEcosystemModel = async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 30;
+    
+    // S(t): Restaurantes activos por día (acumulado)
+    const restaurantsQ = `
+      SELECT 
+        DATE(created_at) AS date,
+        COUNT(*)::int AS count
+      FROM restaurants
+      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    const { rows: sData } = await req.db.query(restaurantsQ);
+
+    // U(t): Usuarios únicos haciendo pedidos por día
+    const usersQ = `
+      SELECT 
+        DATE(created_at) AS date,
+        COUNT(DISTINCT customer_id)::int AS count
+      FROM orders
+      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    const { rows: uData } = await req.db.query(usersQ);
+
+    // I(t): Incidencias (pedidos cancelados) por día
+    const incidentsQ = `
+      SELECT 
+        DATE(created_at) AS date,
+        COUNT(*)::int AS count
+      FROM orders
+      WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+        AND status = 'cancelado'
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `;
+    const { rows: iData } = await req.db.query(incidentsQ);
+
+    // Generar rango de fechas completo
+    const dates = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dates.push(d.toISOString().split('T')[0]);
+    }
+
+    // Mapear datos a fechas (acumular S(t) para tiendas)
+    const sMap = {};
+    const uMap = {};
+    const iMap = {};
+    
+    sData.forEach(r => sMap[r.date] = r.count);
+    uData.forEach(r => uMap[r.date] = r.count);
+    iData.forEach(r => iMap[r.date] = r.count);
+
+    let accumulatedStores = 0;
+    const series = dates.map(date => {
+      accumulatedStores += (sMap[date] || 0);
+      return {
+        date,
+        S: accumulatedStores,
+        U: uMap[date] || 0,
+        I: iMap[date] || 0
+      };
+    });
+
+    return res.json({ ok: true, data: series });
+  } catch (error) {
+    console.error('Error getEcosystemModel:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener modelo ecosistema' });
+  }
+};
+
 // Restaurantes con más pedidos por rango: day|week|month (default: day)
 const getPopularRestaurantsToday = async (req, res) => {
   try {
@@ -397,5 +475,6 @@ export const AdminController = {
   getOrdersByDay,
   getPopularRestaurantsToday,
   approveRestaurant,
-  deactivateRestaurant
+  deactivateRestaurant,
+  getEcosystemModel
 };

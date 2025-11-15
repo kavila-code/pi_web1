@@ -126,6 +126,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Inicializar gráfico
   initChart();
 
+  // Inicializar gráfico ecosistema
+  initEcosystemChart();
+
   // Cargar restaurantes populares (dashboard) fijo de hoy
   loadPopularRestaurants('day');
 
@@ -265,6 +268,103 @@ async function initChart() {
     });
   } catch (err) {
     console.error('initChart error:', err);
+  }
+}
+
+// Inicializar gráfico del Modelo Ecosistema (Presas-Depredadores-Enfermedades)
+async function initEcosystemChart() {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/v1/admin/dashboard/ecosystem-model?days=30', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudo obtener modelo ecosistema');
+    }
+    const payload = await res.json();
+    const data = payload.data || [];
+
+    const labels = data.map(d => d.date);
+    const S = data.map(d => d.S);
+    const U = data.map(d => d.U);
+    const I = data.map(d => d.I);
+
+    const ctx = document.getElementById('ecosystemChart').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'S(t) - Tiendas activas',
+            data: S,
+            borderColor: '#27ae60',
+            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 2,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#27ae60'
+          },
+          {
+            label: 'U(t) - Usuarios activos',
+            data: U,
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 2,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#3498db'
+          },
+          {
+            label: 'I(t) - Incidencias',
+            data: I,
+            borderColor: '#e74c3c',
+            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 2,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#e74c3c'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { 
+            beginAtZero: true, 
+            grid: { color: 'rgba(0,0,0,0.08)' },
+            title: { display: true, text: 'Cantidad' }
+          },
+          x: { 
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            title: { display: true, text: 'Fecha' },
+            ticks: { maxTicksLimit: 10 }
+          }
+        },
+        plugins: { 
+          legend: { 
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        interaction: { intersect: false, mode: 'index' }
+      }
+    });
+  } catch (err) {
+    console.error('initEcosystemChart error:', err);
   }
 }
 
