@@ -126,8 +126,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Inicializar gráfico
   initChart();
 
-  // Cargar restaurantes populares de hoy
-  loadPopularRestaurants();
+  // Cargar restaurantes populares con filtro de rango
+  const rangeSelect = document.getElementById('popularRange');
+  const initialRange = rangeSelect ? rangeSelect.value : 'day';
+  loadPopularRestaurants(initialRange);
+  if (rangeSelect) {
+    rangeSelect.addEventListener('change', () => {
+      loadPopularRestaurants(rangeSelect.value);
+    });
+  }
 
   // Event listener para el botón de logout como respaldo
   const logoutBtn = document.querySelector(".btn-logout");
@@ -1509,13 +1516,13 @@ function formatDate(dateString) {
   });
 }
 
-// Cargar y renderizar "Restaurantes Populares" (pedidos de hoy)
-async function loadPopularRestaurants() {
+// Cargar y renderizar "Restaurantes Populares" por rango (day|week|month)
+async function loadPopularRestaurants(range = 'day') {
   const container = document.getElementById('popularRestaurantsContainer');
   if (!container) return;
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch('/api/v1/admin/dashboard/popular-restaurants', {
+    const res = await fetch(`/api/v1/admin/dashboard/popular-restaurants?range=${encodeURIComponent(range)}` , {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) {
@@ -1525,7 +1532,7 @@ async function loadPopularRestaurants() {
     const payload = await res.json();
     const items = payload.data || [];
     if (!items.length) {
-      container.innerHTML = '<div class="text-muted py-4 text-center">Sin pedidos hoy</div>';
+      container.innerHTML = '<div class="text-muted py-4 text-center">Sin pedidos en el periodo seleccionado</div>';
       return;
     }
 
@@ -1544,7 +1551,7 @@ async function loadPopularRestaurants() {
               <i class="bi bi-star-fill"></i>
               <span class="small fw-semibold">${Number(r.rating).toFixed(1)}</span>
             </div>
-            <div class="small text-muted">Ingresos hoy: <strong>$${Number(r.revenue_today).toLocaleString()}</strong></div>
+            <div class="small text-muted">Ingresos: <strong>$${Number(r.revenue_today).toLocaleString()}</strong></div>
           </div>
         </div>
       </div>

@@ -237,9 +237,17 @@ const getRestaurants = async (req, res) => {
   }
 };
 
-// Restaurantes con más pedidos hoy
+// Restaurantes con más pedidos por rango: day|week|month (default: day)
 const getPopularRestaurantsToday = async (req, res) => {
   try {
+    const range = (req.query.range || 'day').toLowerCase();
+    let whereClause = "o.created_at::date = CURRENT_DATE"; // day
+    if (range === 'week') {
+      whereClause = "o.created_at >= date_trunc('week', CURRENT_DATE) AND o.created_at < date_trunc('week', CURRENT_DATE) + interval '7 days'";
+    } else if (range === 'month') {
+      whereClause = "o.created_at >= date_trunc('month', CURRENT_DATE) AND o.created_at < date_trunc('month', CURRENT_DATE) + interval '1 month'";
+    }
+
     const q = `
       SELECT 
         r.id,
@@ -250,7 +258,7 @@ const getPopularRestaurantsToday = async (req, res) => {
         COALESCE(AVG(o.rating), 0)::numeric(10,2) AS avg_order_rating
       FROM orders o
       JOIN restaurants r ON r.id = o.restaurant_id
-      WHERE o.created_at::date = CURRENT_DATE
+      WHERE ${whereClause}
       GROUP BY r.id, r.name, r.rating
       ORDER BY orders_today DESC, revenue_today DESC
       LIMIT 7
