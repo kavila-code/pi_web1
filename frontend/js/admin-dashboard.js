@@ -1,5 +1,7 @@
 // Variables globales
 let sidebarOpen = true;
+let ordersChartRef = null;
+let ecosystemChartRef = null;
 
 // Función auxiliar para manejar errores de autenticación
 function handleAuthError(response) {
@@ -120,17 +122,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (roleElem) roleElem.textContent = roleLabel;
   }
 
-  // Cargar datos del dashboard
-  loadDashboardData();
+  // Carga inicial de todos los datos del dashboard
+  refreshDashboardData();
 
-  // Inicializar gráfico
-  initChart();
-
-  // Inicializar gráfico ecosistema
-  initEcosystemChart();
-
-  // Cargar restaurantes populares (dashboard) fijo de hoy
-  loadPopularRestaurants('day');
+  // Refresco periódico global (cada 30s)
+  if (window._alertsInterval) { try { clearInterval(window._alertsInterval); } catch (_) {} }
+  if (window._dashboardInterval) { try { clearInterval(window._dashboardInterval); } catch (_) {} }
+  window._dashboardInterval = setInterval(refreshDashboardData, 30000);
 
   // Reportes: versión con selector día/semana/mes
   const reportsRange = document.getElementById('popularRangeReports');
@@ -216,6 +214,81 @@ function updateDashboardStats(stats) {
       `<i class='bi bi-arrow-up'></i> ${stats.revenueTrend}`;
 }
 
+// ===== MÉTRICAS DE TEORÍA DE COLAS M/M/c =====
+async function loadQueueMetrics() {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/v1/admin/dashboard/queue-metrics", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.ok) {
+        updateQueueMetrics(result.metrics);
+      }
+    } else if (response.status === 403) {
+      console.error("Acceso denegado a métricas de cola");
+    }
+  } catch (error) {
+    console.error("Error loading queue metrics:", error);
+  }
+}
+
+function updateQueueMetrics(metrics) {
+  // Parámetros del sistema
+  document.getElementById("metricLambda").textContent = 
+    metrics.lambda ? metrics.lambda.toFixed(4) : '-';
+  document.getElementById("metricMu").textContent = 
+    metrics.mu ? metrics.mu.toFixed(4) : '-';
+  document.getElementById("metricC").textContent = metrics.c || '-';
+
+  // Métricas de rendimiento
+  const rhoValue = metrics.rho || 0;
+  document.getElementById("metricRho").textContent = 
+    rhoValue ? (rhoValue * 100).toFixed(2) + '%' : '-';
+  
+  // Estado del factor de utilización
+  const statusRho = document.getElementById("statusRho");
+  if (rhoValue < 0.7) {
+    statusRho.innerHTML = '<small class="badge bg-success">Óptimo</small>';
+  } else if (rhoValue < 0.9) {
+    statusRho.innerHTML = '<small class="badge bg-warning">Moderado</small>';
+  } else if (rhoValue < 1) {
+    statusRho.innerHTML = '<small class="badge bg-danger">Alto</small>';
+  } else {
+    statusRho.innerHTML = '<small class="badge bg-dark">Saturado</small>';
+  }
+
+  // Lq - Pedidos en cola
+  const lqValue = metrics.Lq || 0;
+  document.getElementById("metricLq").textContent = lqValue.toFixed(2);
+  
+  const statusLq = document.getElementById("statusLq");
+  if (lqValue < 2) {
+    statusLq.innerHTML = '<small class="badge bg-success">Excelente</small>';
+  } else if (lqValue < 5) {
+    statusLq.innerHTML = '<small class="badge bg-warning">Aceptable</small>';
+  } else {
+    statusLq.innerHTML = '<small class="badge bg-danger">Crítico</small>';
+  }
+
+  // Wq - Tiempo de espera
+  const wqValue = metrics.Wq || 0;
+  document.getElementById("metricWq").textContent = wqValue.toFixed(2);
+  
+  const statusWq = document.getElementById("statusWq");
+  if (wqValue < 5) {
+    statusWq.innerHTML = '<small class="badge bg-success">Rápido</small>';
+  } else if (wqValue < 10) {
+    statusWq.innerHTML = '<small class="badge bg-warning">Normal</small>';
+  } else {
+    statusWq.innerHTML = '<small class="badge bg-danger">Lento</small>';
+  }
+}
+
 // Función para inicializar el gráfico (datos reales desde backend)
 async function initChart() {
   try {
@@ -238,7 +311,8 @@ async function initChart() {
     gradient.addColorStop(0, 'rgba(231, 76, 60, 0.35)');
     gradient.addColorStop(1, 'rgba(231, 76, 60, 0.05)');
 
-    new Chart(ctx, {
+    if (ordersChartRef) ordersChartRef.destroy();
+    ordersChartRef = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
@@ -292,7 +366,8 @@ async function initEcosystemChart() {
 
     const ctx = document.getElementById('ecosystemChart').getContext('2d');
 
-    new Chart(ctx, {
+    if (ecosystemChartRef) ecosystemChartRef.destroy();
+    ecosystemChartRef = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
@@ -368,11 +443,557 @@ async function initEcosystemChart() {
   }
 }
 
+// ===== CURVA DE CRECIMIENTO LOGÍSTICO =====
+let logisticGrowthChart = null;
+
+async function loadLogisticGrowth() {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/v1/admin/dashboard/logistic-growth", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.ok && result.data) {
+        updateLogisticGrowthData(result.data);
+        renderLogisticGrowthChart(result.data);
+      }
+    } else if (response.status === 403) {
+      console.error("Acceso denegado a datos de crecimiento logístico");
+    }
+  } catch (error) {
+    console.error("Error loading logistic growth:", error);
+  }
+}
+
+function updateLogisticGrowthData(data) {
+  // Actualizar parámetros del modelo
+  document.getElementById("growthK").textContent = 
+    data.k ? data.k.toLocaleString() : '-';
+  document.getElementById("growthAlpha").textContent = 
+    data.alpha ? data.alpha.toFixed(4) : '-';
+  document.getElementById("growthCurrent").textContent = 
+    data.currentOrders ? data.currentOrders.toLocaleString() : '-';
+  document.getElementById("growthR2").textContent = 
+    data.r_squared ? (data.r_squared * 100).toFixed(1) + '%' : '-';
+}
+
+function renderLogisticGrowthChart(data) {
+  const ctx = document.getElementById('logisticGrowthChart');
+  
+  if (!ctx) {
+    console.error('Canvas logisticGrowthChart no encontrado');
+    return;
+  }
+
+  // Destruir gráfica anterior si existe
+  if (logisticGrowthChart) {
+    logisticGrowthChart.destroy();
+  }
+
+  // Valores por defecto seguros
+  const dates = data.dates || [];
+  const futureDates = data.futureDates || [];
+  const actual = data.actual || [];
+  const predicted = data.predicted || [];
+  const futurePredicted = data.futurePredicted || [];
+
+  // Combinar datos reales y futuros
+  const allDates = [...dates, ...futureDates];
+  const allPredicted = [...predicted, ...futurePredicted];
+  
+  // Crear dataset de datos reales (solo para fechas con datos)
+  const actualDataset = {
+    label: 'Pedidos Acumulados (Real)',
+    data: actual,
+    borderColor: '#3498db',
+    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+    borderWidth: 3,
+    fill: true,
+    tension: 0.4,
+    pointRadius: 3,
+    pointBackgroundColor: '#3498db',
+    pointBorderColor: '#fff',
+    pointBorderWidth: 2,
+    pointHoverRadius: 6
+  };
+
+  // Crear dataset de predicción (toda la curva logística)
+  const predictedDataset = {
+    label: 'Proyección Logística',
+    data: allPredicted,
+    borderColor: '#e74c3c',
+    backgroundColor: 'rgba(231, 76, 60, 0.05)',
+    borderWidth: 2,
+    borderDash: [5, 5],
+    fill: false,
+    tension: 0.4,
+    pointRadius: 0,
+    pointHoverRadius: 4
+  };
+
+  // Crear línea vertical que separa datos reales de proyección
+  const separatorIndex = dates.length - 1;
+
+  logisticGrowthChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: allDates,
+      datasets: [predictedDataset, actualDataset]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.08)',
+            drawBorder: false
+          },
+          title: {
+            display: true,
+            text: 'Pedidos Acumulados',
+            font: {
+              size: 13,
+              weight: 600
+            }
+          },
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString();
+            }
+          }
+        },
+        x: {
+          grid: {
+            color: function(context) {
+              // Línea vertical más visible en la separación
+              return context.index === separatorIndex ? 
+                'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.05)';
+            },
+            lineWidth: function(context) {
+              return context.index === separatorIndex ? 2 : 1;
+            }
+          },
+          title: {
+            display: true,
+            text: 'Fecha',
+            font: {
+              size: 13,
+              weight: 600
+            }
+          },
+          ticks: {
+            maxTicksLimit: 15,
+            autoSkip: true
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            font: {
+              size: 12
+            }
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: '#ddd',
+          borderWidth: 1,
+          padding: 12,
+          displayColors: true,
+          callbacks: {
+            title: function(context) {
+              const index = context[0].dataIndex;
+              const date = allDates[index];
+              const isFuture = index >= dates.length;
+              return date + (isFuture ? ' (Proyección)' : '');
+            },
+            label: function(context) {
+              const value = context.parsed.y.toLocaleString();
+              return context.dataset.label + ': ' + value + ' pedidos';
+            }
+          }
+        },
+        annotation: {
+          annotations: {
+            line1: {
+              type: 'line',
+              xMin: separatorIndex,
+              xMax: separatorIndex,
+              borderColor: 'rgba(0, 0, 0, 0.3)',
+              borderWidth: 2,
+              borderDash: [10, 5],
+              label: {
+                enabled: true,
+                content: 'Proyección →',
+                position: 'start',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: '#fff',
+                font: {
+                  size: 11
+                }
+              }
+            }
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      }
+    }
+  });
+}
+
+// ===== INCIDENCIAS DEL SISTEMA =====
+let incidentsTrendChart = null;
+
+async function loadIncidentsDashboard() {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch('/api/v1/admin/dashboard/incidents', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudieron obtener las incidencias');
+    }
+    const payload = await res.json();
+    if (!payload.ok) return;
+
+    const { totalToday, topTypes, byStore, trend } = payload.data;
+
+    // KPIs
+    const totalElem = document.getElementById('incTotalToday');
+    if (totalElem) totalElem.textContent = totalToday?.toLocaleString?.() ?? '-';
+
+    const typesBox = document.getElementById('incTopTypes');
+    if (typesBox) {
+      typesBox.innerHTML = (topTypes || []).map(t => 
+        `<span class="badge bg-light text-dark border">${t.tipo || 'N/D'} <span class="text-muted">(${t.total})</span></span>`
+      ).join('') || '<span class="text-muted">Sin datos</span>';
+    }
+
+    const storesBox = document.getElementById('incTopStores');
+    if (storesBox) {
+      storesBox.innerHTML = (byStore || []).slice(0,3).map(s => 
+        `<div class="d-flex justify-content-between"><span>${s.restaurante || 'Tienda'}</span><strong>${s.total}</strong></div>`
+      ).join('') || '<span class="text-muted">Sin datos</span>';
+    }
+
+    // Gráfica de tendencia semanal
+    renderIncidentsTrendChart(trend || []);
+  } catch (err) {
+    console.error('loadIncidentsDashboard error:', err);
+  }
+}
+
+// ===== PREDICCIONES DEL SISTEMA =====
+let systemPredictionsChart = null;
+
+async function loadSystemPredictions() {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch('/api/v1/admin/dashboard/predictions?horizon=14', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudieron obtener predicciones');
+    }
+    const payload = await res.json();
+    if (!payload.ok) return;
+
+    updateSystemPredictionsKPIs(payload.data);
+    renderSystemPredictionsChart(payload.data);
+  } catch (err) {
+    console.error('loadSystemPredictions error:', err);
+  }
+}
+
+function updateSystemPredictionsKPIs(data) {
+  const totalPred = (data.predictedDemandDaily || []).reduce((a,b)=>a+Math.round(b||0), 0);
+  const totalElem = document.getElementById('predTotalDemand');
+  if (totalElem) totalElem.textContent = totalPred.toLocaleString();
+
+  // Primer día con alto o saturado
+  let satDate = 'Sin riesgo';
+  for (const x of data.saturationForecast || []) {
+    if (x.level === 'alto' || x.level === 'saturado') { satDate = x.date; break; }
+  }
+  const satElem = document.getElementById('predSaturationDate');
+  if (satElem) satElem.textContent = satDate;
+
+  // Máximas incidencias esperadas
+  let maxInc = 0; let maxIncDate = '-';
+  for (const x of data.incidentsRisk || []) {
+    if ((x.expected||0) > maxInc) { maxInc = x.expected; maxIncDate = x.date; }
+  }
+  const incElem = document.getElementById('predMaxIncidents');
+  if (incElem) incElem.textContent = `${maxInc.toLocaleString()} (${maxIncDate})`;
+}
+
+function renderSystemPredictionsChart(data) {
+  const ctx = document.getElementById('systemPredictionsChart');
+  if (!ctx) return;
+
+  if (systemPredictionsChart) systemPredictionsChart.destroy();
+
+  const labels = data.futureDates || [];
+  const demand = (data.predictedDemandDaily || []).map(v => Math.round(v));
+  const rhoPct = (data.saturationForecast || []).map(x => Math.round((x.rho||0)*100));
+  const incidents = (data.incidentsRisk || []).map(x => x.expected || 0);
+
+  systemPredictionsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Incidencias esperadas',
+          data: incidents,
+          backgroundColor: 'rgba(231, 76, 60, 0.3)',
+          borderColor: '#e74c3c',
+          borderWidth: 1,
+          yAxisID: 'y',
+          maxBarThickness: 24
+        },
+        {
+          type: 'line',
+          label: 'Pedidos proyectados (día)',
+          data: demand,
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52, 152, 219, 0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 2,
+          yAxisID: 'y'
+        },
+        {
+          type: 'line',
+          label: 'Uso de capacidad (%)',
+          data: rhoPct,
+          borderColor: '#f39c12',
+          backgroundColor: 'rgba(243, 156, 18, 0.1)',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.35,
+          pointRadius: 2,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Cantidad (pedidos/incidencias)' }, grid: { color: 'rgba(0,0,0,0.08)' } },
+        y1: { beginAtZero: true, suggestedMax: 120, position: 'right', title: { display: true, text: 'Capacidad usada (%)' }, grid: { drawOnChartArea: false } },
+        x: { grid: { color: 'rgba(0,0,0,0.05)' } }
+      },
+      plugins: {
+        legend: { display: true, position: 'top' },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      interaction: { intersect: false, mode: 'index' }
+    }
+  });
+}
+
+function renderIncidentsTrendChart(trend) {
+  const ctx = document.getElementById('incidentsTrendChart');
+  if (!ctx) return;
+
+  const trendData = trend || [];
+  const labels = trendData.map(x => new Date(x.date).toLocaleDateString('es-CO', { month: 'short', day: '2-digit' }));
+  const data = trendData.map(x => x.total);
+
+  if (incidentsTrendChart) incidentsTrendChart.destroy();
+
+  incidentsTrendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Incidencias',
+        data,
+        backgroundColor: 'rgba(231, 76, 60, 0.3)',
+        borderColor: '#e74c3c',
+        borderWidth: 2,
+        maxBarThickness: 36,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.08)' }, title: { display: true, text: 'Incidencias' } },
+        x: { grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: 'Día' } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) { return `${ctx.parsed.y} incidencias`; }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ===== UTIL: pintar estado "sin datos" en un canvas =====
+function drawNoData(canvasId, message) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  const { width, height } = canvas;
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.fillStyle = '#6c757d';
+  ctx.font = '14px Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(message || 'Sin datos', width / 2, height / 2);
+  ctx.restore();
+}
+
 // Responsive: cerrar sidebar en móviles al hacer clic en menu
 if (window.innerWidth <= 992) {
   sidebarOpen = false;
   document.getElementById("sidebar").classList.add("collapsed");
   document.querySelector(".main-content").classList.add("expanded");
+}
+
+// Refresco global del dashboard (30s)
+function refreshDashboardData() {
+  // KPIs principales
+  loadDashboardData();
+  // M/M/c
+  loadQueueMetrics();
+  // Logístico
+  loadLogisticGrowth();
+  // Incidencias
+  loadIncidentsDashboard();
+  // Predicciones combinadas
+  loadSystemPredictions();
+  // Alertas operativas
+  loadOperationalAlerts();
+  // Gráficos principales
+  initChart();
+  initEcosystemChart();
+  // Populares del día
+  loadPopularRestaurants('day');
+}
+
+// ===== ALERTAS OPERATIVAS =====
+async function loadOperationalAlerts() {
+  try {
+    const token = localStorage.getItem('token');
+    const [qRes, ecoRes, obRes] = await Promise.all([
+      fetch('/api/v1/admin/dashboard/queue-metrics', { headers: { Authorization: `Bearer ${token}` }}),
+      fetch('/api/v1/admin/dashboard/ecosystem-model?days=14', { headers: { Authorization: `Bearer ${token}` }}),
+      fetch('/api/v1/admin/dashboard/orders-by-day', { headers: { Authorization: `Bearer ${token}` }}),
+    ]);
+
+    if (!qRes.ok || !ecoRes.ok || !obRes.ok) {
+      if (handleAuthError(qRes) || handleAuthError(ecoRes) || handleAuthError(obRes)) return;
+      throw new Error('No se pudieron obtener datos para alertas');
+    }
+
+    const [qData, ecoData, obData] = await Promise.all([qRes.json(), ecoRes.json(), obRes.json()]);
+
+    const alerts = [];
+
+    // 1) Saturación: ρ > 0.8
+    const rho = qData?.metrics?.rho ?? 0;
+    if (rho > 0.8) {
+      const pct = (rho * 100).toFixed(1);
+      const isSaturated = rho >= 1;
+      alerts.push({
+        type: isSaturated ? 'danger' : 'warning',
+        icon: 'bi-speedometer',
+        title: isSaturated ? 'Saturación del sistema' : 'Alta ocupación',
+        message: `Uso de capacidad en ${pct}%. ${isSaturated ? 'Saturado, tiempos de espera crecerán.' : 'Riesgo de saturación, monitorea recursos.'}`
+      });
+    }
+
+    // 2) Cancelaciones: I(t) aumenta >= 30% vs ayer
+    const ecoSeries = ecoData?.data || [];
+    if (ecoSeries.length >= 2) {
+      const prev = ecoSeries[ecoSeries.length - 2].I || 0;
+      const last = ecoSeries[ecoSeries.length - 1].I || 0;
+      if (prev > 0) {
+        const inc = ((last - prev) / prev) * 100;
+        if (inc >= 30) {
+          alerts.push({
+            type: inc >= 50 ? 'danger' : 'warning',
+            icon: 'bi-exclamation-triangle',
+            title: 'Aumento de cancelaciones',
+            message: `Las cancelaciones subieron ${inc.toFixed(1)}% vs ayer ( ${prev} → ${last} ).`
+          });
+        }
+      }
+    }
+
+    // 3) Demanda diaria supera el promedio (últimos días)
+    const series = obData?.data || [];
+    if (series.length >= 2) {
+      const last = series[series.length - 1] || 0;
+      const prevArr = series.slice(0, -1).filter(v => typeof v === 'number');
+      const avg = prevArr.length ? prevArr.reduce((a,b)=>a+b,0) / prevArr.length : 0;
+      if (avg > 0 && last > avg) {
+        const over = ((last - avg) / avg) * 100;
+        alerts.push({
+          type: over >= 30 ? 'warning' : 'info',
+          icon: 'bi-graph-up',
+          title: 'Demanda sobre el promedio',
+          message: `Pedidos del día superan el promedio en ${over.toFixed(1)}% (${Math.round(last)} vs ${Math.round(avg)}).`
+        });
+      }
+    }
+
+    renderOperationalAlerts(alerts);
+  } catch (err) {
+    console.error('loadOperationalAlerts error:', err);
+    renderOperationalAlerts([{ type: 'secondary', icon: 'bi-info-circle', title: 'Sin datos', message: 'No fue posible cargar alertas en este momento.' }]);
+  }
+}
+
+function renderOperationalAlerts(alerts) {
+  const box = document.getElementById('operationalAlertsContainer');
+  if (!box) return;
+  if (!alerts || alerts.length === 0) {
+    box.innerHTML = `<div class="alert alert-success mb-0"><i class="bi bi-check-circle me-2"></i>Todo en orden. No hay alertas por ahora.</div>`;
+    return;
+  }
+
+  box.innerHTML = alerts.map(a => `
+    <div class="alert alert-${a.type} d-flex align-items-start gap-2 mb-0">
+      <i class="bi ${a.icon} mt-1"></i>
+      <div>
+        <div class="fw-semibold">${a.title}</div>
+        <div class="small">${a.message}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
 // (Eliminado catálogo duplicado y helpers duplicados para evitar errores de redeclaración)
@@ -1995,7 +2616,7 @@ async function adminLoadRestaurants() {
           <td>${stateBadge}</td>
           <td class="d-flex gap-2">
             ${actions}
-            <a class="btn btn-sm btn-outline-secondary" href="/restaurant.html?id=${r.id}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+            <a class="btn btn-sm btn-outline-secondary" href="/public/restaurant-menu.html?id=${r.id}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
           </td>
         </tr>`;
     }).join('');

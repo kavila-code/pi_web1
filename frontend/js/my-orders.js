@@ -1,6 +1,7 @@
 // DomiTuluá - My Orders JavaScript
 
 let allOrders = [];
+let currentStatusFilter = ""; // '', 'pendiente', 'en_camino', 'entregado', 'cancelado'
 
 // Verificar autenticación
 if (!requireAuth()) {
@@ -9,18 +10,40 @@ if (!requireAuth()) {
 
 // Cargar pedidos al iniciar
 document.addEventListener("DOMContentLoaded", () => {
-  loadOrders();
+  // Vista inicial: Entregados
+  filterOrders('entregado');
 });
 
 // Cargar pedidos del usuario
-async function loadOrders() {
-  const loadingEl = document.getElementById("loading");
-  const containerEl = document.getElementById("ordersContainer");
-
-  if (loadingEl) loadingEl.style.display = "block";
+async function loadOrders(status) {
+  const listEl = document.getElementById("ordersList");
+  const emptyEl = document.getElementById("emptyState");
+  if (emptyEl) emptyEl.style.display = "none";
+  if (listEl) {
+    listEl.innerHTML = `
+      <div class="text-center py-5">
+        <div class="spinner-border text-danger" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 text-muted">Cargando tus pedidos...</p>
+      </div>`;
+  }
 
   try {
-    const data = await authenticatedFetch("http://localhost:3000/api/v1/orders/my-orders");
+    const params = new URLSearchParams();
+    // Comportamientos:
+    // - status undefined: fallback a 'entregado' (solo en llamadas internas)
+    // - status '': 'Todos' → no filtra por estado, incluye cancelados
+    // - status explícito: aplica ese estado
+    if (typeof status === 'undefined') {
+      params.set("status", "entregado");
+    } else if (status === '' || status === 'all' || status === 'todos') {
+      // no setear status → API devolverá todos los estados
+    } else {
+      params.set("status", status);
+    }
+
+    const data = await authenticatedFetch(`/api/v1/orders/my-orders?${params.toString()}`);
 
     if (data && data.ok) {
       allOrders = data.data;
@@ -32,26 +55,19 @@ async function loadOrders() {
     console.error("Error:", error);
     showError("Error de conexión");
   } finally {
-    if (loadingEl) loadingEl.style.display = "none";
+    // el loader se reemplaza dentro de renderOrders/showError
   }
 }
 
 // Renderizar pedidos
 function renderOrders() {
-  const container = document.getElementById("ordersContainer");
+  const container = document.getElementById("ordersList");
+  const emptyEl = document.getElementById("emptyState");
   if (!container) return;
 
   if (allOrders.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-5">
-        <i class="bi bi-bag-x" style="font-size: 4rem; color: #ddd;"></i>
-        <h4 class="mt-3">No tienes pedidos aún</h4>
-        <p class="text-muted">¡Haz tu primer pedido y disfruta!</p>
-        <a href="/public/restaurants.html" class="btn btn-primary btn-lg mt-3">
-          <i class="bi bi-shop"></i> Ver Restaurantes
-        </a>
-      </div>
-    `;
+    container.innerHTML = "";
+    if (emptyEl) emptyEl.style.display = "block";
     return;
   }
 
@@ -75,19 +91,19 @@ function renderOrders() {
             `).join("") : ""}
             <div class="order-total">
               <span class="fw-bold">Total:</span>
-              <span class="fw-bold text-primary">$${order.total_amount.toLocaleString()}</span>
+              <span class="fw-bold text-primary">$${Number(order.total || 0).toLocaleString("es-CO")}</span>
             </div>
           </div>
           <div class="order-footer">
             <button class="btn btn-sm btn-outline-primary" onclick="viewOrderDetails(${order.id})">
               <i class="bi bi-eye"></i> Ver Detalles
             </button>
-            ${order.status === "delivered" ? `
+            ${order.status === "entregado" ? `
               <button class="btn btn-sm btn-warning" onclick="rateOrder(${order.id})">
                 <i class="bi bi-star"></i> Calificar
               </button>
             ` : ""}
-            ${order.status === "pending" ? `
+            ${order.status === "pendiente" ? `
               <button class="btn btn-sm btn-danger" onclick="cancelOrder(${order.id})">
                 <i class="bi bi-x-circle"></i> Cancelar
               </button>
@@ -102,13 +118,13 @@ function renderOrders() {
 // Obtener clase del badge según estado
 function getStatusBadgeClass(status) {
   const classes = {
-    pending: "bg-warning",
-    confirmed: "bg-info",
-    preparing: "bg-primary",
-    ready: "bg-success",
-    in_delivery: "bg-primary",
-    delivered: "bg-success",
-    cancelled: "bg-danger"
+    pendiente: "bg-warning",
+    confirmado: "bg-info",
+    preparando: "bg-primary",
+    listo: "bg-success",
+    en_camino: "bg-primary",
+    entregado: "bg-success",
+    cancelado: "bg-danger"
   };
   return classes[status] || "bg-secondary";
 }
@@ -116,13 +132,13 @@ function getStatusBadgeClass(status) {
 // Obtener texto del estado
 function getStatusText(status) {
   const texts = {
-    pending: "Pendiente",
-    confirmed: "Confirmado",
-    preparing: "Preparando",
-    ready: "Listo",
-    in_delivery: "En Camino",
-    delivered: "Entregado",
-    cancelled: "Cancelado"
+    pendiente: "Pendiente",
+    confirmado: "Confirmado",
+    preparando: "Preparando",
+    listo: "Listo",
+    en_camino: "En Camino",
+    entregado: "Entregado",
+    cancelado: "Cancelado"
   };
   return texts[status] || status;
 }
@@ -133,7 +149,7 @@ function viewOrderDetails(orderId) {
   if (!order) return;
 
   // Aquí puedes mostrar un modal con más detalles
-  alert(`Detalles del pedido #${orderId}\n\nEstado: ${getStatusText(order.status)}\nTotal: $${order.total_amount.toLocaleString()}`);
+  alert(`Detalles del pedido #${orderId}\n\nEstado: ${getStatusText(order.status)}\nTotal: $${Number(order.total || 0).toLocaleString('es-CO')}`);
 }
 
 // Calificar pedido
@@ -148,8 +164,8 @@ async function cancelOrder(orderId) {
   }
 
   try {
-    const data = await authenticatedFetch(`http://localhost:3000/api/v1/orders/${orderId}/cancel`, {
-      method: "PUT"
+    const data = await authenticatedFetch(`/api/v1/orders/${orderId}/cancel`, {
+      method: "POST"
     });
 
     if (data && data.ok) {
@@ -166,10 +182,33 @@ async function cancelOrder(orderId) {
 
 // Mostrar error
 function showError(message) {
-  const container = document.getElementById("ordersContainer");
+  const container = document.getElementById("ordersList");
+  const emptyEl = document.getElementById("emptyState");
+  if (emptyEl) emptyEl.style.display = "none";
   if (container) {
-    container.innerHTML = `
-      <div class="alert alert-danger">${message}</div>
-    `;
+    container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
   }
+}
+
+// Filtros de estado (desde botones en la página)
+function filterOrders(status) {
+  currentStatusFilter = status || "";
+  // Actualizar estado activo en UI si los botones existen
+  try {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (status) {
+      const map = {
+        '': 0,
+        'pendiente': 1,
+        'en_camino': 2,
+        'entregado': 3,
+        'cancelado': 4
+      };
+      const idx = map[status];
+      const btns = document.querySelectorAll('.filter-btn');
+      if (typeof idx === 'number' && btns[idx]) btns[idx].classList.add('active');
+    }
+  } catch {}
+
+  loadOrders(currentStatusFilter);
 }

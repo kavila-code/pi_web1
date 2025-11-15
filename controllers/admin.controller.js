@@ -466,6 +466,412 @@ const getOrdersByDay = async (req, res) => {
   }
 };
 
+// Obtener métricas del modelo M/M/c (Teoría de Colas)
+const getQueueMetrics = async (req, res) => {
+  try {
+    // 1. Calcular λ (tasa de llegada de pedidos por minuto)
+    const lambdaQuery = await req.db.query(`
+      SELECT 
+        COUNT(*) as total_orders,
+        EXTRACT(EPOCH FROM (MAX(created_at) - MIN(created_at)))/60 as minutes_range
+      FROM orders
+      WHERE created_at >= NOW() - INTERVAL '7 days'
+        AND status NOT IN ('cancelado')
+    `);
+    
+    const ordersData = lambdaQuery.rows[0];
+    const lambda = ordersData.minutes_range > 0 
+      ? ordersData.total_orders / ordersData.minutes_range 
+      : 0;
+
+    // 2. Calcular μ (tasa de servicio - pedidos por minuto por repartidor)
+    const muQuery = await req.db.query(`
+      SELECT 
+        AVG(EXTRACT(EPOCH FROM (delivered_at - picked_up_at))/60) as avg_delivery_time_minutes
+      FROM orders
+      WHERE status = 'entregado'
+        AND picked_up_at IS NOT NULL
+        AND delivered_at IS NOT NULL
+        AND created_at >= NOW() - INTERVAL '7 days'
+    `);
+    
+    const avgDeliveryTime = muQuery.rows[0].avg_delivery_time_minutes || 30;
+    const mu = avgDeliveryTime > 0 ? 1 / avgDeliveryTime : 0;
+
+    // 3. Obtener c (número de repartidores activos)
+    const cQuery = await req.db.query(`
+      SELECT COUNT(DISTINCT user_id) as active_delivery_count
+      FROM user_roles
+      WHERE role = 'delivery'
+    `);
+    
+    const c = parseInt(cQuery.rows[0].active_delivery_count) || 1;
+
+    // 4. Calcular métricas M/M/c
+    const rho = lambda / (mu * c); // Factor de utilización
+    
+    // Para M/M/c, Lq (pedidos en cola) requiere fórmulas de Erlang-C
+    // Simplificación: usando aproximación
+    let Lq = 0;
+    let Wq = 0;
+    
+    if (rho < 1 && mu > 0 && c > 0) {
+      // Probabilidad de cola (C de Erlang - aproximación)
+      const rhoC = Math.pow(lambda/mu, c) / factorial(c);
+      const sumTerms = Array.from({length: c}, (_, i) => 
+        Math.pow(lambda/mu, i) / factorial(i)
+      ).reduce((a, b) => a + b, 0);
+      
+      const C = rhoC / (sumTerms + rhoC * (1 - rho));
+      
+      // Lq: longitud promedio de la cola
+      Lq = (C * rho) / (1 - rho);
+      
+      // Wq: tiempo promedio de espera en cola (minutos)
+      Wq = lambda > 0 ? Lq / lambda : 0;
+    }
+
+    return res.json({
+      ok: true,
+      metrics: {
+        lambda: parseFloat(lambda.toFixed(4)),           // pedidos/minuto
+        mu: parseFloat(mu.toFixed(4)),                   // servicio/minuto por repartidor
+        c: c,                                             // repartidores activos
+        rho: parseFloat(rho.toFixed(4)),                 // factor de utilización
+        Lq: parseFloat(Lq.toFixed(2)),                   // pedidos en cola
+        Wq: parseFloat(Wq.toFixed(2)),                   // minutos de espera promedio
+        avgDeliveryTime: parseFloat(avgDeliveryTime.toFixed(2)) // tiempo promedio entrega
+      }
+    });
+  } catch (error) {
+    console.error('Error getQueueMetrics:', error);
+    return res.status(500).json({ ok: false, message: 'Error al calcular métricas de cola' });
+  }
+};
+
+// Función auxiliar para calcular factorial
+function factorial(n) {
+  if (n <= 1) return 1;
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+// Obtener datos para curva de crecimiento logístico
+const getLogisticGrowth = async (req, res) => {
+  try {
+    // Obtener pedidos acumulados por día
+    const query = `
+      SELECT 
+        DATE(created_at) as date,
+        COUNT(*) as daily_orders
+      FROM orders
+      WHERE status NOT IN ('cancelado')
+      GROUP BY DATE(created_at)
+      ORDER BY DATE(created_at) ASC
+    `;
+    
+    const { rows } = await req.db.query(query);
+    
+    if (rows.length === 0) {
+      return res.json({
+        ok: true,
+        data: {
+          dates: [],
+          actual: [],
+          predicted: [],
+          k: 0,
+          alpha: 0,
+          r_squared: 0
+        }
+      });
+    }
+
+    // Calcular pedidos acumulados
+    let cumulative = 0;
+    const dates = [];
+    const actualData = [];
+    
+    rows.forEach(row => {
+      cumulative += parseInt(row.daily_orders);
+      dates.push(row.date);
+      actualData.push(cumulative);
+    });
+
+    // Estimar parámetros del modelo logístico
+    // k = capacidad máxima (estimamos como 1.5x el valor actual máximo)
+    const maxCurrent = Math.max(...actualData);
+    const k = maxCurrent * 1.5;
+
+    // Calcular α (tasa de crecimiento) usando regresión no lineal simplificada
+    // Usamos el punto medio de crecimiento para estimar α
+    const n = actualData.length;
+    const t0 = Math.floor(n / 2); // punto medio
+    const y0 = actualData[t0];
+    
+    // α = (1/t) * ln((k - y0)/y0) aproximación
+    let alpha = 0.1; // valor por defecto
+    if (y0 > 0 && y0 < k) {
+      alpha = Math.abs((1 / (t0 + 1)) * Math.log((k - y0) / y0));
+    }
+
+    // Generar curva predicha usando y(t) = k / (1 + e^(-α(t - t0)))
+    const predictedData = [];
+    for (let t = 0; t < n; t++) {
+      const y = k / (1 + Math.exp(-alpha * (t - t0)));
+      predictedData.push(parseFloat(y.toFixed(2)));
+    }
+
+    // Extender la predicción 30 días hacia el futuro
+    const futureDays = 30;
+    const futureDates = [];
+    const futurePredicted = [];
+    
+    const lastDate = new Date(dates[dates.length - 1]);
+    for (let i = 1; i <= futureDays; i++) {
+      const futureDate = new Date(lastDate);
+      futureDate.setDate(futureDate.getDate() + i);
+      futureDates.push(futureDate.toISOString().split('T')[0]);
+      
+      const t = n + i - 1;
+      const y = k / (1 + Math.exp(-alpha * (t - t0)));
+      futurePredicted.push(parseFloat(y.toFixed(2)));
+    }
+
+    // Calcular R² (coeficiente de determinación)
+    const yMean = actualData.reduce((a, b) => a + b, 0) / actualData.length;
+    const ssTotal = actualData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+    const ssResidual = actualData.reduce((sum, y, i) => sum + Math.pow(y - predictedData[i], 2), 0);
+    const rSquared = 1 - (ssResidual / ssTotal);
+
+    return res.json({
+      ok: true,
+      data: {
+        dates: dates,
+        actual: actualData,
+        predicted: predictedData,
+        futureDates: futureDates,
+        futurePredicted: futurePredicted,
+        k: parseFloat(k.toFixed(2)),
+        alpha: parseFloat(alpha.toFixed(4)),
+        r_squared: parseFloat(rSquared.toFixed(4)),
+        currentOrders: maxCurrent,
+        daysTracked: n
+      }
+    });
+  } catch (error) {
+    console.error('Error getLogisticGrowth:', error);
+    return res.status(500).json({ ok: false, message: 'Error al calcular crecimiento logístico' });
+  }
+};
+
+// Incidencias del sistema - métricas y serie semanal
+const getIncidentsDashboard = async (req, res) => {
+  try {
+    // Total incidencias del día
+    const totalTodayQ = await req.db.query(`
+      SELECT COUNT(*)::int AS total
+      FROM incidencias
+      WHERE DATE(created_at) = CURRENT_DATE
+    `);
+
+    // Tipos más comunes (últimos 7 días)
+    const topTypesQ = await req.db.query(`
+      SELECT type AS tipo, COUNT(*)::int AS total
+      FROM incidencias
+      WHERE created_at >= NOW() - INTERVAL '7 days'
+      GROUP BY type
+      ORDER BY total DESC
+      LIMIT 5
+    `);
+
+    // Incidencias por tienda/restaurante (últimos 7 días)
+    // Se asume columna restaurant_id en incidencias
+    const byStoreQ = await req.db.query(`
+      SELECT r.id, r.name AS restaurante, COUNT(i.*)::int AS total
+      FROM incidencias i
+      JOIN restaurants r ON r.id = i.restaurant_id
+      WHERE i.created_at >= NOW() - INTERVAL '7 days'
+      GROUP BY r.id, r.name
+      ORDER BY total DESC
+      LIMIT 10
+    `);
+
+    // Tendencia semanal por día (últimos 7 días incluyendo hoy)
+    const trendQ = await req.db.query(`
+      WITH days AS (
+        SELECT generate_series::date AS d
+        FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, INTERVAL '1 day')
+      )
+      SELECT d AS date,
+             COALESCE(
+               (SELECT COUNT(*) FROM incidencias i WHERE DATE(i.created_at) = d), 0
+             )::int AS total
+      FROM days
+      ORDER BY d ASC
+    `);
+
+    const totalToday = totalTodayQ.rows[0]?.total || 0;
+    const topTypes = topTypesQ.rows || [];
+    const byStore = byStoreQ.rows || [];
+    const trend = trendQ.rows || [];
+
+    return res.json({
+      ok: true,
+      data: {
+        totalToday,
+        topTypes,
+        byStore,
+        trend
+      }
+    });
+  } catch (error) {
+    console.error('Error getIncidentsDashboard:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener incidencias' });
+  }
+};
+
+// Predicciones del sistema: Demanda, Saturación (M/M/c) y Riesgo de Incidencias
+const getSystemPredictions = async (req, res) => {
+  try {
+    const horizonDays = parseInt(req.query.horizon || '14', 10); // días a proyectar
+
+    // 1) Demanda histórica diaria y acumulada (para modelo logístico)
+    const ordersDailyQ = await req.db.query(`
+      SELECT DATE(created_at) AS date, COUNT(*)::int AS daily
+      FROM orders
+      WHERE status != 'cancelado'
+      GROUP BY 1
+      ORDER BY 1 ASC
+    `);
+    const dailyRows = ordersDailyQ.rows;
+    if (!dailyRows.length) {
+      return res.json({ ok: true, data: { horizonDays, predictedDemandDaily: [], saturationForecast: [], incidentsRisk: [], k: 0, alpha: 0 } });
+    }
+
+    let cumulative = 0;
+    const datesHist = [];
+    const dailyHist = [];
+    const cumHist = [];
+    for (const r of dailyRows) {
+      cumulative += r.daily;
+      datesHist.push(r.date);
+      dailyHist.push(r.daily);
+      cumHist.push(cumulative);
+    }
+
+    // Estimar k y alpha del modelo logístico (método simple usado antes)
+    const maxCurrent = Math.max(...cumHist);
+    const k = maxCurrent * 1.5;
+    const n = cumHist.length;
+    const t0 = Math.floor(n / 2);
+    const y0 = cumHist[t0];
+    let alpha = 0.1;
+    if (y0 > 0 && y0 < k) {
+      alpha = Math.abs((1 / (t0 + 1)) * Math.log((k - y0) / y0));
+    }
+
+    // Proyectar curva logística acumulada y derivar demanda diaria futura
+    const futureDates = [];
+    const predictedCumulative = [];
+    const startDate = new Date(datesHist[datesHist.length - 1]);
+    for (let i = 1; i <= horizonDays; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      futureDates.push(d.toISOString().split('T')[0]);
+      const t = n + i - 1;
+      const y = k / (1 + Math.exp(-alpha * (t - t0)));
+      predictedCumulative.push(y);
+    }
+    // Demanda diaria proyectada = diff de acumulados (suavizado mínimo)
+    const predictedDemandDaily = predictedCumulative.map((y, idx) => {
+      const prev = idx === 0 ? cumHist[cumHist.length - 1] : predictedCumulative[idx - 1];
+      return Math.max(0, y - prev);
+    });
+
+    // 2) Parámetros M/M/c actuales (mu y c), y lambda proyectada desde demanda diaria
+    const muQ = await req.db.query(`
+      SELECT AVG(EXTRACT(EPOCH FROM (delivered_at - picked_up_at))/60) AS avg_delivery_time_minutes
+      FROM orders
+      WHERE status = 'entregado'
+        AND picked_up_at IS NOT NULL
+        AND delivered_at IS NOT NULL
+        AND created_at >= NOW() - INTERVAL '14 days'
+    `);
+    const avgDeliveryTime = muQ.rows[0]?.avg_delivery_time_minutes || 30;
+    const mu = avgDeliveryTime > 0 ? 1 / avgDeliveryTime : 0; // entregas/min por repartidor
+
+    const cQ = await req.db.query(`
+      SELECT COUNT(DISTINCT user_id)::int AS active_delivery_count
+      FROM user_roles
+      WHERE role = 'delivery'
+    `);
+    const c = cQ.rows[0]?.active_delivery_count || 1;
+
+    // Convertir demanda diaria proyectada a lambda (por minuto)
+    // Asumimos 12 horas operativas/día (720 min). Ajustable si se desea.
+    const operationalMinutes = 12 * 60;
+    const saturationForecast = futureDates.map((d, i) => {
+      const lambda = operationalMinutes > 0 ? (predictedDemandDaily[i] / operationalMinutes) : 0;
+      const rho = mu * c > 0 ? lambda / (mu * c) : 0;
+      let level = 'normal';
+      if (rho >= 1) level = 'saturado';
+      else if (rho >= 0.9) level = 'alto';
+      else if (rho >= 0.7) level = 'moderado';
+      return { date: d, rho: parseFloat(rho.toFixed(4)), level };
+    });
+
+    // 3) Riesgo de incidencias usando tabla incidencias (tasa reciente * demanda proyectada)
+    const incDailyQ = await req.db.query(`
+      WITH recent_orders AS (
+        SELECT DATE(created_at) AS date, COUNT(*)::int AS orders
+        FROM orders
+        WHERE created_at >= NOW() - INTERVAL '14 days' AND status != 'cancelado'
+        GROUP BY 1
+      ), recent_incs AS (
+        SELECT DATE(created_at) AS date, COUNT(*)::int AS incs
+        FROM incidencias
+        WHERE created_at >= NOW() - INTERVAL '14 days'
+        GROUP BY 1
+      )
+      SELECT COALESCE(SUM(incs),0)::int AS incs_14d, COALESCE(SUM(orders),0)::int AS orders_14d
+      FROM recent_orders ro FULL OUTER JOIN recent_incs ri ON ro.date = ri.date
+    `);
+    const inc14 = incDailyQ.rows[0]?.incs_14d || 0;
+    const ord14 = incDailyQ.rows[0]?.orders_14d || 1;
+    const incRate = inc14 / ord14; // incidencias por pedido
+
+    const incidentsRisk = futureDates.map((d, i) => {
+      const expectedInc = predictedDemandDaily[i] * incRate;
+      let risk = 'bajo';
+      const ratePct = incRate * 100;
+      if (ratePct >= 5 || expectedInc >= 10) risk = 'alto';
+      else if (ratePct >= 2 || expectedInc >= 5) risk = 'medio';
+      return { date: d, expected: Math.round(expectedInc), risk, rate: parseFloat(ratePct.toFixed(2)) };
+    });
+
+    return res.json({
+      ok: true,
+      data: {
+        horizonDays,
+        futureDates,
+        predictedDemandDaily: predictedDemandDaily.map(v => Math.round(v)),
+        saturationForecast,
+        incidentsRisk,
+        k: parseFloat(k.toFixed(2)),
+        alpha: parseFloat(alpha.toFixed(4)),
+        mu: parseFloat(mu.toFixed(4)),
+        c
+      }
+    });
+  } catch (error) {
+    console.error('Error getSystemPredictions:', error);
+    return res.status(500).json({ ok: false, message: 'Error al generar predicciones' });
+  }
+};
+
 export const AdminController = {
   getDashboardStats,
   getUsers,
@@ -477,5 +883,9 @@ export const AdminController = {
   getPopularRestaurantsToday,
   approveRestaurant,
   deactivateRestaurant,
-  getEcosystemModel
+  getEcosystemModel,
+  getQueueMetrics,
+  getLogisticGrowth,
+  getIncidentsDashboard,
+  getSystemPredictions
 };

@@ -462,10 +462,10 @@ function createRestaurantCardHTML(restaurant) {
   // Devuelve un fragmento HTML compatible con la plantilla usada en user-inicio
   return `
     <div class="col-lg-4 col-md-6 mb-4">
-      <div class="restaurant-card">
+      <div class="restaurant-card" onclick="location.href='/public/restaurant-menu.html?id=${restaurant.id}'" style="cursor:pointer">
         <div class="restaurant-image">
           <img src="${restaurant.image}" alt="${restaurant.name}" onerror="this.src='/frontend/placeholder-restaurant.svg'">
-          <div class="favorite-toggle" onclick="toggleFavorite(${restaurant.id})">
+          <div class="favorite-toggle" onclick="event.stopPropagation();toggleFavorite(${restaurant.id})">
             <i class="bi bi-heart"></i>
           </div>
         </div>
@@ -481,7 +481,7 @@ function createRestaurantCardHTML(restaurant) {
             <span class="delivery-time"><i class="bi bi-clock"></i> ${restaurant.deliveryTime || '20-35 min'}</span>
             <span class="delivery-fee"><i class="bi bi-truck"></i> ${restaurant.deliveryFee || 'Gratis'}</span>
           </div>
-          <button class="btn btn-primary w-100 mt-2" onclick="viewRestaurant(${restaurant.id})">Ver Menú</button>
+          <button class="btn btn-primary w-100 mt-2" onclick="event.stopPropagation();location.href='/public/restaurant-menu.html?id=${restaurant.id}'">Ver Menú</button>
         </div>
       </div>
     </div>

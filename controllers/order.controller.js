@@ -106,6 +106,8 @@ export const getMyOrders = async (req, res) => {
 
     const filters = {
       status: req.query.status,
+      payment_status: req.query.payment_status,
+      exclude_cancelled: req.query.exclude_cancelled === 'true',
       limit: req.query.limit ? parseInt(req.query.limit) : 50,
       offset: req.query.offset ? parseInt(req.query.offset) : 0,
     };

@@ -14,6 +14,10 @@ router.get("/dashboard/stats", AdminController.getDashboardStats);
 router.get("/dashboard/orders-by-day", AdminController.getOrdersByDay);
 router.get("/dashboard/popular-restaurants", AdminController.getPopularRestaurantsToday);
 router.get("/dashboard/ecosystem-model", AdminController.getEcosystemModel);
+router.get("/dashboard/queue-metrics", AdminController.getQueueMetrics);
+router.get("/dashboard/logistic-growth", AdminController.getLogisticGrowth);
+router.get("/dashboard/incidents", AdminController.getIncidentsDashboard);
+router.get("/dashboard/predictions", AdminController.getSystemPredictions);
 
 // Users management
 router.get("/users", AdminController.getUsers);

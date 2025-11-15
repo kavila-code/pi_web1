@@ -230,7 +230,7 @@
       <div class="row g-3" id="restaurantsContainer">
         <!-- Restaurante cards copiadas desde public/index.html como fallback visual -->
         <div class="col-lg-4 col-md-6 mb-4">
-          <div class="restaurant-card">
+          <div class="restaurant-card" data-id="1" onclick="goToMenu(1)">
             <div class="restaurant-image">
               <img src="/imagenes/restaurantes/LA%20BELLA%20ITALIA.jpg" alt="Restaurante Italiano" />
               <div class="restaurant-rating">
@@ -252,7 +252,7 @@
         </div>
 
         <div class="col-lg-4 col-md-6 mb-4">
-          <div class="restaurant-card">
+          <div class="restaurant-card" data-id="3" onclick="goToMenu(3)">
             <div class="restaurant-image">
               <img src="/imagenes/restaurantes/SAKURA%20SUSHI.jpg" alt="Restaurante Japonés" />
               <div class="restaurant-rating">
@@ -274,7 +274,7 @@
         </div>
 
         <div class="col-lg-4 col-md-6 mb-4">
-          <div class="restaurant-card">
+          <div class="restaurant-card" data-id="2" onclick="goToMenu(2)">
             <div class="restaurant-image">
               <img src="/imagenes/restaurantes/burger-master.jpg" alt="Hamburguesas" />
               <div class="restaurant-rating">
@@ -296,7 +296,7 @@
         </div>
 
         <div class="col-lg-4 col-md-6 mb-4">
-          <div class="restaurant-card">
+          <div class="restaurant-card" data-id="14" onclick="goToMenu(14)">
             <div class="restaurant-image">
               <img src="/imagenes/restaurantes/AZTECA%20MEXICANO.jpg" alt="Comida Mexicana" />
               <div class="restaurant-rating">
@@ -318,7 +318,7 @@
         </div>
 
         <div class="col-lg-4 col-md-6 mb-4">
-          <div class="restaurant-card">
+          <div class="restaurant-card" data-id="8" onclick="goToMenu(8)">
             <div class="restaurant-image">
               <img src="/imagenes/restaurantes/GREEN%20LIFE.jpg" alt="Comida Saludable" />
               <div class="restaurant-rating">
@@ -340,7 +340,7 @@
         </div>
 
         <div class="col-lg-4 col-md-6 mb-4">
-          <div class="restaurant-card">
+          <div class="restaurant-card" data-id="13" onclick="goToMenu(13)">
             <div class="restaurant-image">
               <img src="/imagenes/restaurantes/sabor%20valluno.jpg" alt="Comida Colombiana" />
               <div class="restaurant-rating">
@@ -363,8 +363,114 @@
       </div>
     </main>
 
-    <footer class="border-top py-4 mt-5">
-      <div class="container text-center text-muted small">© DomiTulua</div>
+    <!-- Footer -->
+    <footer class="modern-footer">
+      <div class="container">
+        <!-- Sección principal del footer -->
+        <div class="row footer-main">
+          <!-- Información de la empresa -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-brand">
+              <h3><i class="bi bi-truck me-2"></i>DomiTulua</h3>
+              <p class="footer-description">
+                Tu plataforma favorita de delivery en Tuluá. Conectamos tu
+                apetito con la mejor comida local, rápido y confiable.
+              </p>
+              <div class="footer-stats">
+                <div class="stat-item">
+                  <span class="stat-number">200+</span>
+                  <span class="stat-label">Restaurantes</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">15K+</span>
+                  <span class="stat-label">Pedidos entregados</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">5K+</span>
+                  <span class="stat-label">Clientes felices</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enlaces rápidos -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-link-45deg me-2"></i>Enlaces</h5>
+              <ul class="footer-links">
+                <li><a href="/public/index.html#inicio">Inicio</a></li>
+                <li><a href="/public/index.html#servicios">Servicios</a></li>
+                <li><a href="/public/index.html#menu">Menú</a></li>
+                <li><a href="/public/restaurants.html">Restaurantes</a></li>
+                <li><a href="/public/index.html#promociones">Promociones</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Soporte -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-headset me-2"></i>Soporte</h5>
+              <ul class="footer-links">
+                <li><a href="#ayuda">Centro de ayuda</a></li>
+                <li><a href="#contacto">Contactanos</a></li>
+                <li><a href="#terminos">Términos de uso</a></li>
+                <li><a href="#privacidad">Política de privacidad</a></li>
+                <li><a href="#faq">Preguntas frecuentes</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Contacto -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-geo-alt me-2"></i>Contacto</h5>
+              <div class="contact-info">
+                <div class="contact-item">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  <div>
+                    <strong>Dirección</strong>
+                    <p>Tuluá, Valle del Cauca, Colombia</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-telephone-fill"></i>
+                  <div>
+                    <strong>Teléfono</strong>
+                    <p>+57 300 123 4567</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-envelope-fill"></i>
+                  <div>
+                    <strong>Email</strong>
+                    <p>info@domitulua.com</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-clock-fill"></i>
+                  <div>
+                    <strong>Horario</strong>
+                    <p>24/7 - Siempre disponible</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer bottom -->
+        <div class="footer-bottom">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p>&copy; 2025 DomiTulua. Todos los derechos reservados.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p>Hecho con <span class="heart">💖</span> en Tuluá, Colombia</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

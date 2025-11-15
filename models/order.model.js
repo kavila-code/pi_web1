@@ -121,6 +121,18 @@ const getByCustomer = async (customerId, filters = {}) => {
     paramCount++;
   }
 
+  // Filtro por estado de pago
+  if (filters.payment_status) {
+    query += ` AND o.payment_status = $${paramCount}`;
+    params.push(filters.payment_status);
+    paramCount++;
+  }
+
+  // Excluir cancelados si se solicita
+  if (filters.exclude_cancelled) {
+    query += ` AND o.status <> 'cancelado'`;
+  }
+
   query += ` GROUP BY o.id, r.name, r.logo_url, u.username`;
   query += ` ORDER BY o.created_at DESC`;
 
@@ -528,6 +540,73 @@ const getStats = async (filters = {}) => {
   return rows[0];
 };
 
+// Obtener estadísticas por usuario (cliente)
+const getUserStats = async (customerId) => {
+  // Agregados generales y por mes
+  const aggQuery = {
+    text: `
+      SELECT 
+        COUNT(*) FILTER (
+          WHERE status = 'entregado'
+        ) AS total_orders,
+        COALESCE(SUM(CASE WHEN status = 'entregado' THEN total ELSE 0 END), 0) AS total_spent,
+        COALESCE(SUM(CASE WHEN status = 'entregado' THEN discount_amount ELSE 0 END), 0) AS total_discount,
+        COUNT(DISTINCT CASE WHEN status = 'entregado' THEN restaurant_id END) AS favorites_count,
+        COUNT(*) FILTER (
+          WHERE status = 'entregado'
+            AND date_trunc('month', created_at) = date_trunc('month', CURRENT_DATE)
+        ) AS orders_this_month,
+        COUNT(*) FILTER (
+          WHERE status = 'entregado'
+            AND date_trunc('month', created_at) = date_trunc('month', CURRENT_DATE) - INTERVAL '1 month'
+        ) AS orders_last_month
+      FROM orders
+      WHERE customer_id = $1
+    `,
+    values: [customerId],
+  };
+
+  const { rows: [agg] } = await db.query(aggQuery);
+
+  // Restaurante favorito principal (más pedidos)
+  const topFavQuery = {
+    text: `
+      SELECT r.id, r.name, r.logo_url, COUNT(*) AS order_count
+      FROM orders o
+      JOIN restaurants r ON r.id = o.restaurant_id
+      WHERE o.customer_id = $1 AND o.status = 'entregado'
+      GROUP BY r.id, r.name, r.logo_url
+      ORDER BY order_count DESC
+      LIMIT 1
+    `,
+    values: [customerId],
+  };
+
+  const { rows: topFavRows } = await db.query(topFavQuery);
+  const topFavorite = topFavRows[0] || null;
+
+  const totalSpent = Number(agg.total_spent || 0);
+  const totalDiscount = Number(agg.total_discount || 0);
+  const baseAmount = totalSpent + totalDiscount;
+  const savingsPercent = baseAmount > 0 ? Math.round((totalDiscount / baseAmount) * 100) : 0;
+
+  const ordersThisMonth = Number(agg.orders_this_month || 0);
+  const ordersLastMonth = Number(agg.orders_last_month || 0);
+  const ordersThisMonthDelta = ordersThisMonth - ordersLastMonth;
+
+  return {
+    total_orders: Number(agg.total_orders || 0),
+    total_spent: totalSpent,
+    total_discount: totalDiscount,
+    savings_percent: savingsPercent,
+    favorites_count: Number(agg.favorites_count || 0),
+    orders_this_month: ordersThisMonth,
+    orders_last_month: ordersLastMonth,
+    orders_this_month_delta: ordersThisMonthDelta,
+    top_favorite_restaurant: topFavorite,
+  };
+};
+
 export const OrderModel = {
   create,
   getByCustomer,
@@ -541,5 +620,6 @@ export const OrderModel = {
   cancel,
   addReview,
   getStats,
+  getUserStats,
   generateOrderNumber,
 };

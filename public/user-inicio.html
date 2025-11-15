@@ -227,86 +227,12 @@
           >
         </div>
 
-        <div class="row">
-          <div class="col-lg-4 col-md-6 mb-4">
-            <div class="order-card">
-              <div class="order-header">
-                <img
-                  src="/imagenes/comida/PIZZA-MARGHERITA.jpg"
-                  alt="Pizza Palace"
-                  class="restaurant-logo"
-                  onerror="this.style.display='none'"
-                />
-                <div class="order-info">
-                  <h5>Pizza Palace</h5>
-                  <small class="text-muted">Hace 2 días</small>
-                </div>
-                <span class="order-status delivered">Entregado</span>
-              </div>
-              <div class="order-details">
-                <p>Pizza Margherita Grande, Coca Cola</p>
-                <div class="order-footer">
-                  <span class="order-total">$24.99</span>
-                  <button class="btn btn-sm btn-outline-primary">
-                    Repetir Pedido
-                  </button>
-                </div>
-              </div>
+        <div class="row" id="recentOrdersRow">
+          <div class="text-center py-5" id="recentOrdersLoading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
             </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 mb-4">
-            <div class="order-card">
-              <div class="order-header">
-                <img
-                  src="/imagenes/comida/hamburguesa-clasica.jpg"
-                  alt="Burger Express"
-                  class="restaurant-logo"
-                  onerror="this.style.display='none'"
-                />
-                <div class="order-info">
-                  <h5>Burger Express</h5>
-                  <small class="text-muted">Hace 5 días</small>
-                </div>
-                <span class="order-status delivered">Entregado</span>
-              </div>
-              <div class="order-details">
-                <p>Burger Clásica, Papas Fritas</p>
-                <div class="order-footer">
-                  <span class="order-total">$18.50</span>
-                  <button class="btn btn-sm btn-outline-primary">
-                    Repetir Pedido
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 mb-4">
-            <div class="order-card">
-              <div class="order-header">
-                <img
-                  src="/imagenes/comida/Sushi%20california%20roll.png"
-                  alt="Sushi Zen"
-                  class="restaurant-logo"
-                  onerror="this.style.display='none'"
-                />
-                <div class="order-info">
-                  <h5>Sushi Zen</h5>
-                  <small class="text-muted">Hace 1 semana</small>
-                </div>
-                <span class="order-status delivered">Entregado</span>
-              </div>
-              <div class="order-details">
-                <p>Combo Sushi Mixto, Té Verde</p>
-                <div class="order-footer">
-                  <span class="order-total">$32.00</span>
-                  <button class="btn btn-sm btn-outline-primary">
-                    Repetir Pedido
-                  </button>
-                </div>
-              </div>
-            </div>
+            <p class="mt-3 text-muted">Cargando pedidos...</p>
           </div>
         </div>
       </div>
@@ -427,13 +353,143 @@
                 <div class="menu-badge new">Nuevo</div>
               </div>
               <div class="menu-content">
-                <h4>Hamburguesa Clásica</h4>
-                <p>
-                  Carne de res, lechuga, tomate, cebolla y nuestra salsa
-                  especial
-                </p>
+                <h4>Burger Clásica</h4>
+                <p>Carne de res, lechuga, tomate, queso</p>
                 <div class="menu-footer">
                   <span class="price">$18.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Burger BBQ Bacon -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="/imagenes/comida/burguer bbq bacon.jpeg"
+                  alt="Burger BBQ Bacon"
+                />
+                <div class="menu-badge">Popular</div>
+              </div>
+              <div class="menu-content">
+                <h4>Burger BBQ Bacon</h4>
+                <p>Carne, tocineta, queso, salsa BBQ</p>
+                <div class="menu-footer">
+                  <span class="price">$22.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Burger Vegetariana -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="/imagenes/comida/burger vegetariana.jpg"
+                  alt="Burger Vegetariana"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Burger Vegetariana</h4>
+                <p>Hamburguesa de quinoa y vegetales</p>
+                <div class="menu-footer">
+                  <span class="price">$19.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Papas Fritas Grandes -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="/imagenes/comida/papas fritas grandes.png"
+                  alt="Papas Fritas Grandes"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Papas Fritas Grandes</h4>
+                <p>Papas crujientes con sal</p>
+                <div class="menu-footer">
+                  <span class="price">$8.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aros de Cebolla -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="/imagenes/comida/aros de cebolla.jpeg"
+                  alt="Aros de Cebolla"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Aros de Cebolla</h4>
+                <p>Aros de cebolla empanizados</p>
+                <div class="menu-footer">
+                  <span class="price">$9.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nuggets de Pollo -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="/imagenes/comida/nuggets de pollo (!0 und).jpg"
+                  alt="Nuggets de Pollo"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Nuggets de Pollo (10 und)</h4>
+                <p>Nuggets de pollo crujientes</p>
+                <div class="menu-footer">
+                  <span class="price">$15.000</span>
+                  <button class="btn-add-cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Malteada de Chocolate -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink">
+            <div class="menu-card">
+              <div class="menu-image">
+                <img
+                  src="/imagenes/comida/malteada de chocolate.jpg"
+                  alt="Malteada de Chocolate"
+                />
+              </div>
+              <div class="menu-content">
+                <h4>Malteada de Chocolate</h4>
+                <p>Cremosa malteada de chocolate</p>
+                <div class="menu-footer">
+                  <span class="price">$7.000</span>
                   <button class="btn-add-cart">
                     <i class="bi bi-cart-plus"></i>
                   </button>
@@ -530,7 +586,7 @@
         </div>
 
         <div class="text-center mt-5">
-          <a href="#" class="btn btn-primary-custom">
+          <a href="#restaurantes" class="btn btn-primary-custom" title="Ver el listado completo de restaurantes">
             <i class="bi bi-eye me-2"></i>Ver Menú Completo
           </a>
         </div>
@@ -545,7 +601,7 @@
 
         <div class="row">
           <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite">
+            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=1'" style="cursor:pointer">
               <div class="restaurant-image">
                 <img
                   src="/imagenes/restaurantes/LA%20BELLA%20ITALIA.jpg"
@@ -577,7 +633,7 @@
           </div>
 
           <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite">
+            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=2'" style="cursor:pointer">
               <div class="restaurant-image">
                 <img
                   src="/imagenes/restaurantes/burger-master.jpg"
@@ -609,7 +665,7 @@
           </div>
 
           <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite">
+            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=3'" style="cursor:pointer">
               <div class="restaurant-image">
                 <img
                   src="/imagenes/restaurantes/SAKURA%20SUSHI.jpg"
@@ -641,7 +697,7 @@
           </div>
 
           <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite">
+            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=14'" style="cursor:pointer">
               <div class="restaurant-image">
                 <img
                   src="/imagenes/restaurantes/AZTECA%20MEXICANO.jpg"
@@ -706,18 +762,10 @@
     <footer class="footer">
       <div class="container">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-12">
             <div class="footer-brand">
               <h5>DomiTulua</h5>
               <p>Tu comida favorita, entregada con amor</p>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="footer-links">
-              <a href="/public/user-dashboard.html">Mi Dashboard</a>
-              <a href="#ayuda">Ayuda</a>
-              <a href="#terminos">Términos</a>
-              <a href="#privacidad">Privacidad</a>
             </div>
           </div>
         </div>
@@ -774,6 +822,9 @@
 
   // Event listeners
   setupEventListeners();
+
+  // Cargar pedidos recientes pagados
+  loadRecentOrders();
       });
 
       function loadUserData(user) {
@@ -887,10 +938,10 @@
         col.className = "col-lg-4 col-md-6 mb-4";
 
         col.innerHTML = `
-          <div class="restaurant-card">
+          <div class="restaurant-card" onclick="location.href='/public/restaurant-menu.html?id=${restaurant.id}'" style="cursor:pointer">
             <div class="restaurant-image">
               <img src="${restaurant.image}" alt="${restaurant.name}" onerror="this.src='/frontend/placeholder-restaurant.svg'">
-              <div class="favorite-toggle" onclick="toggleFavorite(${restaurant.id})">
+              <div class="favorite-toggle" onclick="event.stopPropagation();toggleFavorite(${restaurant.id})">
                 <i class="bi bi-heart"></i>
               </div>
             </div>
@@ -910,7 +961,7 @@
                   <i class="bi bi-truck"></i> ${restaurant.deliveryFee}
                 </span>
               </div>
-              <button class="btn btn-primary w-100 mt-2" onclick="viewRestaurant(${restaurant.id})">
+              <button class="btn btn-primary w-100 mt-2" onclick="event.stopPropagation();location.href='/public/restaurant-menu.html?id=${restaurant.id}'">
                 Ver Menú
               </button>
             </div>
@@ -921,27 +972,33 @@
       }
 
       function setupEventListeners() {
-        // Búsqueda
-        const searchInput = document.getElementById("searchInput");
-        searchInput.addEventListener("input", handleSearch);
+        // Búsqueda (usar input principal de la hero)
+        const searchInput = document.getElementById("mainSearch");
+        if (searchInput) {
+          searchInput.addEventListener("input", handleSearch);
+        }
 
         // Filtros rápidos
         const filterButtons = document.querySelectorAll(".filter-btn");
-        filterButtons.forEach((btn) => {
-          btn.addEventListener("click", handleFilter);
-        });
+        if (filterButtons && filterButtons.length) {
+          filterButtons.forEach((btn) => {
+            btn.addEventListener("click", handleFilter);
+          });
+        }
 
         // Ordenamiento
         const sortSelect = document.getElementById("sortRestaurants");
-        sortSelect.addEventListener("change", (e) => {
-          const val = e.target.value;
-          // Intentar usar la utilidad compartida; si falla, llamar al handler local
-          try {
-            sortAndRender(val);
-          } catch (err) {
-            handleSort(e);
-          }
-        });
+        if (sortSelect) {
+          sortSelect.addEventListener("change", (e) => {
+            const val = e.target.value;
+            // Intentar usar la utilidad compartida; si falla, llamar al handler local
+            try {
+              sortAndRender(val);
+            } catch (err) {
+              handleSort(e);
+            }
+          });
+        }
 
         // Inicializar botones de ofertas (Ordenar Ahora)
         // (sin manejadores personalizados)
@@ -984,6 +1041,63 @@
         alert(
           `Funcionalidad en desarrollo - Ver menú del restaurante ${restaurantId}`
         );
+      }
+
+      async function loadRecentOrders() {
+        const row = document.getElementById('recentOrdersRow');
+        const loading = document.getElementById('recentOrdersLoading');
+        if (!row) return;
+
+        try {
+          const data = await authenticatedFetch('/api/v1/orders/my-orders?status=entregado&limit=3');
+          if (!data || !data.ok) throw new Error('Respuesta inválida');
+
+          const orders = data.data || [];
+          if (orders.length === 0) {
+            row.innerHTML = `
+              <div class=\"text-center py-5\">
+                <i class=\"bi bi-bag\" style=\"font-size: 3rem; color: #c9c9c9;\"></i>
+                <h5 class=\"mt-3\">Sin registros, realiza tu primera compra</h5>
+                <p class=\"text-muted\">Tus pedidos aparecerán aquí cuando completes tu primera compra.</p>
+                <a href=\"/public/restaurants.html\" class=\"btn btn-primary mt-2\"><i class=\"bi bi-shop\"></i> Ver restaurantes</a>
+              </div>`;
+            return;
+          }
+
+          row.innerHTML = orders.map(o => {
+            const statusClass = o.status === 'entregado' ? 'delivered' : '';
+            const total = Number(o.total || 0).toLocaleString('es-CO');
+            const createdAt = new Date(o.created_at).toLocaleDateString('es-CO', { year:'numeric', month:'short', day:'numeric' });
+            const logo = o.restaurant_logo || '/frontend/placeholder-restaurant.svg';
+            const restName = o.restaurant_name || 'Restaurante';
+
+            return `
+              <div class=\"col-lg-4 col-md-6 mb-4\">
+                <div class=\"order-card\">
+                  <div class=\"order-header\">
+                    <img src=\"${logo}\" alt=\"${restName}\" class=\"restaurant-logo\" onerror=\"this.style.display='none'\"/>
+                    <div class=\"order-info\">
+                      <h5>${restName}</h5>
+                      <small class=\"text-muted\">${createdAt}</small>
+                    </div>
+                    <span class=\"order-status ${statusClass}\">${o.status}</span>
+                  </div>
+                  <div class=\"order-details\">
+                    <div class=\"order-footer\">
+                      <span class=\"order-total\">$${total}</span>
+                      <a class=\"btn btn-sm btn-outline-primary\" href=\"/public/my-orders.html\">Ver Pedido</a>
+                    </div>
+                  </div>
+                </div>
+              </div>`;
+          }).join('');
+        } catch (e) {
+          console.error(e);
+          if (row) row.innerHTML = `
+              <div class=\"text-center py-5\">\n                <i class=\"bi bi-bag\" style=\"font-size: 3rem; color: #c9c9c9;\"></i>\n                <h5 class=\"mt-3\">Sin registros, realiza tu primera compra</h5>\n                <p class=\"text-muted\">Tus pedidos aparecerán aquí cuando completes tu primera compra.</p>\n                <a href=\"/public/restaurants.html\" class=\"btn btn-primary mt-2\"><i class=\"bi bi-shop\"></i> Ver restaurantes</a>\n              </div>`;
+        } finally {
+          if (loading) loading.remove();
+        }
       }
 
       function logout() {

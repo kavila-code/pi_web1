@@ -374,6 +374,30 @@
   height: fit-content;
 }
 
+/* Mejoras responsivas para la columna lateral y tamaños en móviles */
+@media (max-width: 991.98px) {
+  .sidebar-user {
+    position: static;
+    top: auto;
+  }
+  .sidebar-column {
+    padding-right: 0;
+  }
+  .content-column {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .user-profile-card {
+    padding: 1.5rem 1rem;
+  }
+  .profile-header .profile-image {
+    width: 72px;
+    height: 72px;
+  }
+}
+
 .user-profile-card {
   background: linear-gradient(135deg, var(--warm-white) 0%, #f8f9fa 100%);
   border-radius: 20px;
@@ -383,7 +407,8 @@
   text-align: center;
   border: 1px solid rgba(231, 76, 60, 0.1);
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* evitar recortes en anchos reducidos */
+  max-width: 100%;
 }
 
 .user-profile-card::before {
@@ -421,6 +446,7 @@
   margin: 0 0 1rem 0;
   color: var(--text-gray);
   font-size: 0.9rem;
+  word-break: break-word; /* evitar overflow de emails largos */
 }
 
 .user-badge {
@@ -437,14 +463,12 @@
 
 .profile-stats {
   display: grid;
-  /* Use auto columns and center the grid so the stat boxes stay centered
-     inside the profile card instead of stretching to the card's full width */
-  grid-template-columns: repeat(3, auto);
-  gap: 1rem;
+  /* Ajuste responsivo: evita desborde y mantiene centrado */
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.75rem;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 2px solid rgba(231, 76, 60, 0.1);
-  justify-content: center;
   justify-items: center;
 }
 
@@ -454,6 +478,7 @@
   border-radius: 10px;
   background: rgba(231, 76, 60, 0.05);
   transition: all 0.3s ease;
+  min-width: 0; /* permitir que el contenido se contraiga */
 }
 
 .stat-item:hover {
@@ -839,6 +864,12 @@
   border: 2px solid var(--light-gray);
   border-radius: 8px;
   font-size: 0.9rem;
+}
+
+/* Ajuste fino: +5px adicionales respecto al cambio anterior */
+.order-filters .form-select {
+  padding-left: calc(0.5rem + 6.5px);
+  padding-right: calc(0.5rem + 6.5px);
 }
 
 /* Modal Styles */

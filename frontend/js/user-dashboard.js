@@ -25,6 +25,84 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// Cargar restaurantes recomendados
+document.addEventListener("DOMContentLoaded", function () {
+  try { loadRecommendedRestaurants(); } catch (e) { console.error(e); }
+});
+
+async function loadRecommendedRestaurants() {
+  const grid = document.getElementById('recommendedGrid') || document.querySelector('.recommended-restaurants .restaurants-grid');
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="text-center py-3 w-100">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+    </div>`;
+
+  try {
+    const res = await fetch('/api/v1/restaurants/recommended?limit=3');
+    const data = await res.json();
+    if (!data || !data.ok) throw new Error('Respuesta inválida');
+    const items = Array.isArray(data.data) ? data.data : [];
+
+    if (items.length === 0) {
+      grid.innerHTML = '<div class="text-muted py-3">No hay restaurantes disponibles por ahora.</div>';
+      return;
+    }
+
+    grid.innerHTML = items.map(r => renderRecommendedCard(r)).join('');
+  } catch (err) {
+    console.warn('recommended error, using fallback:', err);
+    // Fallback: usar listado general y tomar 3 con imagen
+    try {
+      const res2 = await fetch('/api/v1/restaurants');
+      const data2 = await res2.json();
+      const list = (data2 && data2.data) ? data2.data : [];
+      const filtered = list.filter(r => (r.logo_url || r.cover_image_url)).slice(0,3);
+      if (filtered.length > 0) {
+        grid.innerHTML = filtered.map(r => renderRecommendedCard(r)).join('');
+      } else {
+        grid.innerHTML = '<div class="text-muted py-3">No fue posible cargar recomendados.</div>';
+      }
+    } catch (e2) {
+      console.error('fallback error:', e2);
+      grid.innerHTML = '<div class="text-muted py-3">No fue posible cargar recomendados.</div>';
+    }
+  }
+}
+
+function mapImageUrl(url) {
+  if (!url) return '';
+  // Normalizar rutas antiguas '/IMAGENES/RESTAURANTES' -> '/imagenes/restaurantes'
+  return url.replace('/IMAGENES/RESTAURANTES', '/imagenes/restaurantes');
+}
+
+function renderRecommendedCard(r) {
+  const name = r.name || 'Restaurante';
+  const category = r.category || '';
+  const rating = typeof r.avg_rating === 'number' ? r.avg_rating.toFixed(1) : (r.avg_rating || r.rating || '4.5');
+  const tmin = r.delivery_time_min || 30;
+  const tmax = r.delivery_time_max || 45;
+  const time = `${tmin}-${tmax} min`;
+  const logo = mapImageUrl(r.logo_url) || '';
+  const cover = mapImageUrl(r.cover_image_url) || '';
+  const img = cover || logo || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%23ff6b35' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E";
+  const href = `/public/restaurant-menu.html?id=${r.id}`;
+
+  return `
+    <div class="restaurant-card" role="button" onclick="location.href='${href}'">
+      <img src="${img}" alt="${name}" class="restaurant-image" onerror="this.src='${logo || img}'"/>
+      <div class="restaurant-info">
+        <h6>${name}</h6>
+        <p class="restaurant-category">${category}</p>
+        <div class="restaurant-meta">
+          <span class="rating"><i class="bi bi-star-fill"></i> ${rating}</span>
+          <span class="delivery-time">${time}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
 // Nombres de departamentos (orden alfabético por nombre)
 const departamentos = {
   1: "Amazonas",
@@ -447,6 +525,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Cargar información del usuario
   loadUserInfo(user);
 
+  // Cargar estadísticas reales del usuario
+  try { loadUserStats(); } catch (e) { console.error('loadUserStats error', e); }
+
   // Inicializar modal
   applicationModal = new bootstrap.Modal(
     document.getElementById("deliveryApplicationModal")
@@ -620,13 +701,44 @@ function loadUserInfo(user) {
     if (badge) badge.textContent = roleLabel;
   }
 
-  // Cargar estadísticas mock
-  document.getElementById("totalOrders").textContent = "8";
-  document.getElementById("totalSpent").textContent = "$156";
-  document.getElementById("favoriteRestaurants").textContent = "3";
-  document.getElementById("dashTotalOrders").textContent = "8";
-  document.getElementById("dashTotalSpent").textContent = "$156";
-  document.getElementById("dashFavorites").textContent = "3";
+  // Las estadísticas reales se cargan desde loadUserStats()
+}
+
+async function loadUserStats() {
+  try {
+    const resp = await authenticatedFetch('/api/v1/users/me/stats');
+    if (!resp || !resp.ok) return;
+    const s = resp.data || {};
+
+    const formatMoney = (v) => `$${Number(v || 0).toLocaleString('es-CO')}`;
+    const delta = Number(s.orders_this_month_delta || 0);
+    const deltaStr = `Este mes: ${delta >= 0 ? '+' : ''}${delta}`;
+
+    const favName = s.top_favorite_restaurant?.name || '';
+    const favText = favName ? `${favName} es tu favorito` : 'Sin favorito aún';
+    const savings = Number(s.savings_percent || 0);
+
+    const totalOrders = Number(s.total_orders || 0);
+    const totalSpent = formatMoney(s.total_spent || 0);
+    const favCount = Number(s.favorites_count || 0);
+
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    // Sidebar perfil
+    setText('totalOrders', String(totalOrders));
+    setText('totalSpent', totalSpent);
+    setText('favoriteRestaurants', String(favCount));
+
+    // Tarjetas dashboard
+    setText('dashTotalOrders', String(totalOrders));
+    setText('dashTotalSpent', totalSpent);
+    setText('dashFavorites', String(favCount));
+    setText('dashThisMonthDelta', deltaStr);
+    setText('dashSavingsPercent', `Ahorro del ${savings}%`);
+    setText('dashTopFavorite', favText);
+  } catch (e) {
+    console.error('Error cargando estadísticas de usuario:', e);
+  }
 }
 
 // Función para mostrar secciones

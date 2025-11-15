@@ -938,7 +938,7 @@
                       <div class="card-content">
                         <h4 id="dashTotalOrders">0</h4>
                         <p>Pedidos Realizados</p>
-                        <small class="text-success">Este mes: +2</small>
+                        <small class="text-success" id="dashThisMonthDelta">Este mes: +0</small>
                       </div>
                     </div>
                   </div>
@@ -951,7 +951,7 @@
                       <div class="card-content">
                         <h4 id="dashTotalSpent">$0</h4>
                         <p>Total Gastado</p>
-                        <small class="text-info">Ahorro del 15%</small>
+                        <small class="text-info" id="dashSavingsPercent">Ahorro del 0%</small>
                       </div>
                     </div>
                   </div>
@@ -964,9 +964,7 @@
                       <div class="card-content">
                         <h4 id="dashFavorites">0</h4>
                         <p>Restaurantes Favoritos</p>
-                        <small class="text-warning"
-                          >Pizza Palace es tu favorito</small
-                        >
+                        <small class="text-warning" id="dashTopFavorite">—</small>
                       </div>
                     </div>
                   </div>
@@ -983,23 +981,14 @@
                 </div>
                 <div class="orders-list" id="recentOrdersList">
                   <!-- Los pedidos se cargarán dinámicamente -->
-                  <div class="order-item">
-                    <div class="order-info">
-                      <img
-                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='%23ff6b35' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath d='M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z'/%3E%3C/svg%3E"
-                        alt="Restaurant"
-                      />
-                      <div class="order-details">
-                        <h6>Pizza Margherita</h6>
-                        <p>Pizza Palace</p>
-                        <small>Hace 2 días</small>
-                      </div>
-                    </div>
-                    <div class="order-status">
-                      <span class="status-badge delivered">Entregado</span>
-                      <span class="order-price">$24.99</span>
-                    </div>
-                  </div>
+                </div>
+                <div id="recentOrdersEmpty" class="text-center py-4" style="display:none">
+                  <i class="bi bi-bag" style="font-size:2.2rem;color:#c9c9c9"></i>
+                  <p class="mt-2 mb-1 fw-semibold">Sin registros, realiza tu primera compra</p>
+                  <small class="text-muted d-block mb-2">Tus pedidos aparecerán aquí cuando completes tu primera compra.</small>
+                  <a href="/public/restaurants.html" class="btn btn-sm btn-primary">
+                    <i class="bi bi-shop me-1"></i> Ver restaurantes
+                  </a>
                 </div>
               </div>
 
@@ -1007,63 +996,9 @@
               <div class="recommended-restaurants">
                 <div class="section-title">
                   <h4>Restaurantes Recomendados</h4>
-                  <a href="#" class="view-all">Ver todos</a>
+                  <a href="/public/restaurants.html" class="view-all">Ver todos</a>
                 </div>
-                <div class="restaurants-grid">
-                  <div class="restaurant-card">
-                    <img
-                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%23ff6b35' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E"
-                      alt="Restaurant"
-                      class="restaurant-image"
-                    />
-                    <div class="restaurant-info">
-                      <h6>Pizza Palace</h6>
-                      <p class="restaurant-category">Italiana</p>
-                      <div class="restaurant-meta">
-                        <span class="rating"
-                          ><i class="bi bi-star-fill"></i> 4.8</span
-                        >
-                        <span class="delivery-time">30-45 min</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="restaurant-card">
-                    <img
-                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%2328a745' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E"
-                      alt="Restaurant"
-                      class="restaurant-image"
-                    />
-                    <div class="restaurant-info">
-                      <h6>Burger House</h6>
-                      <p class="restaurant-category">Comida Rápida</p>
-                      <div class="restaurant-meta">
-                        <span class="rating"
-                          ><i class="bi bi-star-fill"></i> 4.6</span
-                        >
-                        <span class="delivery-time">20-35 min</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="restaurant-card">
-                    <img
-                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='80' fill='%23dc3545' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3C/svg%3E"
-                      alt="Restaurant"
-                      class="restaurant-image"
-                    />
-                    <div class="restaurant-info">
-                      <h6>Sushi Zen</h6>
-                      <p class="restaurant-category">Japonesa</p>
-                      <div class="restaurant-meta">
-                        <span class="rating"
-                          ><i class="bi bi-star-fill"></i> 4.9</span
-                        >
-                        <span class="delivery-time">40-55 min</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <div id="recommendedGrid" class="restaurants-grid"></div>
               </div>
             </div>
 
@@ -1227,9 +1162,12 @@
               </div>
 
               <div class="orders-list-full" id="ordersListFull">
-                <p class="text-center text-muted">
-                  No tienes pedidos aún. ¡Haz tu primer pedido!
-                </p>
+                <div class="text-center py-5">
+                  <i class="bi bi-bag" style="font-size: 3rem; color: #c9c9c9;"></i>
+                  <h5 class="mt-3">Sin registros, realiza tu primera compra</h5>
+                  <p class="text-muted">Tus pedidos aparecerán aquí cuando completes tu primera compra.</p>
+                  <a href="/public/restaurants.html" class="btn btn-primary mt-2"><i class="bi bi-shop"></i> Ver restaurantes</a>
+                </div>
               </div>
             </div>
 
@@ -1635,6 +1573,68 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/frontend/js/common.js"></script>
+    <script>
+      // Cargar pedidos recientes (solo pagados y no cancelados)
+      document.addEventListener('DOMContentLoaded', () => {
+        try { loadRecentPaidOrders(); } catch(e) { console.error(e); }
+      });
+
+      async function loadRecentPaidOrders() {
+        const list = document.getElementById('recentOrdersList');
+        const empty = document.getElementById('recentOrdersEmpty');
+        if (!list) return;
+
+        list.innerHTML = `
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+            <p class="mt-2 text-muted">Cargando pedidos...</p>
+          </div>`;
+
+        try {
+          const data = await authenticatedFetch('/api/v1/orders/my-orders?status=entregado&limit=3');
+          if (!data || !data.ok) throw new Error('Respuesta inválida');
+          const orders = Array.isArray(data.data) ? data.data : [];
+
+          if (orders.length === 0) {
+            list.innerHTML = '';
+            if (empty) empty.style.display = 'block';
+            return;
+          }
+
+          if (empty) empty.style.display = 'none';
+          list.innerHTML = orders.map(o => renderRecentOrderItem(o)).join('');
+        } catch (err) {
+          console.error('recent orders error:', err);
+          list.innerHTML = '';
+          if (empty) empty.style.display = 'block';
+        }
+      }
+
+      function renderRecentOrderItem(o) {
+        const name = o.restaurant_name || 'Restaurante';
+        const created = new Date(o.created_at).toLocaleDateString('es-CO', { year:'numeric', month:'short', day:'numeric' });
+        const total = Number(o.total || 0).toLocaleString('es-CO');
+        const statusText = (o.status || '').charAt(0).toUpperCase() + (o.status || '').slice(1);
+        const statusClass = o.status === 'entregado' ? 'delivered' : (o.status === 'en_camino' ? 'in-delivery' : '');
+        const logo = o.restaurant_logo || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2250%22 fill=%22%23ff6b35%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%27M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z%27/%3E%3Cpath d=%27M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z%27/%3E%3C/svg%3E';
+
+        return `
+          <div class="order-item">
+            <div class="order-info">
+              <img src="${logo}" alt="${name}" onerror="this.style.display='none'"/>
+              <div class="order-details">
+                <h6>${name}</h6>
+                <p>Pedido #${o.id}</p>
+                <small>${created}</small>
+              </div>
+            </div>
+            <div class="order-status">
+              <span class="status-badge ${statusClass}">${statusText}</span>
+              <span class="order-price">$${total}</span>
+            </div>
+          </div>`;
+      }
+    </script>
     <script src="/frontend/js/user-dashboard.js"></script>
 
     <script>
@@ -1947,26 +1947,19 @@
 
         // Renderiza los restaurantes favoritos en el dashboard
         async function loadFavoriteRestaurants() {
-          const token = localStorage.getItem("token");
           const favoritesGrid = document.getElementById("favoritesGrid");
           favoritesGrid.innerHTML =
             '<p class="text-center text-muted">Cargando favoritos...</p>';
           try {
-            const response = await fetch("/api/v1/users/favorites", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            if (!response.ok)
-              throw new Error("No se pudieron cargar los favoritos");
-            const favorites = await response.json();
-            if (!favorites.length) {
+            const favorites = await authenticatedFetch("/api/v1/users/favorites");
+            const list = Array.isArray(favorites) ? favorites : (favorites?.data || []);
+            if (!list.length) {
               favoritesGrid.innerHTML =
                 '<p class="text-center text-muted">No tienes restaurantes favoritos aún.</p>';
               return;
             }
             favoritesGrid.innerHTML = "";
-            favorites.forEach((rest) => {
+            list.forEach((rest) => {
               // Usa cover_image_url, logo_url o fallback SVG
               let imgSrc = rest.cover_image_url || rest.logo_url || "";
               let imgTag = imgSrc
@@ -1983,7 +1976,7 @@
                       <div class='restaurant-rating'>
                         <i class='bi bi-star-fill'></i>
                         <span>${
-                          rest.rating ? rest.rating.toFixed(1) : "4.5"
+                          rest.rating ? Number(rest.rating).toFixed(1) : "4.5"
                         }</span>
                       </div>
                       <p class='restaurant-category'>${rest.category || ""}</p>
@@ -2107,13 +2100,7 @@
           const roles = user.roles || [];
           updateRoleBadge(roles);
 
-          // Cargar estadísticas mock
-          document.getElementById("totalOrders").textContent = "8";
-          document.getElementById("totalSpent").textContent = "$156";
-          document.getElementById("favoriteRestaurants").textContent = "3";
-          document.getElementById("dashTotalOrders").textContent = "8";
-          document.getElementById("dashTotalSpent").textContent = "$156";
-          document.getElementById("dashFavorites").textContent = "3";
+          // Las estadísticas reales se cargan desde /frontend/js/user-dashboard.js
         }
         // Fin de loadUserInfo
 
@@ -3076,5 +3063,214 @@
         });
       }
     </script>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+      <div class="container">
+        <!-- Sección principal del footer -->
+        <div class="row footer-main">
+          <!-- Información de la empresa -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-brand">
+              <h3><i class="bi bi-truck me-2"></i>DomiTulua</h3>
+              <p class="footer-description">
+                Tu plataforma favorita de delivery en Tuluá. Conectamos tu
+                apetito con la mejor comida local, rápido y confiable.
+              </p>
+              <div class="footer-stats">
+                <div class="stat-item">
+                  <span class="stat-number">200+</span>
+                  <span class="stat-label">Restaurantes</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">15K+</span>
+                  <span class="stat-label">Pedidos entregados</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">5K+</span>
+                  <span class="stat-label">Clientes felices</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enlaces rápidos -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-link-45deg me-2"></i>Enlaces</h5>
+              <ul class="footer-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#menu">Menú</a></li>
+                <li><a href="#restaurantes">Restaurantes</a></li>
+                <li><a href="#promociones">Promociones</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Soporte -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-headset me-2"></i>Soporte</h5>
+              <ul class="footer-links">
+                <li><a href="#ayuda">Centro de ayuda</a></li>
+                <li><a href="#contacto">Contactanos</a></li>
+                <li><a href="#terminos">Términos de uso</a></li>
+                <li><a href="#privacidad">Política de privacidad</a></li>
+                <li><a href="#faq">Preguntas frecuentes</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Contacto -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-geo-alt me-2"></i>Contacto</h5>
+              <div class="contact-info">
+                <div class="contact-item">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  <div>
+                    <strong>Dirección</strong>
+                    <p>Tuluá, Valle del Cauca, Colombia</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-telephone-fill"></i>
+                  <div>
+                    <strong>Teléfono</strong>
+                    <p>+57 300 123 4567</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-envelope-fill"></i>
+                  <div>
+                    <strong>Email</strong>
+                    <p>info@domitulua.com</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-clock-fill"></i>
+                  <div>
+                    <strong>Horario</strong>
+                    <p>24/7 - Siempre disponible</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del desarrollador -->
+        <div class="developer-section">
+          <div class="developers-header">
+            <h4>Desarrollado Por el Equipo:</h4>
+            <p>Ingeniería de Sistemas - UCEVA</p>
+          </div>
+
+          <div class="developers-grid">
+            <!-- Desarrollador 1 - Kelly Ávila -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>KA</span>
+              </div>
+              <div class="developer-info">
+                <h5>Kelly Ávila</h5>
+                <p>Project Manager | Full Stack Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/kavila-code" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/kelly-ávila-91290b387" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:kellyavila3010@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 2 - Juan Fernando Ramírez -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>JR</span>
+              </div>
+              <div class="developer-info">
+                <h5>Juan Fernando Ramírez</h5>
+                <p>Backend Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/juanfer2806" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/juan-fernando-ram%C3%ADrez-delgado-5bb537388" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:juanfernandoramirezdelgado2006@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 3 - Cristian Hoyos -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>CH</span>
+              </div>
+              <div class="developer-info">
+                <h5>Cristian Hoyos</h5>
+                <p>Frontend Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/USUARIO_PENDIENTE" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://linkedin.com/in/PERFIL_PENDIENTE" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:cristian@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 4 - Juan David Salazar -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>JS</span>
+              </div>
+              <div class="developer-info">
+                <h5>Juan David Salazar</h5>
+                <p>UI/UX Designer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/juansalazar10" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/juan-david-salazar-riascos-8aa928388/" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:judasari69@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer bottom -->
+        <div class="footer-bottom">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p>&copy; 2025 DomiTulua. Todos los derechos reservados.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p>Hecho con <span class="heart">💖</span> en Tuluá, Colombia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
   </body>
 </html>

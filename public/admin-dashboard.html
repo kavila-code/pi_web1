@@ -189,6 +189,116 @@
                   </div>
                 </div>
 
+                <!-- Análisis de Teoría de Colas M/M/c -->
+                <div class="card mt-4 shadow-sm">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <h5 class="card-title mb-1">
+                          <i class="bi bi-speedometer2 me-2"></i>Análisis de Eficiencia Operacional
+                        </h5>
+                        <p class="text-muted small mb-0">Métricas en tiempo real del sistema de entregas</p>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" onclick="loadQueueMetrics()">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                      </button>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                      <!-- Parámetros del Sistema -->
+                      <div class="col-md-4">
+                        <div class="kpi-card param-card">
+                          <div class="kpi-icon bg-info bg-opacity-10">
+                            <i class="bi bi-arrow-down-circle text-info"></i>
+                          </div>
+                          <div class="kpi-content">
+                            <div class="kpi-label">Pedidos por minuto</div>
+                            <div class="kpi-value" id="metricLambda">-</div>
+                            <div class="kpi-desc">Llegadas por minuto</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="kpi-card param-card">
+                          <div class="kpi-icon bg-success bg-opacity-10">
+                            <i class="bi bi-speedometer text-success"></i>
+                          </div>
+                          <div class="kpi-content">
+                            <div class="kpi-label">Entregas por minuto</div>
+                            <div class="kpi-value" id="metricMu">-</div>
+                            <div class="kpi-desc">Por repartidor</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="kpi-card param-card">
+                          <div class="kpi-icon bg-warning bg-opacity-10">
+                            <i class="bi bi-bicycle text-warning"></i>
+                          </div>
+                          <div class="kpi-content">
+                            <div class="kpi-label">Repartidores disponibles</div>
+                            <div class="kpi-value" id="metricC">-</div>
+                            <div class="kpi-desc">Conectados para entregar</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row g-3">
+                      <!-- Métricas de Rendimiento -->
+                      <div class="col-md-4">
+                        <div class="kpi-card metric-card">
+                          <div class="kpi-icon bg-primary bg-opacity-10">
+                            <i class="bi bi-percent text-primary"></i>
+                          </div>
+                          <div class="kpi-content">
+                            <div class="kpi-label">Uso de capacidad (%)</div>
+                            <div class="kpi-value text-primary" id="metricRho">-</div>
+                            <div class="kpi-desc">Capacidad usada</div>
+                            <div class="kpi-status" id="statusRho"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="kpi-card metric-card">
+                          <div class="kpi-icon bg-danger bg-opacity-10">
+                            <i class="bi bi-list-ol text-danger"></i>
+                          </div>
+                          <div class="kpi-content">
+                            <div class="kpi-label">Pedidos esperando asignación</div>
+                            <div class="kpi-value text-danger" id="metricLq">-</div>
+                            <div class="kpi-desc">En cola (promedio)</div>
+                            <div class="kpi-status" id="statusLq"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="kpi-card metric-card">
+                          <div class="kpi-icon bg-warning bg-opacity-10">
+                            <i class="bi bi-clock-history text-warning"></i>
+                          </div>
+                          <div class="kpi-content">
+                            <div class="kpi-label">Espera promedio (min)</div>
+                            <div class="kpi-value text-warning" id="metricWq">-</div>
+                            <div class="kpi-desc">Hasta asignación (prom.)</div>
+                            <div class="kpi-status" id="statusWq"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0 small">
+                      <i class="bi bi-info-circle me-2"></i>
+                      <strong>Información:</strong> Métricas calculadas con datos de los últimos 7 días.
+                      Los valores se actualizan automáticamente según la actividad del sistema.
+                    </div>
+                  </div>
+                </div>
+
                 <div class="card mt-4 shadow-sm">
                   <div class="card-body">
                     <h5 class="card-title">Pedidos por día</h5>
@@ -218,6 +328,186 @@
                     <p class="text-muted small mb-3">S(t): Restaurantes activos | U(t): Usuarios activos | I(t): Pedidos cancelados</p>
                     <div style="height: 360px">
                       <canvas id="ecosystemChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Curva de Crecimiento Logístico -->
+                <div class="card mt-4 shadow-sm">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <h5 class="card-title mb-1">
+                          <i class="bi bi-graph-up-arrow me-2"></i>Crecimiento de pedidos
+                        </h5>
+                        <p class="text-muted small mb-0">Análisis de crecimiento y capacidad del sistema</p>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" onclick="loadLogisticGrowth()">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                      </button>
+                    </div>
+
+                    <!-- Parámetros del modelo -->
+                    <div class="row g-3 mb-3">
+                      <div class="col-md-3">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Máximo de pedidos (estimado)</div>
+                          <div class="small-kpi-value text-primary" id="growthK">-</div>
+                          <div class="small-kpi-desc">Límite superior esperado</div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Ritmo de crecimiento</div>
+                          <div class="small-kpi-value text-success" id="growthAlpha">-</div>
+                          <div class="small-kpi-desc">Velocidad de expansión</div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Pedidos acumulados</div>
+                          <div class="small-kpi-value text-info" id="growthCurrent">-</div>
+                          <div class="small-kpi-desc">Total acumulado</div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Precisión de la proyección</div>
+                          <div class="small-kpi-value text-warning" id="growthR2">-</div>
+                          <div class="small-kpi-desc">Confiabilidad del modelo</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Gráfica -->
+                    <div style="height: 400px">
+                      <canvas id="logisticGrowthChart"></canvas>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0 small">
+                      <i class="bi bi-info-circle me-2"></i>
+                      <strong>Proyección:</strong> La curva muestra el crecimiento histórico y futuro esperado del sistema.
+                      La línea azul representa datos reales, la línea roja muestra la tendencia proyectada a 30 días.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Predicciones del sistema -->
+                <div class="card mt-4 shadow-sm">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <h5 class="card-title mb-1">
+                          <i class="bi bi-lightning-charge me-2"></i>Predicciones del sistema
+                        </h5>
+                        <p class="text-muted small mb-0">Demanda proyectada, posible saturación y riesgo de incidencias</p>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" onclick="loadSystemPredictions()">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                      </button>
+                    </div>
+
+                    <!-- KPIs Predicciones -->
+                    <div class="row g-3 mb-3">
+                      <div class="col-md-4">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Pedidos próximos (14 días)</div>
+                          <div class="small-kpi-value text-primary" id="predTotalDemand">-</div>
+                          <div class="small-kpi-desc">Suma de demanda proyectada</div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Día de alta ocupación</div>
+                          <div class="small-kpi-value text-warning" id="predSaturationDate">-</div>
+                          <div class="small-kpi-desc">Primer día con riesgo alto</div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Máx incidencias/día esperadas</div>
+                          <div class="small-kpi-value text-danger" id="predMaxIncidents">-</div>
+                          <div class="small-kpi-desc">Conteo y fecha estimada</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Gráfica Predicciones -->
+                    <div style="height: 380px">
+                      <canvas id="systemPredictionsChart"></canvas>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0 small">
+                      <i class="bi bi-info-circle me-2"></i>
+                      Proyección basada en demanda logística, capacidad M/M/c actual y tasa reciente de incidencias.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Alertas operativas -->
+                <div class="card mt-4 shadow-sm">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <h5 class="card-title mb-1">
+                          <i class="bi bi-bell-fill me-2"></i>Alertas operativas
+                        </h5>
+                        <p class="text-muted small mb-0">Monitoreo en tiempo real de saturación, cancelaciones y demanda diaria</p>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" onclick="loadOperationalAlerts()">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                      </button>
+                    </div>
+
+                    <div id="operationalAlertsContainer" class="d-flex flex-column gap-2">
+                      <div class="alert alert-secondary mb-0">Cargando alertas...</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Incidencias del sistema -->
+                <div class="card mt-4 shadow-sm">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div>
+                        <h5 class="card-title mb-1">
+                          <i class="bi bi-exclamation-triangle me-2"></i>Incidencias del sistema
+                        </h5>
+                        <p class="text-muted small mb-0">Monitoreo de incidencias por tipo, tienda y tendencia</p>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" onclick="loadIncidentsDashboard()">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                      </button>
+                    </div>
+
+                    <!-- KPIs de incidencias -->
+                    <div class="row g-3 mb-3">
+                      <div class="col-md-3">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Incidencias hoy</div>
+                          <div class="small-kpi-value text-danger" id="incTotalToday">-</div>
+                          <div class="small-kpi-desc">Total registradas</div>
+                        </div>
+                      </div>
+                      <div class="col-md-5">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Tipos más comunes</div>
+                          <div id="incTopTypes" class="d-flex flex-wrap gap-2"></div>
+                          <div class="small-kpi-desc">Últimos 7 días</div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="small-kpi-card">
+                          <div class="small-kpi-label">Tiendas con más incidencias</div>
+                          <div id="incTopStores" class="small"></div>
+                          <div class="small-kpi-desc">Top 3 (7 días)</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Tendencia semanal -->
+                    <div style="height: 320px">
+                      <canvas id="incidentsTrendChart"></canvas>
                     </div>
                   </div>
                 </div>

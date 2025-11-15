@@ -174,6 +174,21 @@
   transform: translateY(-2px);
 }
 
+/* Asegurar visibilidad de los filtros del bloque 'Nuestro Menú' */
+.menu-section .filter-btn {
+  background: var(--warm-white);
+  border: 2px solid var(--light-gray);
+  color: var(--text-gray);
+}
+
+.menu-section .filter-btn:hover,
+.menu-section .filter-btn.active {
+  background: var(--primary-red);
+  border-color: var(--primary-red);
+  color: var(--warm-white);
+  box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+}
+
 /* Quick Stats */
 .quick-stats {
   padding: 3rem 0;

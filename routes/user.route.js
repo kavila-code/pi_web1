@@ -32,10 +32,15 @@ router.post(
 // ✅ Profile protegido con middleware
 router.get("/profile", authMiddleware, UserController.profile);
 
+// ✅ Estadísticas del usuario autenticado
+router.get("/me/stats", authMiddleware, UserController.getMyStats);
+
 // ✅ Aplicación para delivery
 router.post("/apply-delivery", authMiddleware, UserController.applyDelivery);
 
 // ✅ Obtener estado de aplicación de delivery
 router.get("/delivery-application", authMiddleware, UserController.getDeliveryApplication);
+// ✅ Favoritos del usuario (basado en pedidos entregados)
+router.get("/favorites", authMiddleware, UserController.getMyFavorites);
 
 export default router;

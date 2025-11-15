@@ -1,6 +1,7 @@
 // DomiTuluá - Restaurant Menu JavaScript
+// Version: 2024-11-14 v2
 
-let restaurant = null;
+let currentRestaurant = null;
 let allProducts = [];
 let selectedProduct = null;
 let modalQuantity = 1;
@@ -25,8 +26,21 @@ if (!restaurantId) {
 
 // Cargar datos al iniciar
 document.addEventListener("DOMContentLoaded", () => {
-  loadRestaurant();
-  updateCartBadge();
+  console.log('[restaurant-menu] DOM cargado, iniciando...');
+  
+  // Cargar restaurante
+  loadRestaurant().catch(err => {
+    console.error('[restaurant-menu] Error en loadRestaurant:', err);
+  });
+  
+  // Actualizar badge del carrito (si la función existe)
+  if (typeof updateCartBadge === 'function') {
+    try {
+      updateCartBadge();
+    } catch (err) {
+      console.warn('[restaurant-menu] Error al actualizar cart badge:', err);
+    }
+  }
 
   // Event listeners
   const searchProducts = document.getElementById("searchProducts");
@@ -40,127 +54,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Cargar datos del restaurante
 async function loadRestaurant() {
+  const container = document.getElementById("productsContainer");
+  
   try {
-    console.log('[restaurant-menu] Iniciando carga restaurante id=', restaurantId);
-    let data = null;
-    let publicError = null;
-    try {
-      const resp = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
-      data = await resp.json();
-      console.log('[restaurant-menu] Respuesta pública:', data);
-    } catch (err) {
-      publicError = err;
-      console.warn('[restaurant-menu] Error fetch público', err);
+    console.log('[restaurant-menu] Cargando restaurante id=', restaurantId);
+    
+    // Usar ruta relativa para evitar problemas de timeout
+    const resp = await fetch(`/api/v1/restaurants/${restaurantId}`);
+    
+    if (!resp.ok) {
+      throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
     }
-
-    // Si no ok y hay token intentar autenticado
-    if ((!data || !data.ok) && getToken()) {
-      try {
-        data = await authenticatedFetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
-        console.log('[restaurant-menu] Respuesta autenticada:', data);
-      } catch (err2) {
-        console.warn('[restaurant-menu] Error fetch autenticado', err2);
-      }
-    }
+    
+    const data = await resp.json();
+    console.log('[restaurant-menu] Respuesta recibida, ok:', data.ok);
 
     if (data && data.ok && data.data) {
-      // Normalizar campos del restaurante para la UI
-      const r = data.data || {};
-      restaurant = {
+      const r = data.data;
+      console.log('[restaurant-menu] Restaurante:', r.name);
+      
+      // Normalizar datos del restaurante
+      currentRestaurant = {
         id: r.id,
         name: r.name,
         description: r.description || '',
-        logo_url: normalizeLogo(r.logo_url || r.cover_image_url || ''),
-        // Unificar delivery fee/time (backend usa delivery_cost y delivery_time_min/max)
-        delivery_fee: (r.delivery_fee != null ? r.delivery_fee : (r.delivery_cost != null ? r.delivery_cost : 0)),
-        delivery_time: r.delivery_time || ((r.delivery_time_min && r.delivery_time_max) ? `${r.delivery_time_min}-${r.delivery_time_max} min` : '30-45 min'),
+        logo_url: normalizeLogo(r.logo_url || ''),
+        delivery_fee: r.delivery_cost || r.delivery_fee || 0,
+        delivery_time: `${r.delivery_time_min || 30}-${r.delivery_time_max || 45} min`,
         minimum_order: r.minimum_order || 0,
         rating: r.avg_rating || r.rating || 0,
         delivery_time_min: r.delivery_time_min,
         delivery_time_max: r.delivery_time_max
       };
 
-      // Normalizar productos (el backend los incluye en data.data.products; evitamos llamar endpoints inexistentes)
+      console.log('[restaurant-menu] Datos normalizados, renderizando header...');
+      renderRestaurantHeader();
+      
+      // Normalizar productos
       allProducts = Array.isArray(r.products) ? r.products.map(p => ({
         id: p.id,
         name: p.name,
         description: p.description || '',
-        price: p.price || 0,
+        price: parseFloat(p.price) || 0,
         category: p.category || 'Sin categoría',
-        image_url: p.image_url || p.image || p.product_image || null,
+        image_url: p.image_url || null,
         is_available: p.is_available !== false,
         is_vegetarian: p.is_vegetarian || false,
         is_vegan: p.is_vegan || false
       })) : [];
 
-      renderRestaurantHeader();
+      console.log('[restaurant-menu] Productos cargados:', allProducts.length);
       populateCategoriesFromProducts();
       renderProducts();
-      return;
+      console.log('[restaurant-menu] Carga completa');
+    } else {
+      throw new Error('Respuesta inválida del servidor');
     }
-
-    // Si llegamos aquí, la API no devolvió el restaurante. Intentar fallback local
-    console.warn('API no devolvió restaurante, intentando fallback local');
-    const localSource = window._CURRENT_RESTAURANTS || (typeof getAllRestaurants === 'function' ? getAllRestaurants() : []);
-    const found = Array.isArray(localSource) ? localSource.find(r => String(r.id) === String(restaurantId)) : null;
-    if (found) {
-      // Mapear campos del fallback a la estructura esperada por la UI
-      restaurant = {
-        id: found.id,
-        name: found.name || found.title || `Restaurante ${found.id}`,
-        description: found.category || found.description || '',
-        rating: found.rating || 0,
-        delivery_time: (found.deliveryTimeMin ? `${found.deliveryTimeMin}-${found.deliveryTimeMin + 15} min` : found.delivery_time) || '30-45 min',
-        delivery_fee: found.deliveryFee || found.delivery_fee || 0,
-        logo_url: normalizeLogo(found.image || found.logo_url || '')
-      };
-
-      renderRestaurantHeader();
-      // No tenemos un listado de productos locales aquí; mostrar mensaje vacío
-      const container = document.getElementById('productsContainer');
-      if (container) {
-        container.innerHTML = `
-          <div class="text-center py-5">
-            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
-            <p class="mt-3 text-muted">No hay productos disponibles para este restaurante (modo offline)</p>
-          </div>
-        `;
-      }
-      return;
-    }
-
-    alert('Error al cargar el restaurante');
-    window.location.href = '/public/restaurants.html';
   } catch (error) {
-    console.error("[restaurant-menu] Error general:", error);
-    // Intentar fallback local también en caso de excepción
-    const localSource = window._CURRENT_RESTAURANTS || (typeof getAllRestaurants === 'function' ? getAllRestaurants() : []);
-    const found = Array.isArray(localSource) ? localSource.find(r => String(r.id) === String(restaurantId)) : null;
-    if (found) {
-      restaurant = {
-        id: found.id,
-        name: found.name || found.title || `Restaurante ${found.id}`,
-        description: found.category || found.description || '',
-        rating: found.rating || 0,
-        delivery_time: (found.deliveryTimeMin ? `${found.deliveryTimeMin}-${found.deliveryTimeMin + 15} min` : found.delivery_time) || '30-45 min',
-        delivery_fee: found.deliveryFee || found.delivery_fee || 0,
-        logo_url: normalizeLogo(found.image || found.logo_url || '')
-      };
-      renderRestaurantHeader();
-      const container = document.getElementById('productsContainer');
-      if (container) {
-        container.innerHTML = `
-          <div class="text-center py-5">
-            <i class="bi bi-exclamation-circle" style="font-size: 3rem; color: #ddd;"></i>
-            <p class="mt-3 text-muted">No hay productos disponibles para este restaurante (modo offline)</p>
-          </div>
-        `;
-      }
-      return;
+    console.error("[restaurant-menu] Error:", error);
+    if (container) {
+      container.innerHTML = `
+        <div class="text-center py-5">
+          <i class="bi bi-exclamation-circle text-danger" style="font-size: 3rem;"></i>
+          <p class="mt-3 text-danger fw-bold">Error al cargar el restaurante</p>
+          <p class="text-muted">${error.message}</p>
+          <a href="/public/restaurants.html" class="btn btn-primary mt-3">Volver a Restaurantes</a>
+        </div>
+      `;
     }
-
-    alert('Error al cargar el restaurante');
-    window.location.href = '/public/restaurants.html';
   }
 }
 
@@ -174,17 +135,17 @@ function renderRestaurantHeader() {
   const feeElement = document.getElementById("restaurantFee");
 
   if (logoElement) {
-    logoElement.src = restaurant.logo_url || "https://via.placeholder.com/100";
-    logoElement.onerror = () => { logoElement.src = "https://via.placeholder.com/100?text=Logo"; };
+    logoElement.src = currentRestaurant.logo_url || "/imagenes/restaurantes/placeholder.png";
+    logoElement.onerror = () => { logoElement.src = "/imagenes/restaurantes/placeholder.png"; };
   }
-  if (nameElement) nameElement.textContent = restaurant.name;
-  if (descriptionElement) descriptionElement.textContent = restaurant.description || "";
-  if (ratingElement) ratingElement.textContent = restaurant.rating || "0";
-  if (timeElement) timeElement.textContent = restaurant.delivery_time || (restaurant.delivery_time_min && restaurant.delivery_time_max ? `${restaurant.delivery_time_min}-${restaurant.delivery_time_max} min` : "30-45 min");
-  const feeVal = (restaurant.delivery_fee != null ? restaurant.delivery_fee : (restaurant.delivery_cost != null ? restaurant.delivery_cost : 0));
+  if (nameElement) nameElement.textContent = currentRestaurant.name;
+  if (descriptionElement) descriptionElement.textContent = currentRestaurant.description || "";
+  if (ratingElement) ratingElement.textContent = currentRestaurant.rating || "0";
+  if (timeElement) timeElement.textContent = currentRestaurant.delivery_time || (currentRestaurant.delivery_time_min && currentRestaurant.delivery_time_max ? `${currentRestaurant.delivery_time_min}-${currentRestaurant.delivery_time_max} min` : "30-45 min");
+  const feeVal = (currentRestaurant.delivery_fee != null ? currentRestaurant.delivery_fee : (currentRestaurant.delivery_cost != null ? currentRestaurant.delivery_cost : 0));
   if (feeElement) feeElement.textContent = Number(feeVal).toLocaleString();
   
-  document.title = `${restaurant.name} - DomiTulua`;
+  document.title = `${currentRestaurant.name} - DomiTulua`;
 }
 
 // Cargar productos
@@ -421,7 +382,7 @@ function addToCart() {
       image: selectedProduct.image_url,
       qty: modalQuantity,
       restaurant_id: restaurantId,
-      restaurant_name: restaurant.name,
+      restaurant_name: currentRestaurant.name,
       special_instructions: specialInstructions || null
     };
 
@@ -469,7 +430,7 @@ function addToCart() {
       qty: modalQuantity,
       special_instructions: specialInstructions || null,
       restaurant_id: restaurantId,
-      restaurant_name: restaurant.name,
+      restaurant_name: currentRestaurant.name,
     });
   }
 
@@ -506,7 +467,7 @@ function quickAddToCart(productId) {
       image: product.image_url,
       qty: 1,
       restaurant_id: restaurantId,
-      restaurant_name: restaurant.name
+      restaurant_name: currentRestaurant.name
     };
 
     window.cartAPI.addToCart(cartItem);
@@ -536,31 +497,7 @@ function quickAddToCart(productId) {
       image: product.image_url,
       qty: 1,
       restaurant_id: restaurantId,
-      restaurant_name: restaurant.name,
-    });
-  }
-
-  if (!setCartSafe(cart)) return;
-  updateCartBadge();
-  showToast(`${product.name} agregado al carrito`);
-}
-
-  const existingIndex = cart.findIndex(
-    (item) => item.product_id === productId && !item.special_instructions
-  );
-
-  if (existingIndex >= 0) {
-    cart[existingIndex].quantity += 1;
-  } else {
-    cart.push({
-      product_id: product.id,
-      product_name: product.name,
-      product_price: product.price,
-      product_image: product.image_url,
-      quantity: 1,
-      special_instructions: null,
-      restaurant_id: restaurantId,
-      restaurant_name: restaurant.name,
+      restaurant_name: currentRestaurant.name,
     });
   }
 

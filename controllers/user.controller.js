@@ -1,6 +1,8 @@
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/user.model.js';
+import { OrderModel } from '../models/order.model.js';
+import { db } from '../database/connection.database.js';
 
 
 // ---------------------- Controladores ----------------------
@@ -204,6 +206,50 @@ export const UserController = {
   login,
   profile,
   applyDelivery,
-  getDeliveryApplication
+  getDeliveryApplication,
+  async getMyStats(req, res) {
+    try {
+      const uid = req.user?.uid || req.uid;
+      if (!uid) {
+        return res.status(401).json({ ok: false, msg: 'Unauthorized' });
+      }
+
+      const stats = await OrderModel.getUserStats(uid);
+      return res.json({ ok: true, data: stats });
+    } catch (error) {
+      console.error('Error obteniendo estadísticas de usuario:', error);
+      return res.status(500).json({ ok: false, msg: 'Server error' });
+    }
+  }
+  ,
+  async getMyFavorites(req, res) {
+    try {
+      const uid = req.user?.uid || req.uid;
+      if (!uid) {
+        return res.status(401).json({ ok: false, msg: 'Unauthorized' });
+      }
+
+      const { rows } = await req.db.query({
+        text: `
+          SELECT r.id, r.name, r.logo_url, r.cover_image_url, r.category,
+                 COALESCE(AVG(o.rating), 0) AS rating,
+                 COUNT(*) AS orders_count
+          FROM orders o
+          JOIN restaurants r ON r.id = o.restaurant_id
+          WHERE o.customer_id = $1 AND o.status = 'entregado'
+          GROUP BY r.id, r.name, r.logo_url, r.cover_image_url, r.category
+          ORDER BY orders_count DESC, r.name ASC
+          LIMIT 12
+        `,
+        values: [uid],
+      });
+
+      // Responder como arreglo directo para compatibilidad con el frontend actual
+      return res.json(rows);
+    } catch (error) {
+      console.error('Error obteniendo favoritos:', error);
+      return res.status(500).json({ ok: false, msg: 'Server error' });
+    }
+  }
 };
 

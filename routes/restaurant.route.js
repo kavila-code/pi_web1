@@ -7,6 +7,7 @@ import {
   updateRestaurant,
   deleteRestaurant,
   getCategories,
+  getRecommended,
 } from '../controllers/restaurant.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { adminMiddleware } from '../middlewares/admin.middleware.js';
@@ -17,6 +18,7 @@ const router = Router();
 router.post('/restaurants/apply', applyRestaurant);
 router.get('/restaurants', getAllRestaurants);
 router.get('/restaurants/categories', getCategories);
+router.get('/restaurants/recommended', getRecommended);
 router.get('/restaurants/:id', getRestaurantById);
 
 // Rutas protegidas (solo admin)

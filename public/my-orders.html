@@ -246,7 +246,7 @@
       <!-- Filters -->
       <div class="filter-tabs">
         <div class="d-flex gap-2 flex-wrap">
-          <button class="filter-btn active" onclick="filterOrders('')">
+          <button class="filter-btn" onclick="filterOrders('')">
             <i class="bi bi-grid"></i> Todos
           </button>
           <button class="filter-btn" onclick="filterOrders('pendiente')">
@@ -255,7 +255,7 @@
           <button class="filter-btn" onclick="filterOrders('en_camino')">
             <i class="bi bi-truck"></i> En Camino
           </button>
-          <button class="filter-btn" onclick="filterOrders('entregado')">
+          <button class="filter-btn active" onclick="filterOrders('entregado')">
             <i class="bi bi-check-circle"></i> Entregados
           </button>
           <button class="filter-btn" onclick="filterOrders('cancelado')">
@@ -276,9 +276,9 @@
 
       <!-- Empty State -->
       <div id="emptyState" class="empty-state" style="display: none">
-        <i class="bi bi-bag-x" style="font-size: 5rem; color: #ddd"></i>
-        <h3 class="mt-4">No tienes pedidos aún</h3>
-        <p class="text-muted">¡Haz tu primer pedido ahora!</p>
+        <i class="bi bi-bag" style="font-size: 5rem; color: #ddd"></i>
+        <h3 class="mt-4">Sin registros, realiza tu primera compra</h3>
+        <p class="text-muted">Tus pedidos aparecerán aquí cuando completes tu primera compra.</p>
         <a href="/public/restaurants.html" class="btn btn-primary btn-lg mt-3">
           <i class="bi bi-shop me-2"></i>Ver Restaurantes
         </a>
@@ -306,6 +306,214 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+      <div class="container">
+        <!-- Sección principal del footer -->
+        <div class="row footer-main">
+          <!-- Información de la empresa -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-brand">
+              <h3><i class="bi bi-truck me-2"></i>DomiTulua</h3>
+              <p class="footer-description">
+                Tu plataforma favorita de delivery en Tuluá. Conectamos tu
+                apetito con la mejor comida local, rápido y confiable.
+              </p>
+              <div class="footer-stats">
+                <div class="stat-item">
+                  <span class="stat-number">200+</span>
+                  <span class="stat-label">Restaurantes</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">15K+</span>
+                  <span class="stat-label">Pedidos entregados</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-number">5K+</span>
+                  <span class="stat-label">Clientes felices</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enlaces rápidos -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-link-45deg me-2"></i>Enlaces</h5>
+              <ul class="footer-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#menu">Menú</a></li>
+                <li><a href="#restaurantes">Restaurantes</a></li>
+                <li><a href="#promociones">Promociones</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Soporte -->
+          <div class="col-lg-2 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-headset me-2"></i>Soporte</h5>
+              <ul class="footer-links">
+                <li><a href="#ayuda">Centro de ayuda</a></li>
+                <li><a href="#contacto">Contactanos</a></li>
+                <li><a href="#terminos">Términos de uso</a></li>
+                <li><a href="#privacidad">Política de privacidad</a></li>
+                <li><a href="#faq">Preguntas frecuentes</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Contacto -->
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="footer-section">
+              <h5><i class="bi bi-geo-alt me-2"></i>Contacto</h5>
+              <div class="contact-info">
+                <div class="contact-item">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  <div>
+                    <strong>Dirección</strong>
+                    <p>Tuluá, Valle del Cauca, Colombia</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-telephone-fill"></i>
+                  <div>
+                    <strong>Teléfono</strong>
+                    <p>+57 300 123 4567</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-envelope-fill"></i>
+                  <div>
+                    <strong>Email</strong>
+                    <p>info@domitulua.com</p>
+                  </div>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-clock-fill"></i>
+                  <div>
+                    <strong>Horario</strong>
+                    <p>24/7 - Siempre disponible</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del desarrollador -->
+        <div class="developer-section">
+          <div class="developers-header">
+            <h4>Desarrollado Por el Equipo:</h4>
+            <p>Ingeniería de Sistemas - UCEVA</p>
+          </div>
+
+          <div class="developers-grid">
+            <!-- Desarrollador 1 - Kelly Ávila -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>KA</span>
+              </div>
+              <div class="developer-info">
+                <h5>Kelly Ávila</h5>
+                <p>Project Manager | Full Stack Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/kavila-code" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/kelly-ávila-91290b387" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:kellyavila3010@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 2 - Juan Fernando Ramírez -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>JR</span>
+              </div>
+              <div class="developer-info">
+                <h5>Juan Fernando Ramírez</h5>
+                <p>Backend Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/juanfer2806" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/juan-fernando-ram%C3%ADrez-delgado-5bb537388" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:juanfernandoramirezdelgado2006@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 3 - Cristian Hoyos -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>CH</span>
+              </div>
+              <div class="developer-info">
+                <h5>Cristian Hoyos</h5>
+                <p>Frontend Developer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/USUARIO_PENDIENTE" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://linkedin.com/in/PERFIL_PENDIENTE" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:cristian@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desarrollador 4 - Juan David Salazar -->
+            <div class="developer-card">
+              <div class="developer-avatar">
+                <span>JS</span>
+              </div>
+              <div class="developer-info">
+                <h5>Juan David Salazar</h5>
+                <p>UI/UX Designer</p>
+                <div class="developer-links">
+                  <a href="https://github.com/juansalazar10" target="_blank" class="dev-link" title="GitHub">
+                    <i class="bi bi-github"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/juan-david-salazar-riascos-8aa928388/" target="_blank" class="dev-link" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                  </a>
+                  <a href="mailto:judasari69@gmail.com" class="dev-link" title="Email">
+                    <i class="bi bi-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer bottom -->
+        <div class="footer-bottom">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p>&copy; 2025 DomiTulua. Todos los derechos reservados.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p>Hecho con <span class="heart">💖</span> en Tuluá, Colombia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/frontend/js/common.js"></script>

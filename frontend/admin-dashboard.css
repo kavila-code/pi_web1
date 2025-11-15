@@ -736,3 +736,139 @@
 .chart-card, .activity-card {
   animation: slideInRight 0.6s ease-out;
 }
+
+/* ===== ESTILOS PARA TARJETAS KPI M/M/c ===== */
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.kpi-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.kpi-content {
+  flex: 1;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-gray);
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  color: var(--dark-navy);
+}
+
+.kpi-desc {
+  font-size: 0.8rem;
+  color: var(--text-gray);
+  margin-bottom: 0.5rem;
+}
+
+.kpi-status {
+  margin-top: 0.5rem;
+}
+
+.kpi-status .badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+/* Diferentes estilos para parámetros vs métricas */
+.param-card {
+  border-left: 4px solid var(--info-blue);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.metric-card {
+  border-left: 4px solid var(--primary-red);
+}
+
+/* Animaciones para las tarjetas KPI */
+.kpi-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.kpi-icon:hover {
+  animation: pulse 0.6s ease-in-out;
+}
+
+/* ===== TARJETAS PEQUEÑAS PARA PARÁMETROS ===== */
+.small-kpi-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 10px;
+  padding: 1rem;
+  border-left: 3px solid var(--primary-red);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.small-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.small-kpi-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-gray);
+  letter-spacing: 0.3px;
+  margin-bottom: 0.4rem;
+}
+
+.small-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.small-kpi-desc {
+  font-size: 0.75rem;
+  color: var(--text-gray);
+}
+
+/* Incidencias: badges y listas */
+#incTopTypes .badge {
+  font-weight: 600;
+}
+
+#incTopStores div + div {
+  margin-top: 4px;
+}
+

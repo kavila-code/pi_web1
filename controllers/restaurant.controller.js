@@ -30,6 +30,18 @@ export const getAllRestaurants = async (req, res) => {
   }
 };
 
+// Obtener restaurantes recomendados
+export const getRecommended = async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 3;
+    const restaurants = await RestaurantModel.getRecommended(limit);
+    return res.status(200).json({ ok: true, data: restaurants, count: restaurants.length });
+  } catch (error) {
+    console.error('Error al obtener recomendados:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener recomendados', error: error.message });
+  }
+};
+
 // Obtener un restaurante por ID
 export const getRestaurantById = async (req, res) => {
   try {

@@ -96,9 +96,9 @@ const create = async (restaurantData) => {
         name, description, address, phone, email,
         logo_url, cover_image_url, category,
         delivery_time_min, delivery_time_max,
-        delivery_cost, minimum_order, opening_hours
+          delivery_cost, minimum_order, opening_hours, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *
     `,
     values: [
@@ -115,8 +115,14 @@ const create = async (restaurantData) => {
       restaurantData.delivery_cost || 0,
       restaurantData.minimum_order || 0,
       restaurantData.opening_hours || null,
+        restaurantData.is_active !== undefined ? restaurantData.is_active : true,
     ],
   };
+
+  // Debug: verificar bandera is_active en creación
+  try {
+    console.log('[RestaurantModel.create] is_active:', restaurantData.is_active, 'values:', query.values);
+  } catch {}
 
   const { rows } = await db.query(query);
   return rows[0];
@@ -197,6 +203,81 @@ const getCategories = async () => {
   return rows;
 };
 
+// Obtener restaurantes recomendados (top por calificación y entregas)
+const getRecommended = async (limit = 3) => {
+  const query = {
+    text: `
+      SELECT
+        r.id,
+        r.name,
+        r.category,
+        r.logo_url,
+        r.cover_image_url,
+        r.delivery_time_min,
+        r.delivery_time_max,
+        COALESCE(ROUND(AVG(o.rating) FILTER (WHERE o.rating IS NOT NULL), 1), r.rating) AS avg_rating,
+        COUNT(*) FILTER (WHERE o.status = 'entregado') AS delivered_count
+      FROM restaurants r
+      LEFT JOIN orders o ON o.restaurant_id = r.id
+      WHERE r.is_active = true
+        AND (r.logo_url IS NOT NULL OR r.cover_image_url IS NOT NULL)
+        AND EXISTS (
+          SELECT 1 FROM products p
+          WHERE p.restaurant_id = r.id AND p.is_available = true
+        )
+      GROUP BY r.id
+      ORDER BY delivered_count DESC, avg_rating DESC NULLS LAST, r.name ASC
+      LIMIT $1
+    `,
+    values: [limit]
+  };
+
+  const { rows: firstBatch } = await db.query(query);
+  let rows = firstBatch;
+
+  if (rows.length < limit) {
+    const needed = limit - rows.length;
+    const excludeIds = rows.map(r => r.id);
+
+    let text = `
+      SELECT 
+        r.id,
+        r.name,
+        r.category,
+        r.logo_url,
+        r.cover_image_url,
+        r.delivery_time_min,
+        r.delivery_time_max,
+        r.rating AS avg_rating,
+        0 AS delivered_count
+      FROM restaurants r
+      WHERE r.is_active = true
+        AND (r.logo_url IS NOT NULL OR r.cover_image_url IS NOT NULL)
+        AND EXISTS (
+          SELECT 1 FROM products p
+          WHERE p.restaurant_id = r.id AND p.is_available = true
+        )`;
+
+    const values = [];
+    if (excludeIds.length > 0) {
+      const placeholders = excludeIds.map((_, i) => `$${i + 1}`).join(',');
+      text += ` AND r.id NOT IN (${placeholders})`;
+      excludeIds.forEach(id => values.push(id));
+    }
+
+    values.push(needed);
+    text += `
+      ORDER BY r.rating DESC NULLS LAST, r.name ASC
+      LIMIT $${values.length}
+    `;
+
+    const { rows: fallback } = await db.query({ text, values });
+    rows = rows.concat(fallback);
+  }
+
+  return rows;
+};
+
 export const RestaurantModel = {
   getAll,
   getById,
@@ -204,4 +285,5 @@ export const RestaurantModel = {
   update,
   remove,
   getCategories,
+  getRecommended,
 };
