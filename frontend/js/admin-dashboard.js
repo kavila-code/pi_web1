@@ -271,7 +271,7 @@ async function initChart() {
   }
 }
 
-// Inicializar gráfico del Modelo Ecosistema (Presas-Depredadores-Enfermedades)
+// Inicializar gráfico del Modelo Ecosistema (Presas-Depredadores)
 async function initEcosystemChart() {
   try {
     const token = localStorage.getItem('token');

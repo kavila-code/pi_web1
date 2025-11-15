@@ -265,7 +265,7 @@ const deactivateRestaurant = async (req, res) => {
   }
 };
 
-// Modelo Ecosistema (Presas-Depredadores-Enfermedades)
+// Modelo Ecosistema (Presas-Depredadores)
 // S(t) = Tiendas activas, U(t) = Usuarios activos, I(t) = Incidencias
 const getEcosystemModel = async (req, res) => {
   try {
