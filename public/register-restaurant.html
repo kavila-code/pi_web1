@@ -13,6 +13,25 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     />
+    <style>
+      .red-gradient-bg {
+        background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+        color: #fff;
+      }
+      .btn-red-gradient {
+        background: linear-gradient(135deg, var(--primary-red), var(--deep-red));
+        color: #fff;
+        border: none;
+      }
+      .btn-red-gradient:hover {
+        filter: brightness(0.95);
+        color: #fff;
+      }
+      .btn-red-gradient:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(231, 76, 60, 0.25);
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-custom">
@@ -26,7 +45,7 @@
 
     <main class="container" style="padding-top: 90px; max-width: 860px">
       <div class="card shadow-sm">
-        <div class="card-header bg-warning text-white">
+        <div class="card-header red-gradient-bg text-white">
           <h5 class="mb-0">
             <i class="bi bi-pencil-square"></i> Registrar mi Restaurante
           </h5>
@@ -121,7 +140,7 @@
             </div>
 
             <div class="col-12 d-flex gap-2">
-              <button type="submit" class="btn btn-warning" id="submitBtn">
+              <button type="submit" class="btn btn-red-gradient" id="submitBtn">
                 <i class="bi bi-send"></i> Enviar solicitud
               </button>
               <a id="mailtoLink" class="btn btn-outline-secondary" href="#"
