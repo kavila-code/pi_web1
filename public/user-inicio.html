@@ -1248,6 +1248,11 @@
           
           grid.appendChild(frag);
           console.log('✅ Comidas de sushi inyectadas correctamente');
+          
+          // Configurar previsualización para las nuevas tarjetas
+          if (typeof setupMenuPreviews === 'function') {
+            setupMenuPreviews();
+          }
         } catch (e) { 
           console.error('Error al inyectar comidas de sushi:', e); 
         }

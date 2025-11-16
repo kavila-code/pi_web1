@@ -625,6 +625,11 @@
           frag.appendChild(div);
         });
         grid.appendChild(frag);
+        
+        // Configurar previsualización para las nuevas tarjetas
+        if (typeof setupMenuPreviews === 'function') {
+          setupMenuPreviews();
+        }
       });
     </script>
 
