@@ -1190,11 +1190,26 @@
         }
       }
 
-      // Inyectar comidas del restaurante 3 en la grilla de "Nuestro Menú"
-      document.addEventListener('DOMContentLoaded', function() {
+      
+    </script>
+
+    <!-- Inyectar comidas del restaurante 3 en la grilla de "Nuestro Menú" -->
+    <script>
+      // Esperar a que common.js se cargue completamente
+      function injectSushiItems() {
         try {
           const grid = document.querySelector('.menu-section .menu-grid');
-          if (!grid || !window.guessFoodImage || !window.guessFoodImageCandidates) return;
+          if (!grid) {
+            console.warn('Grid de menú no encontrado');
+            return;
+          }
+          
+          if (!window.guessFoodImage || !window.guessFoodImageCandidates) {
+            console.warn('Funciones de common.js aún no disponibles, reintentando...');
+            setTimeout(injectSushiItems, 100);
+            return;
+          }
+
           const items = [
             { name: 'Sushi Variado (12 piezas)', price: 42000, category: 'sushi' },
             { name: 'Sashimi de Salmón', price: 38000, category: 'sushi' },
@@ -1204,6 +1219,7 @@
             { name: 'Edamame', price: 12000, category: 'sushi' },
             { name: 'Té Verde', price: 8000, category: 'drink' }
           ];
+
           const frag = document.createDocumentFragment();
           items.forEach(it => {
             const div = document.createElement('div');
@@ -1229,9 +1245,15 @@
               </div>`;
             frag.appendChild(div);
           });
+          
           grid.appendChild(frag);
-        } catch (e) { console.warn('Sushi items injection failed:', e); }
-      });
+          console.log('✅ Comidas de sushi inyectadas correctamente');
+        } catch (e) { 
+          console.error('Error al inyectar comidas de sushi:', e); 
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', injectSushiItems);
     </script>
   </body>
 </html>
