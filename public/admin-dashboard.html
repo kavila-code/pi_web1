@@ -985,6 +985,57 @@
           </div>
         </div>
 
+        <!-- Sección: Gestión de Restaurantes -->
+        <section id="restaurants-section" class="content-section">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="card-title mb-0"><i class="bi bi-shop me-2"></i>Gestión de Restaurantes</h5>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <div class="input-group" style="max-width: 420px;">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input id="restaurantsSearch" type="text" class="form-control" placeholder="Buscar por nombre o categoría">
+                </div>
+                <select id="restaurantsStatusFilter" class="form-select" style="max-width: 220px;">
+                  <option value="all">Todos</option>
+                  <option value="pending">Pendiente</option>
+                  <option value="active">Aceptado</option>
+                  <option value="inactive">Inactivo</option>
+                  <option value="rejected">Rechazado</option>
+                </select>
+                <button class="btn btn-outline-primary ms-auto" type="button" onclick="initAdminRestaurantsSection()">
+                  <i class="bi bi-arrow-clockwise"></i> Refrescar
+                </button>
+              </div>
+
+              <div id="restaurantsLoading" class="text-center py-4 d-none">
+                <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+                <div class="mt-2">Cargando restaurantes...</div>
+              </div>
+              <div id="restaurantsEmpty" class="alert alert-secondary d-none">No hay restaurantes para mostrar.</div>
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Logo</th>
+                      <th>Nombre</th>
+                      <th>Categoría</th>
+                      <th>Contacto</th>
+                      <th>Pedidos</th>
+                      <th>Rating</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="restaurantsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Notifications -->
         <div
           id="notificationContainer"
@@ -995,6 +1046,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="/frontend/js/common.js"></script>
-        <script src="/frontend/js/admin-dashboard.js"></script>
+        <script src="/frontend/js/admin-dashboard.js?v=20251115"></script>
       </body>
     </html>

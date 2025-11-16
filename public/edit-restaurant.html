@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Restaurante - DomiTulua</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/frontend/foodie.css">
+  <link rel="stylesheet" href="/frontend/user-inicio.css">
+  <style>
+    .preview-img { max-width: 200px; max-height: 200px; object-fit: cover; }
+    .product-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/public/user-inicio.html">
+        <i class="bi bi-truck me-2"></i>
+        <span>DomiTulua</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/public/my-restaurants.html"><i class="bi bi-arrow-left me-1"></i>Mis Restaurantes</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i>Salir</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-5 pt-4">
+    <h2 id="pageTitle">Editar Restaurante</h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-info">Información</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-products">Productos</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Tab Información -->
+      <div class="tab-pane fade show active" id="tab-info">
+        <form id="formRestaurant" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-control" id="rest_name" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Categoría</label>
+            <select class="form-select" id="rest_category">
+              <option value="Comida Rápida">Comida Rápida</option>
+              <option value="Italiana">Italiana</option>
+              <option value="Colombiana">Colombiana</option>
+              <option value="Mexicana">Mexicana</option>
+              <option value="China">China</option>
+              <option value="Parrilla">Parrilla</option>
+              <option value="Postres">Postres</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" id="rest_description" rows="3"></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Dirección *</label>
+            <input type="text" class="form-control" id="rest_address" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Teléfono *</label>
+            <input type="tel" class="form-control" id="rest_phone" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="rest_email">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Logo</label>
+            <input type="file" class="form-control" id="rest_logo" accept="image/*">
+            <img id="logoPreview" class="preview-img mt-2 d-none" alt="Preview">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Costo Domicilio</label>
+            <input type="number" class="form-control" id="rest_delivery_cost" min="0" step="0.01">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Pedido Mínimo</label>
+            <input type="number" class="form-control" id="rest_minimum_order" min="0" step="0.01">
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save"></i> Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab Productos -->
+      <div class="tab-pane fade" id="tab-products">
+        <div class="d-flex justify-content-between align-items-center mb-3 section-header">
+          <h4 class="mb-0"><i class="bi bi-basket me-1"></i> Productos del Menú</h4>
+          <button class="btn btn-primary" onclick="showAddProductModal()">
+            <i class="bi bi-plus-circle"></i> Agregar Producto
+          </button>
+        </div>
+        <div id="productsList">
+          <p class="text-muted">Cargando productos...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agregar/Editar Producto -->
+  <div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productModalTitle">Agregar Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formProduct">
+          <div class="modal-body">
+            <input type="hidden" id="prod_id">
+            <div class="mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="prod_name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea class="form-control" id="prod_description" rows="2"></textarea>
+            </div>
+            <div class="row">
+              <div class="col-6 mb-3">
+                <label class="form-label">Precio *</label>
+                <input type="number" class="form-control" id="prod_price" min="0" step="0.01" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label class="form-label">Categoría</label>
+                <input type="text" class="form-control" id="prod_category" placeholder="Ej: Entradas">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Imagen</label>
+              <input type="file" class="form-control" id="prod_image" accept="image/*">
+              <img id="prodImagePreview" class="preview-img mt-2 d-none" alt="Preview">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/frontend/js/common.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const restaurantId = urlParams.get('id');
+    if (!restaurantId) { alert('ID de restaurante no especificado'); window.location.href = '/public/my-restaurants.html'; }
+
+    let restaurantData = null;
+    let productModalInstance = null;
+
+    async function loadRestaurant() {
+      try {
+        const res = await fetch(`/api/v1/my-restaurants`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) throw new Error('Error');
+        const json = await res.json();
+        const restaurant = json.data.find(r => r.id == restaurantId);
+        if (!restaurant) { alert('Restaurante no encontrado'); window.location.href = '/public/my-restaurants.html'; return; }
+        restaurantData = restaurant;
+        fillForm(restaurant);
+        loadProducts();
+      } catch (err) {
+        console.error(err);
+        alert('Error al cargar restaurante');
+      }
+    }
+
+    function fillForm(r) {
+      document.getElementById('pageTitle').textContent = `Editar ${r.name}`;
+      document.getElementById('rest_name').value = r.name || '';
+      document.getElementById('rest_category').value = r.category || '';
+      document.getElementById('rest_description').value = r.description || '';
+      document.getElementById('rest_address').value = r.address || '';
+      document.getElementById('rest_phone').value = r.phone || '';
+      document.getElementById('rest_email').value = r.email || '';
+      document.getElementById('rest_delivery_cost').value = r.delivery_cost || 0;
+      document.getElementById('rest_minimum_order').value = r.minimum_order || 0;
+      if (r.logo_url) {
+        document.getElementById('logoPreview').src = r.logo_url;
+        document.getElementById('logoPreview').classList.remove('d-none');
+      }
+    }
+
+    document.getElementById('rest_logo').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.getElementById('logoPreview').src = reader.result;
+          document.getElementById('logoPreview').classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('formRestaurant').addEventListener('submit', async e => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('name', document.getElementById('rest_name').value);
+      formData.append('category', document.getElementById('rest_category').value);
+      formData.append('description', document.getElementById('rest_description').value);
+      formData.append('address', document.getElementById('rest_address').value);
+      formData.append('phone', document.getElementById('rest_phone').value);
+      formData.append('email', document.getElementById('rest_email').value);
+      formData.append('delivery_cost', document.getElementById('rest_delivery_cost').value);
+      formData.append('minimum_order', document.getElementById('rest_minimum_order').value);
+      const logoFile = document.getElementById('rest_logo').files[0];
+      if (logoFile) formData.append('restaurant_logo', logoFile);
+
+      try {
+        const res = await fetch(`/api/v1/my-restaurants/${restaurantId}`, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+        if (!res.ok) throw new Error('Error al actualizar');
+        alert('Restaurante actualizado exitosamente');
+        loadRestaurant();
+      } catch (err) {
+        console.error(err);
+        alert('Error al actualizar restaurante');
+      }
+    });
+
+    async function loadProducts() {
+      const list = document.getElementById('productsList');
+      list.innerHTML = '<p class="text-muted">Cargando...</p>';
+      try {
+        const res = await fetch(`/api/v1/restaurants/${restaurantId}/products`);
+        if (!res.ok) throw new Error('Error');
+        const json = await res.json();
+        const products = json.data || [];
+        if (!products.length) {
+          list.innerHTML = '<div class="text-center py-4"><i class="bi bi-card-text" style="font-size:2rem;color:#c9c9c9"></i><p class="mt-2 text-muted">No hay productos. Agrega el primer producto de tu menú.</p></div>';
+          return;
+        }
+        // Contenedor tipo grilla como en user-inicio
+        list.innerHTML = '';
+        const row = document.createElement('div');
+        row.className = 'row g-4';
+
+        products.forEach(p => {
+          const col = document.createElement('div');
+          col.className = 'col-md-6 col-lg-4';
+
+          const price = Number(p.price || 0).toLocaleString('es-CO');
+          const img = p.image_url || '/frontend/placeholder-restaurant.svg';
+          const desc = (p.description || 'Sin descripción');
+          const cat = (p.category || 'Sin categoría');
+
+          col.innerHTML = `
+            <div class="menu-card h-100">
+              <div class="menu-image">
+                <img src="${img}" alt="${p.name}" onerror="this.src='/frontend/placeholder-restaurant.svg'">
+              </div>
+              <div class="menu-content">
+                <h4>${p.name}</h4>
+                <p class="small text-muted">${desc}</p>
+                <div class="menu-footer d-flex align-items-center justify-content-between">
+                  <span class="price">$${price}</span>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" title="Editar" onclick="editProduct(${p.id})"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="deleteProduct(${p.id})"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+                <div class="mt-2"><small class="text-muted">${cat}</small></div>
+              </div>
+            </div>`;
+
+          row.appendChild(col);
+        });
+
+        list.appendChild(row);
+      } catch (err) {
+        console.error(err);
+        list.innerHTML = '<p class="text-danger">Error al cargar productos</p>';
+      }
+    }
+
+    function showAddProductModal() {
+      document.getElementById('productModalTitle').textContent = 'Agregar Producto';
+      document.getElementById('formProduct').reset();
+      document.getElementById('prod_id').value = '';
+      document.getElementById('prodImagePreview').classList.add('d-none');
+      if (!productModalInstance) productModalInstance = new bootstrap.Modal(document.getElementById('productModal'));
+      productModalInstance.show();
+    }
+
+    async function editProduct(id) {
+      try {
+        const res = await fetch(`/api/v1/products/${id}`);
+        const json = await res.json();
+        const p = json.data;
+        document.getElementById('productModalTitle').textContent = 'Editar Producto';
+        document.getElementById('prod_id').value = p.id;
+        document.getElementById('prod_name').value = p.name;
+        document.getElementById('prod_description').value = p.description || '';
+        document.getElementById('prod_price').value = p.price;
+        document.getElementById('prod_category').value = p.category || '';
+        if (p.image_url) {
+          document.getElementById('prodImagePreview').src = p.image_url;
+          document.getElementById('prodImagePreview').classList.remove('d-none');
+        }
+        if (!productModalInstance) productModalInstance = new bootstrap.Modal(document.getElementById('productModal'));
+        productModalInstance.show();
+      } catch (err) {
+        console.error(err);
+        alert('Error al cargar producto');
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('¿Eliminar este producto?')) return;
+      try {
+        const res = await fetch(`/api/v1/my-restaurants/${restaurantId}/products/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Error');
+        alert('Producto eliminado');
+        loadProducts();
+      } catch (err) {
+        console.error(err);
+        alert('Error al eliminar producto');
+      }
+    }
+
+    document.getElementById('prod_image').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.getElementById('prodImagePreview').src = reader.result;
+          document.getElementById('prodImagePreview').classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('formProduct').addEventListener('submit', async e => {
+      e.preventDefault();
+      const prodId = document.getElementById('prod_id').value;
+      const formData = new FormData();
+      formData.append('name', document.getElementById('prod_name').value);
+      formData.append('description', document.getElementById('prod_description').value);
+      formData.append('price', document.getElementById('prod_price').value);
+      formData.append('category', document.getElementById('prod_category').value);
+      const imageFile = document.getElementById('prod_image').files[0];
+      if (imageFile) formData.append('product_image', imageFile);
+
+      try {
+        const url = prodId
+          ? `/api/v1/my-restaurants/${restaurantId}/products/${prodId}`
+          : `/api/v1/my-restaurants/${restaurantId}/products`;
+        const method = prodId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+        if (!res.ok) throw new Error('Error');
+        alert(prodId ? 'Producto actualizado' : 'Producto creado');
+        productModalInstance.hide();
+        loadProducts();
+      } catch (err) {
+        console.error(err);
+        alert('Error al guardar producto');
+      }
+    });
+
+    function logout() {
+      if (confirm('¿Cerrar sesión?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Cargar datos del restaurante
+      loadRestaurant();
+
+      // Si viene hash #tab-products, abrir pestaña Productos
+      if (location.hash === '#tab-products') {
+        try {
+          const btn = document.querySelector('[data-bs-target="#tab-products"]');
+          if (btn) {
+            const tab = new bootstrap.Tab(btn);
+            tab.show();
+          }
+        } catch (e) { console.warn('No se pudo activar pestaña productos:', e); }
+      }
+
+      // Si query ?add=1 y estamos en pestaña productos, abrir modal de agregar
+      const params = new URLSearchParams(location.search);
+      if (location.hash === '#tab-products' && params.get('add') === '1') {
+        // Esperar un tick para asegurar que la pestaña esté visible
+        setTimeout(() => {
+          showAddProductModal();
+        }, 200);
+      }
+    });
+  </script>
+</body>
+</html>

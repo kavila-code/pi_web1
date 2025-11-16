@@ -162,7 +162,272 @@ document.addEventListener("DOMContentLoaded", function () {
   if (editForm) {
     editForm.addEventListener("submit", onEditUserSubmit);
   }
+
+  // Inicializar sección de Restaurantes si existe en el DOM
+  initAdminRestaurantsSection();
 });
+
+// ===== Gestión de Restaurantes (Admin) =====
+function initAdminRestaurantsSection() {
+  if (window._restaurantsInit) return;
+  window._restaurantsInit = true;
+  const tbody = document.getElementById('restaurantsTableBody');
+  const loading = document.getElementById('restaurantsLoading');
+  const empty = document.getElementById('restaurantsEmpty');
+  if (!tbody || !loading || !empty) return;
+
+  const statusSelect = document.getElementById('restaurantsStatusFilter');
+  const searchInput = document.getElementById('restaurantsSearch');
+
+  const triggerLoad = () => adminLoadRestaurants({
+    status: statusSelect ? statusSelect.value : 'all',
+    search: searchInput ? searchInput.value.trim() : ''
+  });
+
+  if (statusSelect) statusSelect.addEventListener('change', triggerLoad);
+  if (searchInput) {
+    let t;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(triggerLoad, 300);
+    });
+  }
+
+  // Eventos delegados para acciones
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-action][data-id]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const action = btn.getAttribute('data-action');
+    try {
+      if (action === 'approve') await adminApproveRestaurant(id);
+      else if (action === 'deactivate') await adminDeactivateRestaurant(id);
+      else if (action === 'reject') await adminRejectRestaurant(id);
+      else if (action === 'activate') await adminActivateRestaurant(id);
+      else if (action === 'pending') await adminRestorePendingRestaurant(id);
+      else if (action === 'delete') await adminDeleteRestaurant(id);
+      triggerLoad();
+    } catch (err) {
+      console.error('Acción admin restaurante falló:', err);
+      alert(err.message || 'Acción fallida');
+    }
+  });
+
+  // Mejorar tabla estática si ya hay filas renderizadas en el HTML
+  enhanceStaticRestaurantsTable();
+
+  // Carga inicial
+  triggerLoad();
+}
+
+async function adminLoadRestaurants({ status = 'all', search = '' } = {}) {
+  const tbody = document.getElementById('restaurantsTableBody');
+  const loading = document.getElementById('restaurantsLoading');
+  const empty = document.getElementById('restaurantsEmpty');
+  if (!tbody || !loading || !empty) return;
+  const token = localStorage.getItem('token');
+  loading.classList.remove('d-none');
+  empty.classList.add('d-none');
+  tbody.innerHTML = '';
+  try {
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (search) params.set('search', search);
+    const res = await fetch(`/api/v1/admin/restaurants?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      if (handleAuthError(res)) return;
+      throw new Error('No se pudo cargar restaurantes');
+    }
+    const json = await res.json();
+    const rows = json.restaurants || json.data || [];
+    if (!rows.length) {
+      empty.classList.remove('d-none');
+      return;
+    }
+    tbody.innerHTML = rows.map(r => renderRestaurantRow(r)).join('');
+  } catch (err) {
+    console.error('adminLoadRestaurants error:', err);
+    empty.classList.remove('d-none');
+    empty.textContent = 'Error cargando restaurantes';
+  } finally {
+    loading.classList.add('d-none');
+  }
+}
+
+function renderRestaurantRow(r) {
+  const logo = r.logo_url || '/frontend/placeholder-restaurant.svg';
+  const rating = (r.avg_rating || r.rating || 0).toFixed(1);
+  const orders = r.total_orders != null ? r.total_orders : 0;
+  const statusBadge = getStatusBadge(r.status);
+  const actions = getActionsForStatus(r);
+  const viewHref = `/public/restaurant-menu.html?id=${r.id}`;
+  return `
+    <tr>
+      <td style="width:64px">
+        <img src="${logo}" alt="logo" width="48" height="48" class="rounded" onerror="this.onerror=null;this.src='/frontend/placeholder-restaurant.svg'">
+      </td>
+      <td>
+        <div class="fw-semibold">${escapeHtml(r.name || '')}</div>
+        <div class="small text-muted">${escapeHtml(r.address || '')}</div>
+      </td>
+      <td>${escapeHtml(r.category || '')}</td>
+      <td>
+        <div class="small">${escapeHtml(r.phone || '')}</div>
+        <div class="small text-muted">${escapeHtml(r.email || '')}</div>
+      </td>
+      <td>${orders}</td>
+      <td>${rating}</td>
+      <td>${statusBadge}</td>
+      <td class="d-flex gap-2">
+        ${actions}
+        <a class="btn btn-sm btn-outline-secondary" href="${viewHref}" target="_blank" title="Ver página">
+          <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+      </td>
+    </tr>
+  `;
+}
+
+// Fallback: si la tabla viene prerenderizada en HTML, inyectar botones según estado
+function enhanceStaticRestaurantsTable() {
+  const tbody = document.getElementById('restaurantsTableBody');
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length < 8) return;
+    const statusCell = tds[6];
+    const actionsCell = tds[7];
+    if (actionsCell.querySelector('[data-action]')) return; // ya tiene botones
+    // Obtener id desde el link de ver página
+    const viewA = actionsCell.querySelector('a[href*="restaurant-menu.html?id="]');
+    let id = null;
+    if (viewA) {
+      try {
+        const u = new URL(viewA.getAttribute('href'), window.location.origin);
+        id = u.searchParams.get('id');
+      } catch {}
+    }
+    if (!id) return;
+    const txt = (statusCell.textContent || '').trim().toLowerCase();
+    let buttons = '';
+    if (txt.includes('pendiente')) {
+      buttons = `
+        <button class="btn btn-sm btn-success" data-action="approve" data-id="${id}" title="Aprobar"><i class="bi bi-check2"></i></button>
+        <button class="btn btn-sm btn-outline-danger" data-action="reject" data-id="${id}" title="Rechazar"><i class="bi bi-x"></i></button>
+      `;
+    } else if (txt.includes('aceptado') || txt.includes('activo')) {
+      buttons = `
+        <button class="btn btn-sm btn-outline-warning" data-action="deactivate" data-id="${id}" title="Desactivar"><i class="bi bi-pause"></i></button>
+        <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${id}" title="Eliminar"><i class="bi bi-trash"></i></button>
+      `;
+    } else if (txt.includes('inactivo')) {
+      buttons = `
+        <button class="btn btn-sm btn-success" data-action="activate" data-id="${id}" title="Activar"><i class="bi bi-play"></i></button>
+        <button class="btn btn-sm btn-outline-primary" data-action="pending" data-id="${id}" title="Restaurar a pendiente"><i class="bi bi-arrow-counterclockwise"></i></button>
+        <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${id}" title="Eliminar"><i class="bi bi-trash"></i></button>
+      `;
+    } else if (txt.includes('rechazado')) {
+      buttons = `
+        <button class="btn btn-sm btn-outline-primary" data-action="pending" data-id="${id}" title="Restaurar a pendiente"><i class="bi bi-arrow-counterclockwise"></i></button>
+        <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${id}" title="Eliminar"><i class="bi bi-trash"></i></button>
+      `;
+    }
+    if (buttons) actionsCell.insertAdjacentHTML('afterbegin', buttons);
+  });
+}
+
+function getStatusBadge(status) {
+  const s = (status || '').toLowerCase();
+  if (s === 'active') return '<span class="badge bg-success">Aceptado</span>';
+  if (s === 'pending') return '<span class="badge bg-warning text-dark">Pendiente</span>';
+  if (s === 'rejected') return '<span class="badge bg-danger">Rechazado</span>';
+  return '<span class="badge bg-secondary">Inactivo</span>';
+}
+
+function getActionsForStatus(r) {
+  const s = (r.status || '').toLowerCase();
+  const id = r.id;
+  if (s === 'pending') {
+    return `
+      <button class="btn btn-sm btn-success" data-action="approve" data-id="${id}"><i class="bi bi-check2"></i></button>
+      <button class="btn btn-sm btn-outline-danger" data-action="reject" data-id="${id}"><i class="bi bi-x"></i></button>
+    `;
+  }
+  if (s === 'active') {
+    return `
+      <button class="btn btn-sm btn-outline-warning" data-action="deactivate" data-id="${id}"><i class="bi bi-pause"></i></button>
+      <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${id}"><i class="bi bi-trash"></i></button>
+    `;
+  }
+  if (s === 'inactive') {
+    return `
+      <button class="btn btn-sm btn-success" data-action="activate" data-id="${id}"><i class="bi bi-play"></i></button>
+      <button class="btn btn-sm btn-outline-primary" data-action="pending" data-id="${id}"><i class="bi bi-arrow-counterclockwise"></i></button>
+      <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${id}"><i class="bi bi-trash"></i></button>
+    `;
+  }
+  if (s === 'rejected') {
+    return `
+      <button class="btn btn-sm btn-outline-primary" data-action="pending" data-id="${id}"><i class="bi bi-arrow-counterclockwise"></i></button>
+      <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${id}"><i class="bi bi-trash"></i></button>
+    `;
+  }
+  return '';
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+async function adminApproveRestaurant(id) {
+  return adminPatch(`/api/v1/admin/restaurants/${id}/approve`, 'Restaurante aprobado');
+}
+async function adminDeactivateRestaurant(id) {
+  return adminPatch(`/api/v1/admin/restaurants/${id}/deactivate`, 'Restaurante desactivado');
+}
+async function adminRejectRestaurant(id) {
+  return adminPatch(`/api/v1/admin/restaurants/${id}/reject`, 'Solicitud rechazada');
+}
+async function adminActivateRestaurant(id) {
+  return adminPatch(`/api/v1/admin/restaurants/${id}/activate`, 'Restaurante activado');
+}
+async function adminRestorePendingRestaurant(id) {
+  return adminPatch(`/api/v1/admin/restaurants/${id}/pending`, 'Restaurante marcado como pendiente');
+}
+async function adminDeleteRestaurant(id) {
+  const sure = confirm('Esta acción eliminará el restaurante. ¿Continuar?');
+  if (!sure) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/restaurants/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    if (handleAuthError(res)) return;
+    const j = await res.json().catch(() => ({}));
+    throw new Error(j.message || 'No se pudo eliminar');
+  }
+  return true;
+}
+
+async function adminPatch(url, successMsg) {
+  const token = localStorage.getItem('token');
+  const res = await fetch(url, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) {
+    if (handleAuthError(res)) return;
+    const j = await res.json().catch(() => ({}));
+    throw new Error(j.message || 'Operación fallida');
+  }
+  return true;
+}
 
 // Función para cargar datos del dashboard (usuarios, pedidos, restaurantes, ingresos)
 async function loadDashboardData() {
@@ -2606,16 +2871,26 @@ async function adminLoadRestaurants() {
         const st = (r.status||'').toLowerCase();
         if (st === 'active') {
           return `
-            <button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>
-            <button class="btn btn-sm btn-outline-secondary" data-action="delete" data-id="${r.id}"><i class="bi bi-trash"></i> Eliminar</button>
+            <button class="btn btn-sm btn-outline-warning" data-action="deactivate" data-id="${r.id}"><i class="bi bi-pause"></i> Desactivar</button>
+            <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${r.id}"><i class="bi bi-trash"></i> Eliminar</button>
           `;
         }
         if (st === 'pending') {
           return `
-            <button class="btn btn-sm btn-success" data-action="approve" data-id="${r.id}"><i class="bi bi-check2-circle"></i> Aprobar</button>
-            <button class="btn btn-sm btn-outline-secondary" data-action="reject" data-id="${r.id}"><i class="bi bi-x-circle"></i> Rechazar</button>`;
+            <button class="btn btn-sm btn-success" data-action="approve" data-id="${r.id}"><i class="bi bi-check2"></i> Aprobar</button>
+            <button class="btn btn-sm btn-outline-danger" data-action="reject" data-id="${r.id}"><i class="bi bi-x"></i> Rechazar</button>`;
         }
-        // rejected/inactive: sin acciones por ahora
+        if (st === 'inactive') {
+          return `
+            <button class="btn btn-sm btn-success" data-action="activate" data-id="${r.id}"><i class="bi bi-play"></i> Activar</button>
+            <button class="btn btn-sm btn-outline-primary" data-action="pending" data-id="${r.id}"><i class="bi bi-arrow-counterclockwise"></i> Restaurar a pendiente</button>
+            <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${r.id}"><i class="bi bi-trash"></i> Eliminar</button>`;
+        }
+        if (st === 'rejected') {
+          return `
+            <button class="btn btn-sm btn-outline-primary" data-action="pending" data-id="${r.id}"><i class="bi bi-arrow-counterclockwise"></i> Restaurar a pendiente</button>
+            <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${r.id}"><i class="bi bi-trash"></i> Eliminar</button>`;
+        }
         return '';
       })();
       return `
@@ -2652,6 +2927,8 @@ async function adminLoadRestaurants() {
         if (action === 'approve') await adminApproveRestaurant(id);
         if (action === 'deactivate') await adminDeactivateRestaurant(id);
         if (action === 'reject') await adminRejectRestaurant(id);
+        if (action === 'activate') await adminActivateRestaurant(id);
+        if (action === 'pending') await adminRestorePendingRestaurant(id);
         if (action === 'delete') await adminDeleteRestaurant(id);
       });
     });
@@ -2664,7 +2941,7 @@ async function adminLoadRestaurants() {
 }
 
 function normalizeLogoUrl(url) {
-  if (!url) return '/imagenes/restaurantes/placeholder.png';
+  if (!url) return '/frontend/placeholder-restaurant.svg';
   return url.replace('/IMAGENES', '/imagenes');
 }
 
@@ -2708,15 +2985,15 @@ async function adminRejectRestaurant(id) {
 }
 
 async function adminDeleteRestaurant(id) {
-  if (!confirm('¿Eliminar este restaurante? Esto lo removerá del listado (acción reversible si aún conserva datos).')) return;
+  if (!confirm('¿Eliminar este restaurante permanentemente? Se eliminarán sus productos y favoritos.')) return;
   const token = localStorage.getItem('token');
-  const res = await fetch(`/api/v1/restaurants/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`/api/v1/restaurants/${id}?hard=true`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
   const js = await res.json().catch(() => ({}));
   if (!res.ok || js.ok === false) {
     alert(js.message || 'No se pudo eliminar');
     return;
   }
-  showNotification('Restaurante eliminado', 'secondary', 3000);
+  showNotification(js.hard ? 'Restaurante eliminado permanentemente' : 'Restaurante eliminado', 'secondary', 3000);
   adminLoadRestaurants();
 }
 

@@ -44,7 +44,7 @@ function openRestaurantRegistration(event) {
               </ul>
             </div>
             <div class="d-grid gap-2 mt-3">
-              <a href="/public/register-restaurant.html" class="btn btn-lg text-white" style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red)); border: none;">
+              <a href="/register-restaurant" class="btn btn-lg text-white" style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red)); border: none;">
                 <i class="bi bi-pencil-square"></i> Registrar mi restaurante
               </a>
               <p class="text-muted small text-center mb-0">
@@ -819,3 +819,90 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Restaurant buttons keep default behavior (no redirect added)
+
+// Cargar restaurantes destacados en la página principal
+async function loadFeaturedRestaurants() {
+  const container = document.getElementById('restaurantsGrid');
+  if (!container) return;
+
+  try {
+    // Cargar restaurantes desde la API
+    const restaurants = await getAllRestaurants();
+    
+    container.innerHTML = '';
+    
+    if (!restaurants || restaurants.length === 0) {
+      container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No hay restaurantes disponibles en este momento</p></div>';
+      return;
+    }
+
+    // Mostrar solo los primeros 6 restaurantes
+    const featured = restaurants.slice(0, 6);
+    
+    featured.forEach(restaurant => {
+      const col = document.createElement('div');
+      col.className = 'col-lg-4 col-md-6 mb-4';
+      
+      const deliveryTime = restaurant.deliveryTime || `${restaurant.deliveryTimeMin || 20}-${restaurant.deliveryTimeMax || 45} min`;
+      const deliveryFee = restaurant.deliveryFee || 'Gratis';
+      const rating = restaurant.rating || 0;
+      const reviews = restaurant.reviews || 0;
+      
+      col.innerHTML = `
+        <div class="restaurant-card h-100" style="cursor: pointer; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s;">
+          <div class="restaurant-image position-relative" style="height: 200px; overflow: hidden;">
+            <img src="${restaurant.image}" alt="${restaurant.name}" 
+                 style="width: 100%; height: 100%; object-fit: cover;"
+                 onerror="this.src='/imagenes/restaurantes/placeholder.png'">
+                      <div class="favorite-toggle" data-restaurant-id="${restaurant.id}" onclick="event.stopPropagation();toggleFavorite(${restaurant.id})" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <i class="bi bi-heart"></i>
+                      </div>
+          </div>
+          <div class="restaurant-info p-3">
+            <h5 class="mb-2">${restaurant.name}</h5>
+            <p class="restaurant-category text-muted mb-2" style="font-size: 0.9rem;">
+              <i class="bi bi-tag-fill me-1"></i>${restaurant.category || 'Varios'}
+            </p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="restaurant-rating">
+                <i class="bi bi-star-fill text-warning"></i>
+                <span>${rating.toFixed(1)}</span>
+                <small class="text-muted">(${reviews})</small>
+              </div>
+            </div>
+            <div class="restaurant-meta d-flex justify-content-between text-muted" style="font-size: 0.85rem;">
+              <span><i class="bi bi-clock"></i> ${deliveryTime}</span>
+              <span><i class="bi bi-truck"></i> ${deliveryFee}</span>
+            </div>
+            <button class="btn btn-primary w-100 mt-3" onclick="window.location.href='/public/restaurant-menu.html?id=${restaurant.id}'">
+              Ver Menú
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Agregar efecto hover
+      const card = col.querySelector('.restaurant-card');
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+        this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+      });
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+      });
+      
+      container.appendChild(col);
+    });
+  } catch (error) {
+    console.error('Error cargando restaurantes:', error);
+    container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-danger">Error al cargar restaurantes</p></div>';
+  }
+}
+
+// Cargar restaurantes cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+  if (document.getElementById('restaurantsGrid')) {
+    loadFeaturedRestaurants();
+  }
+});

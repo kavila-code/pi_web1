@@ -195,15 +195,29 @@ const getOrders = async (req, res) => {
 // Obtener lista de restaurantes (admin) con filtros status/search
 const getRestaurants = async (req, res) => {
   try {
-    const status = (req.query.status || 'all').toLowerCase(); // 'all' | 'active' | 'pending' | 'rejected'
+    const status = (req.query.status || 'all').toLowerCase(); // 'all' | 'active' | 'pending' | 'rejected' | 'inactive'
     const search = (req.query.search || '').trim();
+
+    // Detectar si la columna status existe para compatibilidad hacia atrás
+    const colRes = await req.db.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'restaurants' AND column_name = 'status'
+      ) AS has_status
+    `);
+    const hasStatus = !!colRes.rows[0]?.has_status;
 
     const params = [];
     let where = '1=1';
+    if (hasStatus) {
+      // excluir borrados lógicos del listado
+      where += " AND (r.status IS NULL OR r.status <> 'deleted')";
+    }
 
-    if (status === 'active') where += " AND r.status = 'active'";
-    else if (status === 'pending') where += " AND r.status = 'pending'";
-    else if (status === 'rejected') where += " AND r.status = 'rejected'";
+    if (status === 'active') where += hasStatus ? " AND r.status = 'active'" : ' AND r.is_active = true';
+    else if (status === 'pending') where += hasStatus ? " AND r.status = 'pending'" : ' AND r.is_active = false';
+    else if (status === 'rejected') where += hasStatus ? " AND r.status = 'rejected'" : ' AND r.is_active = false';
+    else if (status === 'inactive') where += hasStatus ? " AND r.status = 'inactive'" : ' AND r.is_active = false';
 
     if (search) {
       params.push(`%${search}%`);
@@ -211,6 +225,7 @@ const getRestaurants = async (req, res) => {
       where += ` AND (r.name ILIKE $${params.length-1} OR r.category ILIKE $${params.length})`;
     }
 
+    const statusSelect = hasStatus ? 'r.status' : "CASE WHEN r.is_active THEN 'active' ELSE 'inactive' END AS status";
     const q = `
       SELECT 
         r.id,
@@ -221,7 +236,7 @@ const getRestaurants = async (req, res) => {
         r.email,
         r.logo_url,
         r.is_active,
-        r.status,
+        ${statusSelect},
         r.is_open,
         COALESCE(AVG(o.rating),0)::numeric(10,2) AS avg_rating,
         COUNT(o.id)::int AS total_orders
@@ -277,6 +292,32 @@ const rejectRestaurant = async (req, res) => {
   } catch (error) {
     console.error('Error rejectRestaurant:', error);
     return res.status(500).json({ ok: false, message: 'No se pudo rechazar el restaurante' });
+  }
+};
+
+// Activar restaurante (desde inactivo)
+const activateRestaurant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await req.db.query("UPDATE restaurants SET is_active = true, status = 'active' WHERE id = $1 RETURNING *", [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+    return res.json({ ok: true, message: 'Restaurante activado', restaurant: rows[0] });
+  } catch (error) {
+    console.error('Error activateRestaurant:', error);
+    return res.status(500).json({ ok: false, message: 'No se pudo activar el restaurante' });
+  }
+};
+
+// Restaurar a pendiente (revisión manual requerida)
+const restorePendingRestaurant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await req.db.query("UPDATE restaurants SET is_active = false, status = 'pending' WHERE id = $1 RETURNING *", [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+    return res.json({ ok: true, message: 'Restaurante marcado como pendiente', restaurant: rows[0] });
+  } catch (error) {
+    console.error('Error restorePendingRestaurant:', error);
+    return res.status(500).json({ ok: false, message: 'No se pudo restaurar a pendiente' });
   }
 };
 
@@ -899,6 +940,8 @@ export const AdminController = {
   approveRestaurant,
   deactivateRestaurant,
   rejectRestaurant,
+  activateRestaurant,
+  restorePendingRestaurant,
   getEcosystemModel,
   getQueueMetrics,
   getLogisticGrowth,

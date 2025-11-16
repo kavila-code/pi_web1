@@ -1,4 +1,5 @@
 import { ProductModel } from '../models/product.model.js';
+import { RestaurantModel } from '../models/restaurant.model.js';
 
 // Obtener productos de un restaurante
 export const getProductsByRestaurant = async (req, res) => {
@@ -240,6 +241,164 @@ export const getCategoriesByRestaurant = async (req, res) => {
     return res.status(500).json({
       ok: false,
       message: 'Error al obtener categorías',
+      error: error.message,
+    });
+  }
+};
+
+// ===== ENDPOINTS PARA PROPIETARIOS DE RESTAURANTES =====
+
+// Crear producto en restaurante propio
+export const createMyProduct = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const userId = req.user?.uid;
+
+    if (!userId) {
+      return res.status(401).json({ ok: false, message: 'No autenticado' });
+    }
+
+    // Verificar que el usuario es propietario del restaurante
+    const restaurants = await RestaurantModel.getByOwner(userId);
+    const ownsRestaurant = restaurants.some(r => r.id === parseInt(restaurantId));
+
+    if (!ownsRestaurant) {
+      return res.status(403).json({ ok: false, message: 'No tienes permisos para agregar productos a este restaurante' });
+    }
+
+    const productData = {
+      restaurant_id: restaurantId,
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      price: req.body.price,
+      image_url: req.file ? `/uploads/products/${req.file.filename}` : req.body.image_url,
+      is_vegetarian: req.body.is_vegetarian || false,
+      is_vegan: req.body.is_vegan || false,
+      preparation_time: req.body.preparation_time || 15,
+      calories: req.body.calories || null,
+      allergens: req.body.allergens || null,
+    };
+
+    if (!productData.name || !productData.price) {
+      return res.status(400).json({ ok: false, message: 'Nombre y precio son requeridos' });
+    }
+
+    const newProduct = await ProductModel.create(productData);
+
+    return res.status(201).json({
+      ok: true,
+      message: 'Producto creado exitosamente',
+      data: newProduct,
+    });
+  } catch (error) {
+    console.error('Error al crear producto:', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Error al crear producto',
+      error: error.message,
+    });
+  }
+};
+
+// Actualizar producto en restaurante propio
+export const updateMyProduct = async (req, res) => {
+  try {
+    const { restaurantId, productId } = req.params;
+    const userId = req.user?.uid;
+
+    if (!userId) {
+      return res.status(401).json({ ok: false, message: 'No autenticado' });
+    }
+
+    // Verificar que el usuario es propietario del restaurante
+    const restaurants = await RestaurantModel.getByOwner(userId);
+    const ownsRestaurant = restaurants.some(r => r.id === parseInt(restaurantId));
+
+    if (!ownsRestaurant) {
+      return res.status(403).json({ ok: false, message: 'No tienes permisos para editar este producto' });
+    }
+
+    const updateData = {
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      price: req.body.price,
+      image_url: req.file ? `/uploads/products/${req.file.filename}` : req.body.image_url,
+      is_available: req.body.is_available,
+      is_vegetarian: req.body.is_vegetarian,
+      is_vegan: req.body.is_vegan,
+      preparation_time: req.body.preparation_time,
+      calories: req.body.calories,
+      allergens: req.body.allergens,
+      discount_percentage: req.body.discount_percentage,
+    };
+
+    // Remover campos undefined
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] === undefined) {
+        delete updateData[key];
+      }
+    });
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ ok: false, message: 'No hay datos para actualizar' });
+    }
+
+    const updatedProduct = await ProductModel.update(productId, updateData);
+
+    if (!updatedProduct) {
+      return res.status(404).json({ ok: false, message: 'Producto no encontrado' });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Producto actualizado exitosamente',
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error('Error al actualizar producto:', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Error al actualizar producto',
+      error: error.message,
+    });
+  }
+};
+
+// Eliminar producto de restaurante propio
+export const deleteMyProduct = async (req, res) => {
+  try {
+    const { restaurantId, productId } = req.params;
+    const userId = req.user?.uid;
+
+    if (!userId) {
+      return res.status(401).json({ ok: false, message: 'No autenticado' });
+    }
+
+    // Verificar que el usuario es propietario del restaurante
+    const restaurants = await RestaurantModel.getByOwner(userId);
+    const ownsRestaurant = restaurants.some(r => r.id === parseInt(restaurantId));
+
+    if (!ownsRestaurant) {
+      return res.status(403).json({ ok: false, message: 'No tienes permisos para eliminar este producto' });
+    }
+
+    const deleted = await ProductModel.remove(productId);
+
+    if (!deleted) {
+      return res.status(404).json({ ok: false, message: 'Producto no encontrado' });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Producto eliminado exitosamente',
+    });
+  } catch (error) {
+    console.error('Error al eliminar producto:', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Error al eliminar producto',
       error: error.message,
     });
   }

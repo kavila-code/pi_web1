@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './database/connection.database.js';
+import { stripeWebhook, paymentRouter } from './controllers/payment.controller.js';
 
 import userRouter from './routes/user.route.js';
 import adminRouter from './routes/admin.route.js';
@@ -13,6 +14,7 @@ import restaurantRouter from './routes/restaurant.route.js';
 import productRouter from './routes/product.route.js';
 import orderRouter from './routes/order.route.js';
 import userInfoRouter from './routes/user-info.route.js';
+import favoriteRouter from './routes/favorite.route.js';
 
 const app = express();
 
@@ -31,6 +33,9 @@ console.log('Static images carpeta comida:', imagenesComidaPath);
 console.log('Static images carpeta restaurantes:', imagenesRestPath);
 app.use('/imagenes/comida', express.static(imagenesComidaPath));
 app.use('/imagenes/restaurantes', express.static(imagenesRestPath));
+
+// Webhook Stripe: montar ANTES de express.json() para acceder al cuerpo RAW
+app.post('/api/v1/payments/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 
 // Middlewares
 app.use(express.json());
@@ -61,6 +66,8 @@ app.use('/api/v1/user-info', userInfoRouter);
 app.use('/api/v1', restaurantRouter);
 app.use('/api/v1', productRouter);
 app.use('/api/v1', orderRouter);
+app.use('/api/v1', favoriteRouter);
+app.use('/api/v1', paymentRouter);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

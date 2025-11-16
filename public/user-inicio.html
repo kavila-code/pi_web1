@@ -57,6 +57,11 @@
             <li class="nav-item">
               <a class="nav-link" href="#ofertas">Ofertas</a>
             </li>
+            <li class="nav-item" id="myRestaurantsNavItem2" style="display:none;">
+              <a class="nav-link" href="/public/my-restaurants.html">
+                <i class="bi bi-shop me-1"></i>Mis Restaurantes
+              </a>
+            </li>
           </ul>
 
           <!-- Acciones del navbar alineadas a la derecha: usar misma estructura y clases que en index.html -->
@@ -672,137 +677,11 @@
       <div class="container">
         <div class="section-header">
           <h2><i class="bi bi-heart-fill"></i> Tus Restaurantes Favoritos</h2>
-          <a href="#" class="btn btn-outline-primary">Explorar Más</a>
+          <a href="/public/restaurants.html" class="btn btn-outline-primary">Explorar Más</a>
         </div>
 
-        <div class="row">
-          <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=1'" style="cursor:pointer">
-              <div class="restaurant-image">
-                <img
-                  src="/imagenes/restaurantes/LA%20BELLA%20ITALIA.jpg"
-                  alt="Pizza Palace"
-                  onerror="this.src='/frontend/placeholder-restaurant.svg'"
-                />
-                <div class="favorite-badge">
-                  <i class="bi bi-heart-fill"></i>
-                </div>
-              </div>
-              <div class="restaurant-info">
-                <h5>Pizza Palace</h5>
-                <div class="restaurant-rating">
-                  <i class="bi bi-star-fill"></i>
-                  <span>4.8</span>
-                  <small>(127 reseñas)</small>
-                </div>
-                <p class="restaurant-category">Pizza • Italiana • $$$</p>
-                <div class="restaurant-meta">
-                  <span class="delivery-time">
-                    <i class="bi bi-clock"></i> 25-35 min
-                  </span>
-                  <span class="delivery-fee">
-                    <i class="bi bi-truck"></i> Gratis
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=2'" style="cursor:pointer">
-              <div class="restaurant-image">
-                <img
-                  src="/imagenes/restaurantes/burger-master.jpg"
-                  alt="Burger Express"
-                  onerror="this.src='/frontend/placeholder-restaurant.svg'"
-                />
-                <div class="favorite-badge">
-                  <i class="bi bi-heart-fill"></i>
-                </div>
-              </div>
-              <div class="restaurant-info">
-                <h5>Burger Express</h5>
-                <div class="restaurant-rating">
-                  <i class="bi bi-star-fill"></i>
-                  <span>4.6</span>
-                  <small>(89 reseñas)</small>
-                </div>
-                <p class="restaurant-category">Hamburguesas • Americana • $$</p>
-                <div class="restaurant-meta">
-                  <span class="delivery-time">
-                    <i class="bi bi-clock"></i> 20-30 min
-                  </span>
-                  <span class="delivery-fee">
-                    <i class="bi bi-truck"></i> $2.50
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=3'" style="cursor:pointer">
-              <div class="restaurant-image">
-                <img
-                  src="/imagenes/restaurantes/SAKURA%20SUSHI.jpg"
-                  alt="Sushi Zen"
-                  onerror="this.src='/frontend/placeholder-restaurant.svg'"
-                />
-                <div class="favorite-badge">
-                  <i class="bi bi-heart-fill"></i>
-                </div>
-              </div>
-              <div class="restaurant-info">
-                <h5>Sushi Zen</h5>
-                <div class="restaurant-rating">
-                  <i class="bi bi-star-fill"></i>
-                  <span>4.9</span>
-                  <small>(156 reseñas)</small>
-                </div>
-                <p class="restaurant-category">Sushi • Japonesa • $$$$</p>
-                <div class="restaurant-meta">
-                  <span class="delivery-time">
-                    <i class="bi bi-clock"></i> 35-45 min
-                  </span>
-                  <span class="delivery-fee">
-                    <i class="bi bi-truck"></i> Gratis
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6 mb-4">
-            <div class="restaurant-card favorite" onclick="location.href='/public/restaurant-menu.html?id=14'" style="cursor:pointer">
-              <div class="restaurant-image">
-                <img
-                  src="/imagenes/restaurantes/AZTECA%20MEXICANO.jpg"
-                  alt="Taco Fiesta"
-                  onerror="this.src='/frontend/placeholder-restaurant.svg'"
-                />
-                <div class="favorite-badge">
-                  <i class="bi bi-heart-fill"></i>
-                </div>
-              </div>
-              <div class="restaurant-info">
-                <h5>Taco Fiesta</h5>
-                <div class="restaurant-rating">
-                  <i class="bi bi-star-fill"></i>
-                  <span>4.7</span>
-                  <small>(94 reseñas)</small>
-                </div>
-                <p class="restaurant-category">Mexicana • Tacos • $$</p>
-                <div class="restaurant-meta">
-                  <span class="delivery-time">
-                    <i class="bi bi-clock"></i> 15-25 min
-                  </span>
-                  <span class="delivery-fee">
-                    <i class="bi bi-truck"></i> $1.50
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="row" id="favoritesGrid">
+          <!-- Los favoritos se cargarán dinámicamente aquí -->
         </div>
       </div>
     </section>
@@ -858,6 +737,7 @@
   <!-- Common JS (shared utilities and load-more for restaurants) -->
   <script src="/frontend/js/common.js"></script>
   <script src="/frontend/js/cart.js"></script>
+  <script src="/frontend/js/favorites.js"></script>
   <script src="/frontend/js/index.js"></script>
 
     <!-- Custom JavaScript -->
@@ -883,15 +763,11 @@
 
       currentUser = user;
   loadUserData(user);
-  // Inicializar la lista de restaurantes desde la lista maestra y renderizar los primeros
-  try {
-    if (typeof window._CURRENT_RESTAURANTS === 'undefined') window._CURRENT_RESTAURANTS = getAllRestaurants();
-    // Renderizar 6 iniciales (o ajustar según prefieras)
-    renderRestaurantsContainer(6, '#restaurantsList');
-  } catch (e) {
-    // Fallback a la implementación local si las utilidades no están disponibles
-    loadRestaurants();
-  }
+  // Inicializar la lista de restaurantes desde la API y renderizar los primeros
+  renderRestaurantsContainer(6, '#restaurantsList').catch(e => {
+    console.error('Error cargando restaurantes:', e);
+    document.querySelector('#restaurantsList').innerHTML = '<div class="col-12 text-center py-5"><p class="text-danger">Error al cargar restaurantes</p></div>';
+  });
 
   // Inicializar comportamiento de 'Cargar Más Restaurantes'
   try { initLoadMoreRestaurants(); } catch (e) { console.warn('initLoadMoreRestaurants no disponible:', e); }
@@ -901,6 +777,9 @@
 
   // Cargar pedidos recientes pagados
   loadRecentOrders();
+
+  // Verificar si el usuario tiene restaurantes
+  checkMyRestaurantsNav();
       });
 
       function loadUserData(user) {
@@ -913,110 +792,105 @@
           userMenu.textContent = user.nombre;
         }
 
-        // Cargar estadísticas del usuario (simuladas)
+        // Cargar estadísticas reales del usuario
         loadUserStats();
       }
 
-      function loadUserStats() {
-        // Simular carga de estadísticas
-        const stats = {
-          totalOrders: Math.floor(Math.random() * 50) + 5,
-          favoriteRestaurants: Math.floor(Math.random() * 10) + 3,
-          loyaltyPoints: Math.floor(Math.random() * 500) + 100,
-          totalSavings: Math.floor(Math.random() * 25) + 10,
-        };
+      async function loadUserStats() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
 
-        document.getElementById("totalOrders").textContent = stats.totalOrders;
-        document.getElementById("favoriteRestaurants").textContent =
-          stats.favoriteRestaurants;
-        document.getElementById("loyaltyPoints").textContent =
-          stats.loyaltyPoints;
-        document.getElementById("totalSavings").textContent =
-          stats.totalSavings + "%";
+        try {
+          // Obtener pedidos del usuario
+          const ordersRes = await fetch('/api/v1/my-orders', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          let totalOrders = 0;
+          let totalSpent = 0;
+          let completedOrders = 0;
+
+          if (ordersRes.ok) {
+            const ordersData = await ordersRes.json();
+            const orders = ordersData.data || [];
+            totalOrders = orders.length;
+            
+            // Calcular total gastado y pedidos completados
+            orders.forEach(order => {
+              if (order.total_amount) {
+                totalSpent += parseFloat(order.total_amount);
+              }
+              if (order.status === 'delivered' || order.status === 'completed') {
+                completedOrders++;
+              }
+            });
+          }
+
+          // Obtener restaurantes favoritos (simulado por ahora, puedes agregar una tabla de favoritos)
+          const favoriteRestaurants = Math.floor(totalOrders / 3); // Estimación basada en pedidos
+
+          // Calcular puntos de lealtad (100 puntos por cada pedido completado)
+          const loyaltyPoints = completedOrders * 100;
+
+          // Calcular ahorros (estimado en 15% del total gastado en ofertas)
+          const totalSavings = totalSpent > 0 ? Math.floor((totalSpent * 0.15) / totalSpent * 100) : 0;
+
+          // Actualizar UI
+          document.getElementById("totalOrders").textContent = totalOrders;
+          document.getElementById("favoriteRestaurants").textContent = favoriteRestaurants;
+          document.getElementById("loyaltyPoints").textContent = loyaltyPoints;
+          document.getElementById("totalSavings").textContent = totalSavings + "%";
+
+        } catch (error) {
+          console.error('Error cargando estadísticas:', error);
+          // Valores por defecto en caso de error
+          document.getElementById("totalOrders").textContent = "0";
+          document.getElementById("favoriteRestaurants").textContent = "0";
+          document.getElementById("loyaltyPoints").textContent = "0";
+          document.getElementById("totalSavings").textContent = "0%";
+        }
       }
 
-      function loadRestaurants() {
-        // Simulación de restaurantes (usar imágenes desde IMAGENES/RESTAURANTES)
-        const restaurants = [
-          {
-            id: 1,
-            name: "Casa de las Empanadas",
-            category: "Colombiana • Empanadas • $$",
-            rating: 4.5,
-            reviews: 78,
-            deliveryTime: "20-30 min",
-            deliveryFee: "Gratis",
-            image: "/imagenes/restaurantes/la%20casa%20de%20las%20empanadas.png",
-          },
-          {
-            id: 2,
-            name: "Parrilla Los Amigos",
-            category: "Parrilla • Carnes • $$$",
-            rating: 4.7,
-            reviews: 132,
-            deliveryTime: "30-40 min",
-            deliveryFee: "$3.00",
-            image: "/imagenes/restaurantes/parrilla%20los%20amigos.jpg",
-          },
-          {
-            id: 3,
-            name: "Café Central",
-            category: "Café • Desayunos • $$",
-            rating: 4.6,
-            reviews: 89,
-            deliveryTime: "15-25 min",
-            deliveryFee: "$2.00",
-            image: "/imagenes/restaurantes/cafe%20central.jpg",
-          },
-          {
-            id: 4,
-            name: "Pollo Dorado",
-            category: "Pollo • Comida Rápida • $$",
-            rating: 4.4,
-            reviews: 156,
-            deliveryTime: "20-30 min",
-            deliveryFee: "$2.50",
-            image: "/imagenes/restaurantes/pollo%20dorado.png",
-          },
-          {
-            id: 5,
-            name: "Heladería Tropical",
-            category: "Helados • Postres • $",
-            rating: 4.8,
-            reviews: 67,
-            deliveryTime: "10-20 min",
-            deliveryFee: "$1.50",
-            image: "/imagenes/restaurantes/heladeria%20tropical.jpg",
-          },
-          {
-            id: 6,
-            name: "Comida China Dragon",
-            category: "China • Asiática • $$",
-            rating: 4.3,
-            reviews: 98,
-            deliveryTime: "25-35 min",
-            deliveryFee: "$2.50",
-            image: "/imagenes/restaurantes/comida%20china%20dragon.jpg",
-          },
-        ];
+      async function loadRestaurants() {
+        try {
+          const res = await fetch('/api/v1/restaurants');
+          if (!res.ok) throw new Error('No se pudieron cargar restaurantes');
+          const json = await res.json();
+          const restaurants = json.data || json.restaurants || [];
 
-        const restaurantsList = document.getElementById("restaurantsList");
-        restaurantsList.innerHTML = "";
+          const restaurantsList = document.getElementById("restaurantsList");
+          restaurantsList.innerHTML = "";
 
-        restaurants.forEach((restaurant) => {
-          const restaurantCard = createRestaurantCard(restaurant);
-          restaurantsList.appendChild(restaurantCard);
-        });
+          if (!restaurants.length) {
+            restaurantsList.innerHTML = '<div class="col-12 text-center"><p class="text-muted">No hay restaurantes disponibles</p></div>';
+            return;
+          }
+
+          restaurants.forEach((restaurant) => {
+            const restaurantCard = createRestaurantCard(restaurant);
+            restaurantsList.appendChild(restaurantCard);
+          });
+        } catch (err) {
+          console.error('Error cargando restaurantes:', err);
+          const restaurantsList = document.getElementById("restaurantsList");
+          restaurantsList.innerHTML = '<div class="col-12 text-center"><p class="text-danger">Error al cargar restaurantes</p></div>';
+        }
       }
 
       function createRestaurantCard(restaurant) {
         const col = document.createElement("div");
         col.className = "col-lg-4 col-md-6 mb-4";
 
+        const logo = restaurant.logo_url || restaurant.image || '/frontend/placeholder-restaurant.svg';
+        const rating = (restaurant.avg_rating || restaurant.rating || 0).toFixed(1);
+        const reviews = restaurant.total_reviews || restaurant.reviews || 0;
+        const deliveryTime = restaurant.delivery_time || restaurant.deliveryTime || `${restaurant.delivery_time_min || 30}-${restaurant.delivery_time_max || 45} min`;
+        const deliveryFee = restaurant.delivery_cost != null ? `$${Number(restaurant.delivery_cost).toLocaleString()}` : (restaurant.deliveryFee || 'Gratis');
+
         col.innerHTML = `
           <div class="restaurant-card" onclick="location.href='/public/restaurant-menu.html?id=${restaurant.id}'" style="cursor:pointer">
             <div class="restaurant-image">
-              <img src="${restaurant.image}" alt="${restaurant.name}" onerror="this.src='/frontend/placeholder-restaurant.svg'">
+              <img src="${logo}" alt="${restaurant.name}" onerror="this.onerror=null;this.src='/frontend/placeholder-restaurant.svg'">
               <div class="favorite-toggle" onclick="event.stopPropagation();toggleFavorite(${restaurant.id})">
                 <i class="bi bi-heart"></i>
               </div>
@@ -1025,16 +899,16 @@
               <h5>${restaurant.name}</h5>
               <div class="restaurant-rating">
                 <i class="bi bi-star-fill"></i>
-                <span>${restaurant.rating}</span>
-                <small>(${restaurant.reviews} reseñas)</small>
+                <span>${rating}</span>
+                <small>(${reviews} reseñas)</small>
               </div>
-              <p class="restaurant-category">${restaurant.category}</p>
+              <p class="restaurant-category">${restaurant.category || 'General'}</p>
               <div class="restaurant-meta">
                 <span class="delivery-time">
-                  <i class="bi bi-clock"></i> ${restaurant.deliveryTime}
+                  <i class="bi bi-clock"></i> ${deliveryTime}
                 </span>
                 <span class="delivery-fee">
-                  <i class="bi bi-truck"></i> ${restaurant.deliveryFee}
+                  <i class="bi bi-truck"></i> ${deliveryFee}
                 </span>
               </div>
               <button class="btn btn-primary w-100 mt-2" onclick="event.stopPropagation();location.href='/public/restaurant-menu.html?id=${restaurant.id}'">
@@ -1106,10 +980,7 @@
         // Implementar lógica de ordenamiento
       }
 
-      function toggleFavorite(restaurantId) {
-        console.log("Toggle favorito para restaurante:", restaurantId);
-        // Implementar lógica de favoritos
-      }
+      // toggleFavorite se maneja desde /frontend/js/favorites.js
 
       function viewRestaurant(restaurantId) {
         console.log("Ver restaurante:", restaurantId);
@@ -1259,6 +1130,33 @@
       }
 
       document.addEventListener('DOMContentLoaded', injectSushiItems);
+
+      // Verificar si el usuario tiene restaurantes para mostrar botón navbar
+      async function checkMyRestaurantsNav() {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+          const res = await fetch('/api/v1/my-restaurants', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) return;
+          const json = await res.json();
+          const restaurants = json.data || [];
+          if (restaurants.length > 0) {
+            const navItem = document.getElementById('myRestaurantsNavItem2');
+            if (navItem) navItem.style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Error checking restaurants nav:', err);
+        }
+      }
+
+      // Renderizar favoritos al cargar si está el contenedor
+      document.addEventListener('DOMContentLoaded', function(){
+        if (document.querySelector('#favoritesGrid') && typeof renderFavoriteRestaurants === 'function') {
+          renderFavoriteRestaurants('#favoritesGrid');
+        }
+      });
     </script>
   </body>
 </html>

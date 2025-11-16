@@ -46,6 +46,11 @@ router.get('/user-inicio', (req, res) => {
     res.sendFile(path.join(publicPath, 'user-inicio.html'));
 });
 
+// Register Restaurant (ruta amigable)
+router.get('/register-restaurant', (req, res) => {
+    res.sendFile(path.join(publicPath, 'register-restaurant.html'));
+});
+
 // Test page
 router.get('/test-logout', (req, res) => {
     res.sendFile(path.join(publicPath, 'test-logout.html'));

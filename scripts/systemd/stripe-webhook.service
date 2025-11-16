@@ -1,0 +1,16 @@
+[Unit]
+Description=Stripe CLI Webhook Forwarder
+After=network.target pi_web.service
+Requires=pi_web.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/pi_web
+ExecStart=/usr/bin/stripe listen --forward-to localhost:3000/api/v1/payments/stripe/webhook
+Restart=always
+Environment=STRIPE_DEVICE_NAME=pi
+
+[Install]
+WantedBy=multi-user.target

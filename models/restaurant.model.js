@@ -1,6 +1,6 @@
 import { db } from '../database/connection.database.js';
 
-// Obtener todos los restaurantes activos
+// Obtener todos los restaurantes activos (solo aprobados)
 const getAll = async (filters = {}) => {
   let query = `
     SELECT 
@@ -10,7 +10,7 @@ const getAll = async (filters = {}) => {
     FROM restaurants r
     LEFT JOIN products p ON r.id = p.restaurant_id AND p.is_available = true
     LEFT JOIN orders o ON r.id = o.restaurant_id AND o.rating IS NOT NULL
-    WHERE r.is_active = true
+    WHERE r.is_active = true AND COALESCE(r.status, 'active') = 'active'
   `;
 
   const params = [];
@@ -46,7 +46,7 @@ const getAll = async (filters = {}) => {
   return rows;
 };
 
-// Obtener un restaurante por ID con sus productos
+// Obtener un restaurante por ID con sus productos (solo activos)
 const getById = async (id) => {
   const restaurantQuery = {
     text: `
@@ -57,7 +57,7 @@ const getById = async (id) => {
         COUNT(DISTINCT CASE WHEN o.rating IS NOT NULL THEN o.id END) as total_reviews
       FROM restaurants r
       LEFT JOIN orders o ON r.id = o.restaurant_id
-      WHERE r.id = $1 AND r.is_active = true
+      WHERE r.id = $1 AND r.is_active = true AND COALESCE(r.status, 'active') = 'active'
       GROUP BY r.id
     `,
     values: [id],
@@ -88,6 +88,27 @@ const getById = async (id) => {
   };
 };
 
+// Obtener un restaurante por ID sin filtros de status (para propietarios)
+const getByIdRaw = async (id) => {
+  const restaurantQuery = {
+    text: `
+      SELECT 
+        r.*,
+        COUNT(DISTINCT o.id) as total_orders,
+        COALESCE(AVG(o.rating), 0) as avg_rating,
+        COUNT(DISTINCT CASE WHEN o.rating IS NOT NULL THEN o.id END) as total_reviews
+      FROM restaurants r
+      LEFT JOIN orders o ON r.id = o.restaurant_id
+      WHERE r.id = $1
+      GROUP BY r.id
+    `,
+    values: [id],
+  };
+
+  const { rows: restaurants } = await db.query(restaurantQuery);
+  return restaurants[0] || null;
+};
+
 // Crear un nuevo restaurante (admin)
 const create = async (restaurantData) => {
   const statusValue = restaurantData.status
@@ -100,9 +121,9 @@ const create = async (restaurantData) => {
         name, description, address, phone, email,
         logo_url, cover_image_url, category,
         delivery_time_min, delivery_time_max,
-        delivery_cost, minimum_order, opening_hours, is_active, status
+        delivery_cost, minimum_order, opening_hours, is_active, status, owner_user_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING *
     `,
     values: [
@@ -121,6 +142,7 @@ const create = async (restaurantData) => {
       restaurantData.opening_hours || null,
       restaurantData.is_active !== undefined ? restaurantData.is_active : true,
       statusValue,
+      restaurantData.owner_user_id || null,
     ],
   };
 
@@ -183,15 +205,39 @@ const update = async (id, restaurantData) => {
   return rows[0];
 };
 
-// Eliminar (desactivar) un restaurante (admin)
+// Eliminar (borrado lógico) un restaurante (admin)
+// Marca is_active=false y status='deleted' para que no aparezca en listados
 const remove = async (id) => {
   const query = {
-    text: 'UPDATE restaurants SET is_active = false, status = COALESCE(status,\'inactive\') WHERE id = $1 RETURNING *',
+    text: "UPDATE restaurants SET is_active = false, status = 'deleted' WHERE id = $1 RETURNING *",
     values: [id],
   };
 
   const { rows } = await db.query(query);
   return rows[0];
+};
+
+// Eliminar de forma permanente (borrado duro)
+// Nota: intenta limpiar dependencias directas conocidas (favorites, products).
+// Si existen restricciones por órdenes, el DELETE puede fallar; en tal caso
+// el controlador usará remove() como fallback.
+const removeHard = async (id) => {
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+    // Dependencias conocidas
+    try { await client.query('DELETE FROM user_favorites WHERE restaurant_id = $1', [id]); } catch {}
+    try { await client.query('DELETE FROM products WHERE restaurant_id = $1', [id]); } catch {}
+    // Borrado del restaurante
+    const delRes = await client.query('DELETE FROM restaurants WHERE id = $1 RETURNING *', [id]);
+    await client.query('COMMIT');
+    return delRes.rows[0] || null;
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch {}
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 // Obtener categorías disponibles
@@ -285,12 +331,37 @@ const getRecommended = async (limit = 3) => {
   return rows;
 };
 
+// Obtener restaurantes del usuario (propietario)
+const getByOwner = async (userId) => {
+  const query = {
+    text: `
+      SELECT 
+        r.*,
+        COUNT(DISTINCT p.id) as products_count,
+        COALESCE(AVG(o.rating), 0) as avg_rating,
+        COUNT(DISTINCT o.id) as total_orders
+      FROM restaurants r
+      LEFT JOIN products p ON r.id = p.restaurant_id
+      LEFT JOIN orders o ON r.id = o.restaurant_id
+      WHERE r.owner_user_id = $1
+      GROUP BY r.id
+      ORDER BY r.created_at DESC
+    `,
+    values: [userId],
+  };
+
+  const { rows } = await db.query(query);
+  return rows;
+};
+
 export const RestaurantModel = {
   getAll,
   getById,
+  getByIdRaw,
   create,
   update,
   remove,
   getCategories,
   getRecommended,
+  getByOwner,
 };

@@ -222,6 +222,11 @@
                 <span class="header-icon small-icon" aria-hidden="true"><i class="bi bi-bag"></i></span>
               </a>
             </li>
+            <li class="nav-item" id="myRestaurantsNavItem" style="display:none;">
+              <a class="nav-link" href="/public/my-restaurants.html">
+                <i class="bi bi-shop me-1"></i>Mis Restaurantes
+              </a>
+            </li>
           </ul>
 
           <div class="navbar-nav">
@@ -1577,7 +1582,67 @@
       // Cargar pedidos recientes (solo pagados y no cancelados)
       document.addEventListener('DOMContentLoaded', () => {
         try { loadRecentPaidOrders(); } catch(e) { console.error(e); }
+        try { checkMyRestaurants(); } catch(e) { console.error(e); }
       });
+
+      // Verificar si el usuario tiene restaurantes y mostrar notificaciones
+      async function checkMyRestaurants() {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+          const res = await fetch('/api/v1/my-restaurants', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) return;
+          const json = await res.json();
+          const restaurants = json.data || [];
+          
+          // Mostrar botón "Mis Restaurantes" si tiene al menos uno
+          if (restaurants.length > 0) {
+            const navItem = document.getElementById('myRestaurantsNavItem');
+            if (navItem) navItem.style.display = 'block';
+          }
+
+          // Mostrar notificación si tiene restaurantes aprobados recientemente
+          const activeRestaurants = restaurants.filter(r => r.status === 'active');
+          if (activeRestaurants.length > 0) {
+            showRestaurantApprovedAlert(activeRestaurants);
+          }
+        } catch (err) {
+          console.error('Error checking restaurants:', err);
+        }
+      }
+
+      function showRestaurantApprovedAlert(restaurants) {
+        const alertsContainer = document.querySelector('.container .row');
+        if (!alertsContainer) return;
+        
+        restaurants.forEach((r, idx) => {
+          // Solo mostrar si fue aprobado recientemente (últimas 24h aproximadamente)
+          // Como no tenemos fecha de aprobación, mostramos solo la primera vez
+          const alertKey = `restaurant_alert_shown_${r.id}`;
+          if (sessionStorage.getItem(alertKey)) return;
+          
+          sessionStorage.setItem(alertKey, 'true');
+          
+          const alert = document.createElement('div');
+          alert.className = 'alert alert-success alert-dismissible fade show mb-3';
+          alert.innerHTML = `
+            <h5 class="alert-heading"><i class="bi bi-check-circle-fill"></i> ¡Felicitaciones!</h5>
+            <p class="mb-2">Tu restaurante <strong>${r.name}</strong> ha sido aprobado y ya está visible para los clientes.</p>
+            <div class="d-flex gap-2">
+              <a href="/public/my-restaurants.html" class="btn btn-sm btn-success">
+                <i class="bi bi-shop"></i> Ir a Mis Restaurantes
+              </a>
+              <a href="/public/edit-restaurant.html?id=${r.id}" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-pencil"></i> Editar Restaurante
+              </a>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          `;
+          alertsContainer.insertBefore(alert, alertsContainer.firstChild);
+        });
+      }
 
       async function loadRecentPaidOrders() {
         const list = document.getElementById('recentOrdersList');

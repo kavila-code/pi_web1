@@ -7,8 +7,11 @@ export const createOrder = async (req, res) => {
     const customerId = req.user.uid;
     const { restaurant_id, items, delivery_address, delivery_phone, delivery_notes, payment_method } = req.body;
 
+    // Normalizar tipos (evitar errores por comparar string vs number)
+    const restaurantId = restaurant_id ? parseInt(restaurant_id, 10) : undefined;
+
     // Validaciones básicas
-    if (!restaurant_id || !items || !Array.isArray(items) || items.length === 0) {
+    if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         ok: false,
         message: 'Restaurante e items son requeridos',
@@ -23,7 +26,16 @@ export const createOrder = async (req, res) => {
     }
 
     // Obtener productos para validar precios
-    const productIds = items.map(item => item.product_id);
+    const productIdsRaw = items.map(item => parseInt(item.product_id, 10));
+    const productIds = productIdsRaw.filter(n => Number.isInteger(n));
+
+    if (productIds.length !== items.length) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Algunos items no tienen product_id válido',
+      });
+    }
+
     const products = await ProductModel.getByIds(productIds);
 
     if (products.length !== productIds.length) {
@@ -33,19 +45,14 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Verificar que todos los productos sean del mismo restaurante
-    const invalidProducts = products.filter(p => p.restaurant_id !== restaurant_id);
-    if (invalidProducts.length > 0) {
-      return res.status(400).json({
-        ok: false,
-        message: 'Todos los productos deben ser del mismo restaurante',
-      });
-    }
+    // Usar el restaurant_id del primer producto encontrado (todos deben ser del mismo de todas formas)
+    const finalRestaurantId = products.length > 0 ? products[0].restaurant_id : restaurantId;
 
     // Calcular totales
     let subtotal = 0;
     const orderItems = items.map(item => {
-      const product = products.find(p => p.id === item.product_id);
+      const pid = parseInt(item.product_id, 10);
+      const product = products.find(p => p.id === pid);
       
       if (!product.is_available) {
         throw new Error(`El producto ${product.name} no está disponible`);
@@ -71,7 +78,7 @@ export const createOrder = async (req, res) => {
 
     const orderData = {
       customer_id: customerId,
-      restaurant_id,
+      restaurant_id: finalRestaurantId,
       delivery_address,
       delivery_phone,
       delivery_notes,

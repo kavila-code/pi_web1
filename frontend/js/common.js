@@ -486,39 +486,69 @@ function setupCartPreviewButton() {
 setupCartPreviewButton();
 
 /* --- Restaurants master list & Load more utility --- */
-// Lista basada en los archivos en IMAGENES/RESTAURANTES
-const MASTER_RESTAURANTS = [
-  { id: 1, name: 'LA BELLA ITALIA', image: '/imagenes/restaurantes/LA%20BELLA%20ITALIA.jpg', category: 'Pizza • Italiana', rating: 4.8, reviews: 127, deliveryTimeMin: 25, priceLevel: 3, deliveryFee: 'Gratis' },
-  { id: 2, name: 'Burger Master', image: '/imagenes/restaurantes/burger-master.jpg', category: 'Hamburguesas • Americana', rating: 4.6, reviews: 89, deliveryTimeMin: 20, priceLevel: 2, deliveryFee: '$2.50' },
-  { id: 3, name: 'Café Central', image: '/imagenes/restaurantes/cafe%20central.jpg', category: 'Café • Desayunos', rating: 4.6, reviews: 89, deliveryTimeMin: 15, priceLevel: 2, deliveryFee: '$2.00' },
-  { id: 4, name: 'Comida China Dragon', image: '/imagenes/restaurantes/comida%20china%20dragon.jpg', category: 'China • Asiática', rating: 4.3, reviews: 98, deliveryTimeMin: 25, priceLevel: 2, deliveryFee: '$2.50' },
-  { id: 5, name: 'GREEN LIFE', image: '/imagenes/restaurantes/GREEN%20LIFE.jpg', category: 'Healthy', rating: 4.5, reviews: 60, deliveryTimeMin: 18, priceLevel: 2, deliveryFee: '$1.50' },
-  { id: 6, name: 'Heladería Tropical', image: '/imagenes/restaurantes/heladeria%20tropical.jpg', category: 'Helados • Postres', rating: 4.8, reviews: 67, deliveryTimeMin: 10, priceLevel: 1, deliveryFee: '$1.50' },
-  { id: 7, name: 'Casa de las Empanadas', image: '/imagenes/restaurantes/la%20casa%20de%20las%20empanadas.png', category: 'Colombiana • Empanadas', rating: 4.5, reviews: 78, deliveryTimeMin: 20, priceLevel: 2, deliveryFee: 'Gratis' },
-  { id: 8, name: 'Parrilla Los Amigos', image: '/imagenes/restaurantes/parrilla%20los%20amigos.jpg', category: 'Parrilla • Carnes', rating: 4.7, reviews: 132, deliveryTimeMin: 30, priceLevel: 3, deliveryFee: '$3.00' },
-  { id: 9, name: 'Pollo Dorado', image: '/imagenes/restaurantes/pollo%20dorado.png', category: 'Pollo • Comida Rápida', rating: 4.4, reviews: 156, deliveryTimeMin: 20, priceLevel: 2, deliveryFee: '$2.50' },
-  { id: 10, name: 'Sabor Valluno', image: '/imagenes/restaurantes/sabor%20valluno.jpg', category: 'Regional', rating: 4.2, reviews: 40, deliveryTimeMin: 22, priceLevel: 2, deliveryFee: '$2.00' },
-  { id: 11, name: 'SAKURA SUSHI', image: '/imagenes/restaurantes/SAKURA%20SUSHI.jpg', category: 'Sushi • Japonesa', rating: 4.9, reviews: 156, deliveryTimeMin: 35, priceLevel: 4, deliveryFee: 'Gratis' },
-  { id: 12, name: 'AZTECA MEXICANO', image: '/imagenes/restaurantes/AZTECA%20MEXICANO.jpg', category: 'Mexicana • Tacos', rating: 4.7, reviews: 94, deliveryTimeMin: 15, priceLevel: 2, deliveryFee: '$1.50' },
-];
+// Cargar restaurantes desde la API
+let MASTER_RESTAURANTS = [];
+let RESTAURANTS_LOADED = false;
 
-function getAllRestaurants() {
+async function loadRestaurantsFromAPI() {
+  if (RESTAURANTS_LOADED) return MASTER_RESTAURANTS;
+  
+  try {
+    const response = await fetch('/api/v1/restaurants?is_active=true');
+    const data = await response.json();
+    
+    if (data.ok && Array.isArray(data.data)) {
+      MASTER_RESTAURANTS = data.data.map(r => ({
+        id: r.id,
+        name: r.name,
+        image: r.logo_url || '/imagenes/restaurantes/placeholder.png',
+        category: r.category || 'Varios',
+        rating: parseFloat(r.avg_rating) || 0,
+        reviews: parseInt(r.total_reviews) || 0,
+        deliveryTimeMin: r.delivery_time_min || 20,
+        deliveryTime: `${r.delivery_time_min || 20}-${r.delivery_time_max || 45} min`,
+        priceLevel: r.price_level || 2,
+        deliveryFee: r.delivery_cost === 0 || !r.delivery_cost ? 'Gratis' : `$${parseFloat(r.delivery_cost).toLocaleString('es-CO')}`
+      }));
+      RESTAURANTS_LOADED = true;
+    }
+  } catch (error) {
+    console.error('Error cargando restaurantes desde API:', error);
+  }
+  
+  return MASTER_RESTAURANTS;
+}
+
+async function getAllRestaurants() {
+  await loadRestaurantsFromAPI();
   // Devolver copia para evitar mutaciones externas
   return MASTER_RESTAURANTS.map(r => ({ ...r }));
 }
 
 // Estado compartido (se usa para render/ordenar)
-window._CURRENT_RESTAURANTS = getAllRestaurants();
+window._CURRENT_RESTAURANTS = [];
 
 /** Renderiza los primeros `count` restaurantes en el contenedor especificado.
  * Si count es undefined, renderiza todos. */
-function renderRestaurantsContainer(count, containerSelector = '#restaurantsList') {
+async function renderRestaurantsContainer(count, containerSelector = '#restaurantsList') {
   const container = document.querySelector(containerSelector);
   if (!container) return;
 
-  container.innerHTML = '';
-  const source = window._CURRENT_RESTAURANTS || getAllRestaurants();
+  container.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">Cargando restaurantes...</p></div>';
+  
+  if (window._CURRENT_RESTAURANTS.length === 0) {
+    window._CURRENT_RESTAURANTS = await getAllRestaurants();
+  }
+  
+  const source = window._CURRENT_RESTAURANTS;
   const toRender = typeof count === 'number' ? source.slice(0, count) : source;
+
+  container.innerHTML = '';
+  
+  if (toRender.length === 0) {
+    container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No hay restaurantes disponibles</p></div>';
+    return;
+  }
 
   const temp = document.createElement('div');
   const fragment = document.createDocumentFragment();
@@ -566,7 +596,7 @@ function createRestaurantCardHTML(restaurant) {
       <div class="restaurant-card" onclick="location.href='/public/restaurant-menu.html?id=${restaurant.id}'" style="cursor:pointer">
         <div class="restaurant-image">
           <img src="${restaurant.image}" alt="${restaurant.name}" onerror="this.src='/frontend/placeholder-restaurant.svg'">
-          <div class="favorite-toggle" onclick="event.stopPropagation();toggleFavorite(${restaurant.id})">
+          <div class="favorite-toggle" data-restaurant-id="${restaurant.id}" onclick="event.stopPropagation();toggleFavorite(${restaurant.id})">
             <i class="bi bi-heart"></i>
           </div>
         </div>

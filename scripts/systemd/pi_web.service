@@ -1,0 +1,16 @@
+[Unit]
+Description=PI Web Server (Node.js)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/pi_web
+ExecStart=/usr/bin/node index.js
+Restart=always
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/pi_web/.env
+
+[Install]
+WantedBy=multi-user.target

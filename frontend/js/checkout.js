@@ -55,34 +55,69 @@ function loadCart() {
   renderOrderSummary();
 }
 
-// Cargar información del restaurante
-async function loadRestaurantInfo() {
-  const restaurantId = cart[0].restaurant_id;
-
-  // If no restaurant_id was recorded (e.g. homepage items), skip fetching
-  if (!restaurantId) {
-    restaurant = null;
-    const restaurantNameElement = document.getElementById("restaurantName");
-    if (restaurantNameElement) {
-      restaurantNameElement.textContent = "Varios restaurantes";
-    }
-    return;
+// Intentar resolver el restaurant_id a partir del primer producto si falta
+async function resolveRestaurantFromFirstItem() {
+  try {
+    const first = cart[0];
+    if (!first || !first.product_id) return false;
+    const res = await fetch(`http://localhost:3000/api/v1/products/${first.product_id}`);
+    const data = await res.json();
+    if (!data || !data.ok || !data.data) return false;
+    const prod = data.data;
+    const resolvedRestaurantId = prod.restaurant_id;
+    const resolvedRestaurantName = prod.restaurant_name || prod.restaurant?.name;
+    if (!resolvedRestaurantId) return false;
+    // Actualizar todos los items del carrito con el mismo restaurant_id
+    cart = cart.map(it => ({ ...it, restaurant_id: resolvedRestaurantId, restaurant_name: it.restaurant_name || resolvedRestaurantName }));
+    // Persistir también al storage para consistencia
+    try {
+      const rawCart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
+      const updated = rawCart.map((it, idx) => ({ ...it, restaurant_id: resolvedRestaurantId, restaurant_name: it.restaurant_name || resolvedRestaurantName }));
+      localStorage.setItem("cart_items_v1", JSON.stringify(updated));
+    } catch (_) {}
+    // Cargar info del restaurante resuelto
+    await loadRestaurantById(resolvedRestaurantId);
+    return true;
+  } catch (e) {
+    console.error("No se pudo resolver restaurant desde producto:", e);
+    return false;
   }
+}
 
+async function loadRestaurantById(restaurantId) {
   try {
     const response = await fetch(`http://localhost:3000/api/v1/restaurants/${restaurantId}`);
     const data = await response.json();
-
     if (data.ok) {
       restaurant = data.data;
       const restaurantNameElement = document.getElementById("restaurantName");
-      if (restaurantNameElement) {
-        restaurantNameElement.textContent = restaurant.name;
-      }
+      if (restaurantNameElement) restaurantNameElement.textContent = restaurant.name;
     }
   } catch (error) {
     console.error("Error al cargar restaurante:", error);
   }
+}
+
+// Cargar información del restaurante
+async function loadRestaurantInfo() {
+  const restaurantId = cart[0].restaurant_id;
+
+  if (!restaurantId) {
+    // Intentar resolver a partir del primer producto del carrito
+    const resolved = await resolveRestaurantFromFirstItem();
+    if (!resolved) {
+      const shouldClear = confirm("No se pudo determinar el restaurante del pedido. ¿Deseas vaciar el carrito y volver a los restaurantes?");
+      if (shouldClear) {
+        try { localStorage.removeItem('cart_items_v1'); } catch (_) {}
+        window.location.href = "/public/restaurants.html";
+      } else {
+        window.location.href = "/public/cart.html";
+      }
+    }
+    return;
+  }
+
+  await loadRestaurantById(restaurantId);
 }
 
 // Renderizar resumen del pedido
@@ -190,7 +225,7 @@ async function placeOrder() {
 
   // Preparar datos del pedido
   const orderData = {
-    restaurant_id: cart[0].restaurant_id,
+    restaurant_id: cart[0]?.restaurant_id,
     delivery_address: address,
     delivery_phone: phone,
     delivery_notes: notes || null,
@@ -201,6 +236,12 @@ async function placeOrder() {
       special_instructions: item.special_instructions || null,
     })),
   };
+
+  if (!orderData.restaurant_id) {
+    alert("No se pudo identificar el restaurante del pedido. Regresa al carrito y vuelve a intentar.");
+    if (loadingOverlay) loadingOverlay.style.display = "none";
+    return;
+  }
 
   try {
     const response = await fetch("http://localhost:3000/api/v1/orders", {
@@ -215,11 +256,12 @@ async function placeOrder() {
     const data = await response.json();
 
     if (data.ok) {
-      // Limpiar carrito
-      localStorage.removeItem("cart");
-
-      // Redirigir a confirmación
+      // Guardar orden
       localStorage.setItem("lastOrder", JSON.stringify(data.data));
+
+      // Métodos no en línea: flujo actual
+      localStorage.removeItem("cart_items_v1");
+      localStorage.removeItem("cart");
       window.location.href = "/public/order-success.html";
     } else {
       throw new Error(data.message || "Error al crear el pedido");

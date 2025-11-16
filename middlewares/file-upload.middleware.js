@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, '../uploads');
 const deliveryUploadsDir = path.join(uploadsDir, 'delivery-applications');
 const restaurantLogosDir = path.join(uploadsDir, 'restaurant-logos');
+const productsDir = path.join(uploadsDir, 'products');
 
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -21,6 +22,9 @@ if (!fs.existsSync(deliveryUploadsDir)) {
 if (!fs.existsSync(restaurantLogosDir)) {
   fs.mkdirSync(restaurantLogosDir, { recursive: true });
 }
+if (!fs.existsSync(productsDir)) {
+  fs.mkdirSync(productsDir, { recursive: true });
+}
 
 // Configuración de almacenamiento
 const storage = multer.diskStorage({
@@ -28,6 +32,10 @@ const storage = multer.diskStorage({
     // Si el campo es 'restaurant_logo' guardar en carpeta específica
     if (file.fieldname === 'restaurant_logo') {
       return cb(null, restaurantLogosDir);
+    }
+    // Si el campo es 'product_image' guardar en carpeta de productos
+    if (file.fieldname === 'product_image') {
+      return cb(null, productsDir);
     }
     cb(null, deliveryUploadsDir);
   },
@@ -50,7 +58,8 @@ const fileFilter = (req, file, cb) => {
     'cv': ['.pdf', '.doc', '.docx'],
     'id_document': ['.jpg', '.jpeg', '.png', '.pdf'],
     'license_photo': ['.jpg', '.jpeg', '.png', '.pdf'],
-    'restaurant_logo': ['.jpg', '.jpeg', '.png']
+    'restaurant_logo': ['.jpg', '.jpeg', '.png', '.webp'],
+    'product_image': ['.jpg', '.jpeg', '.png', '.webp']
   };
 
   const fileExtension = path.extname(file.originalname).toLowerCase();
@@ -81,6 +90,9 @@ export const uploadDeliveryFiles = upload.fields([
 
 // Middleware para subir logo de restaurante (single)
 export const uploadRestaurantLogo = upload.single('restaurant_logo');
+
+// Middleware para subir imagen de producto (single)
+export const uploadProductImage = upload.single('product_image');
 
 // Middleware para manejar errores de multer
 export const handleUploadError = (error, req, res, next) => {

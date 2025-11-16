@@ -12,7 +12,7 @@ const generateOrderNumber = () => {
 
 // Crear un nuevo pedido
 const create = async (orderData, items) => {
-  const client = await db.pool.connect();
+  const client = await db.connect();
   
   try {
     await client.query('BEGIN');
@@ -394,7 +394,7 @@ const getById = async (id) => {
 
 // Actualizar estado del pedido
 const updateStatus = async (id, status, changedBy, notes = null) => {
-  const client = await db.pool.connect();
+  const client = await db.connect();
 
   try {
     await client.query('BEGIN');
@@ -449,7 +449,7 @@ const updateStatus = async (id, status, changedBy, notes = null) => {
 
 // Asignar domiciliario a un pedido
 const assignDeliveryPerson = async (orderId, deliveryPersonId, assignedBy) => {
-  const client = await db.pool.connect();
+  const client = await db.connect();
 
   try {
     await client.query('BEGIN');
@@ -622,4 +622,14 @@ export const OrderModel = {
   getStats,
   getUserStats,
   generateOrderNumber,
+};
+
+// Extensión: actualización de estado de pago
+OrderModel.updatePaymentStatus = async (orderId, paymentStatus = 'pagado') => {
+  const query = {
+    text: 'UPDATE orders SET payment_status = $1 WHERE id = $2 RETURNING *',
+    values: [paymentStatus, orderId],
+  };
+  const { rows } = await db.query(query);
+  return rows[0];
 };
