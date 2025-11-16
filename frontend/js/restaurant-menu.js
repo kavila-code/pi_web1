@@ -97,7 +97,7 @@ async function loadRestaurant() {
         description: p.description || '',
         price: parseFloat(p.price) || 0,
         category: p.category || 'Sin categoría',
-        image_url: p.image_url || null,
+        image_url: p.image_url || (typeof window.guessFoodImage === 'function' ? window.guessFoodImage(p.name) : null),
         is_available: p.is_available !== false,
         is_vegetarian: p.is_vegetarian || false,
         is_vegan: p.is_vegan || false
@@ -234,8 +234,11 @@ function renderProducts() {
                         <div class="card product-card border-0 shadow-sm ${!product.is_available ? "position-relative" : ""}" 
                              onclick="${product.is_available ? `openProductModal(${product.id})` : ""}">
                             <div class="position-relative">
-                                <img src="${product.image_url || "https://via.placeholder.com/300x180?text=Producto"}" 
-                                     class="product-image" alt="${product.name}">
+                                  <img src="${product.image_url || '/imagenes/comida/default.jpg'}" 
+                                    class="product-image" alt="${product.name}"
+                                    data-candidates='${typeof window.guessFoodImageCandidates === 'function' ? JSON.stringify(window.guessFoodImageCandidates(product.name)) : '[]'}'
+                                    data-idx="0"
+                                    onerror="window.tryNextFoodImage && window.tryNextFoodImage(this)">
                                 ${product.is_vegetarian ? '<span class="product-badge badge-vegetarian"><i class="bi bi-leaf"></i> Vegetariano</span>' : ""}
                                 ${product.is_vegan ? '<span class="product-badge badge-vegan"><i class="bi bi-flower1"></i> Vegano</span>' : ""}
                                 ${!product.is_available ? '<div class="unavailable-overlay">No Disponible</div>' : ""}

@@ -36,7 +36,7 @@
             Déjanos tus datos y nos pondremos en contacto contigo para afiliar
             tu restaurante a DomiTulua.
           </p>
-          <form id="restaurantRegisterForm" class="row g-3">
+          <form id="restaurantRegisterForm" class="row g-3" enctype="multipart/form-data">
             <div class="col-md-6">
               <label class="form-label">Nombre del Restaurante *</label>
               <input type="text" class="form-control" name="name" required />
@@ -104,6 +104,12 @@
               </select>
             </div>
 
+            <div class="col-md-6">
+              <label class="form-label">Logo (imagen) opcional</label>
+              <input type="file" accept="image/*" class="form-control" name="restaurant_logo" />
+              <small class="text-muted">Formatos permitidos: JPG, JPEG, PNG. Máx 5MB.</small>
+            </div>
+
             <div class="col-12">
               <label class="form-label">Observaciones</label>
               <textarea
@@ -115,7 +121,7 @@
             </div>
 
             <div class="col-12 d-flex gap-2">
-              <button type="submit" class="btn btn-warning">
+              <button type="submit" class="btn btn-warning" id="submitBtn">
                 <i class="bi bi-send"></i> Enviar solicitud
               </button>
               <a id="mailtoLink" class="btn btn-outline-secondary" href="#"

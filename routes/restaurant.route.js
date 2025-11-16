@@ -11,11 +11,23 @@ import {
 } from '../controllers/restaurant.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { adminMiddleware } from '../middlewares/admin.middleware.js';
+import { uploadRestaurantLogo } from '../middlewares/file-upload.middleware.js';
 
 const router = Router();
 
 // Rutas públicas (sin autenticación)
-router.post('/restaurants/apply', applyRestaurant);
+// Soporta JSON o multipart/form-data con campo restaurant_logo
+router.post('/restaurants/apply', (req, res, next) => {
+  // Detectar multipart para aplicar middleware de subida
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    uploadRestaurantLogo(req, res, function(err) {
+      if (err) return res.status(400).json({ ok:false, message: err.message });
+      next();
+    });
+  } else {
+    next();
+  }
+}, applyRestaurant);
 router.get('/restaurants', getAllRestaurants);
 router.get('/restaurants/categories', getCategories);
 router.get('/restaurants/recommended', getRecommended);

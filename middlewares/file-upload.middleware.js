@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 // Crear directorio uploads si no existe
 const uploadsDir = path.join(__dirname, '../uploads');
 const deliveryUploadsDir = path.join(uploadsDir, 'delivery-applications');
+const restaurantLogosDir = path.join(uploadsDir, 'restaurant-logos');
 
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -17,10 +18,17 @@ if (!fs.existsSync(uploadsDir)) {
 if (!fs.existsSync(deliveryUploadsDir)) {
   fs.mkdirSync(deliveryUploadsDir, { recursive: true });
 }
+if (!fs.existsSync(restaurantLogosDir)) {
+  fs.mkdirSync(restaurantLogosDir, { recursive: true });
+}
 
 // Configuración de almacenamiento
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    // Si el campo es 'restaurant_logo' guardar en carpeta específica
+    if (file.fieldname === 'restaurant_logo') {
+      return cb(null, restaurantLogosDir);
+    }
     cb(null, deliveryUploadsDir);
   },
   filename: function (req, file, cb) {
@@ -41,7 +49,8 @@ const fileFilter = (req, file, cb) => {
   const allowedTypes = {
     'cv': ['.pdf', '.doc', '.docx'],
     'id_document': ['.jpg', '.jpeg', '.png', '.pdf'],
-    'license_photo': ['.jpg', '.jpeg', '.png', '.pdf']
+    'license_photo': ['.jpg', '.jpeg', '.png', '.pdf'],
+    'restaurant_logo': ['.jpg', '.jpeg', '.png']
   };
 
   const fileExtension = path.extname(file.originalname).toLowerCase();
@@ -69,6 +78,9 @@ export const uploadDeliveryFiles = upload.fields([
   { name: 'id_document', maxCount: 1 },
   { name: 'license_photo', maxCount: 1 }
 ]);
+
+// Middleware para subir logo de restaurante (single)
+export const uploadRestaurantLogo = upload.single('restaurant_logo');
 
 // Middleware para manejar errores de multer
 export const handleUploadError = (error, req, res, next) => {

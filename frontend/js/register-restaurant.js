@@ -3,53 +3,46 @@
 // Catálogo de departamentos y municipios
 const departamentos = {
   1: "Amazonas",
-  2: "Antioquia",
-  3: "Arauca",
-  4: "Atlántico",
-  5: "Bolívar",
-  6: "Boyacá",
-  7: "Caldas",
-  8: "Caquetá",
-  9: "Casanare",
-  10: "Cauca",
-  11: "Cesar",
-  12: "Chocó",
-  13: "Córdoba",
-  14: "Cundinamarca",
-  15: "Guainía",
-  16: "Guaviare",
-  17: "Huila",
-  18: "La Guajira",
-  19: "Magdalena",
-  20: "Meta",
-  21: "Nariño",
-  22: "Norte de Santander",
-  23: "Putumayo",
-  24: "Quindío",
-  25: "Risaralda",
-  26: "San Andrés y Providencia",
-  27: "Santander",
-  28: "Sucre",
-  29: "Tolima",
-  30: "Valle del Cauca",
-  31: "Vaupés",
-  32: "Vichada",
+  // Enviar formulario (multipart con posible logo)
+  const restaurantRegisterForm = document.getElementById('restaurantRegisterForm');
+  if (restaurantRegisterForm) {
+    restaurantRegisterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formMsg = document.getElementById('formMsg');
+      formMsg.className = 'mt-2 small text-muted';
+      formMsg.textContent = 'Enviando solicitud...';
 
-};
+      const data = new FormData(restaurantRegisterForm);
+      const departamentoId = data.get('departamento');
+      const departamentoNombre = departamentos[departamentoId] || departamentoId;
+      // Unir notas con metainfo para description
+      const notes = data.get('notes') || '';
+      const composedDescription = `${notes}\nPropietario: ${data.get('owner') || ''}\nDepartamento: ${departamentoNombre}\nMunicipio: ${data.get('municipio') || ''}`;
+      data.set('description', composedDescription);
 
-const municipiosPorDepartamento = {
-  1: [
-    { id: "1", nombre: "Leticia" },
-    { id: "2", nombre: "Puerto Nariño" },
-    { id: "3", nombre: "Tarapacá" },
-    { id: "4", nombre: "La Chorrera" },
-    { id: "5", nombre: "Puerto Arica" },
-    { id: "6", nombre: "Mirití-Paraná" }
-  ],
-  2: [
-    { id: "7", nombre: "Medellín" },
-    { id: "8", nombre: "Bello" },
-    { id: "9", nombre: "Itagüí" },
+      try {
+        const res = await fetch('/api/v1/restaurants/apply', {
+          method: 'POST',
+          body: data
+        });
+        const json = await res.json();
+        if (res.ok && json.ok) {
+          formMsg.className = 'mt-2 small text-success';
+          formMsg.textContent = '¡Gracias! Tu solicitud fue registrada. Nos contactaremos pronto.';
+          restaurantRegisterForm.reset();
+          const munSelect = document.getElementById('municipio');
+          if (munSelect) { munSelect.disabled = true; munSelect.innerHTML = '<option value="">Seleccione un departamento primero</option>'; }
+        } else {
+          formMsg.className = 'mt-2 small text-danger';
+          formMsg.textContent = json.message || 'Error enviando la solicitud';
+        }
+      } catch (err) {
+        console.error('Error enviando solicitud:', err);
+        formMsg.className = 'mt-2 small text-danger';
+        formMsg.textContent = 'Error de red. Intenta de nuevo más tarde.';
+      }
+    });
+  }
     { id: "10", nombre: "Envigado" },
     { id: "11", nombre: "Rionegro" },
     { id: "12", nombre: "Apartadó" }

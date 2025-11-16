@@ -125,7 +125,8 @@ export const applyRestaurant = async (req, res) => {
       address: req.body.address,
       phone: req.body.phone,
       email: req.body.email,
-      logo_url: req.body.logo_url || null,
+      // Si se sube archivo usar path público /uploads/restaurant-logos/<file>
+      logo_url: req.file ? `/uploads/restaurant-logos/${req.file.filename}` : (req.body.logo_url || null),
       cover_image_url: req.body.cover_image_url || null,
       opening_hours: req.body.opening_hours || null,
       delivery_time: req.body.delivery_time || '30-45 min',

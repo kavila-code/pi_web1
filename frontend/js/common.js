@@ -259,6 +259,107 @@ function getCart() {
   }
 }
 
+/* --- Food image helpers (map product names to /imagenes/comida) --- */
+function stripAccents(str) {
+  if (!str) return '';
+  return str.normalize('NFD').replace(/\p{Diacritic}+/gu, '');
+}
+
+function sanitizeBaseName(name) {
+  let n = name.trim();
+  // quita contenido entre paréntesis
+  n = n.replace(/\([^\)]*\)/g, '').trim();
+  // normaliza espacios
+  n = n.replace(/\s+/g, ' ');
+  return n;
+}
+
+function buildFilenameVariants(name) {
+  const base = sanitizeBaseName(name);
+  const variants = new Set();
+
+  const forms = [
+    base,
+    stripAccents(base),
+    base.toLowerCase(),
+    stripAccents(base).toLowerCase(),
+    base.toUpperCase(),
+    stripAccents(base).toUpperCase(),
+  ];
+
+  forms.forEach(f => {
+    variants.add(f);
+    variants.add(f.replace(/\s+/g, '%20'));
+    variants.add(f.replace(/\s+/g, '-'));
+    variants.add(f.replace(/\s+/g, '_'));
+  });
+
+  // Reglas simples para "Rollo"/"Roll"
+  forms.forEach(f => {
+    variants.add(f.replace(/\bRollo\b/gi, 'Roll'));
+    variants.add(f.replace(/\bRoll\b/gi, 'Rollo'));
+    variants.add(f.replace(/\bPhiladelphia\b/gi, 'PHILADELPHIA'));
+  });
+
+  return Array.from(variants);
+}
+
+function guessFoodImageCandidates(name) {
+  const exts = ['.jpg', '.jpeg', '.png'];
+  const stemVariants = buildFilenameVariants(name);
+  const urls = [];
+  stemVariants.forEach(stem => {
+    exts.forEach(ext => urls.push(`/imagenes/comida/${stem}${ext}`));
+  });
+  // Añadir algunos alias para items comunes
+  const aliases = {
+    'Te Verde': ['Té Verde', 'Te verde', 'Té verde'],
+    'Edamame': ['Edamame'],
+    'Tempura de Camaron': ['Tempura de Camarón', 'Tempura Camaron', 'Tempura Camarón'],
+    'Sashimi de Salmon': ['Sashimi de Salmón', 'Sashimi Salmon'],
+    'Sushi Variado': ['Sushi Variado (12 piezas)', 'Surtido Sushi'],
+  };
+  const plain = stripAccents(name);
+  Object.entries(aliases).forEach(([key, vals]) => {
+    vals.forEach(v => {
+      buildFilenameVariants(v).forEach(stem => {
+        exts.forEach(ext => urls.push(`/imagenes/comida/${stem}${ext}`));
+      });
+    });
+  });
+  // Último recurso: nombre sin espacios
+  exts.forEach(ext => urls.push(`/imagenes/comida/${stripAccents(name).replace(/\s+/g,'')}${ext}`));
+  return Array.from(new Set(urls));
+}
+
+function guessFoodImage(name) {
+  const list = guessFoodImageCandidates(name);
+  return list.length ? list[0] : '/imagenes/comida/default.jpg';
+}
+
+// onerror handler para intentar la siguiente imagen candidata
+window.tryNextFoodImage = function(imgEl) {
+  try {
+    const raw = imgEl.getAttribute('data-candidates');
+    if (!raw) { imgEl.src = '/imagenes/comida/default.jpg'; return; }
+    const list = JSON.parse(raw);
+    let idx = parseInt(imgEl.getAttribute('data-idx') || '0', 10);
+    idx += 1;
+    if (idx < list.length) {
+      imgEl.setAttribute('data-idx', String(idx));
+      imgEl.src = list[idx];
+    } else {
+      imgEl.src = '/imagenes/comida/default.jpg';
+    }
+  } catch (e) {
+    imgEl.src = '/imagenes/comida/default.jpg';
+  }
+}
+
+// Exponer helpers
+window.guessFoodImage = guessFoodImage;
+window.guessFoodImageCandidates = guessFoodImageCandidates;
+
 function ensureCartPreviewModal() {
   if (document.getElementById('cartPreviewOverlay')) return;
 
