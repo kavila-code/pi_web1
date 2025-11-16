@@ -2596,7 +2596,10 @@ async function adminLoadRestaurants() {
       const stateBadge = r.is_active ? '<span class="badge bg-success">Aceptado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
       const actions = r.is_active
         ? `<button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>`
-        : `<button class="btn btn-sm btn-success" data-action="approve" data-id="${r.id}"><i class="bi bi-check2-circle"></i> Aprobar</button>`;
+        : `
+            <button class="btn btn-sm btn-success" data-action="approve" data-id="${r.id}"><i class="bi bi-check2-circle"></i> Aprobar</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="reject" data-id="${r.id}"><i class="bi bi-x-circle"></i> Rechazar</button>
+          `;
       return `
         <tr>
           <td style="width:64px">
@@ -2630,6 +2633,7 @@ async function adminLoadRestaurants() {
         const action = e.currentTarget.getAttribute('data-action');
         if (action === 'approve') await adminApproveRestaurant(id);
         if (action === 'deactivate') await adminDeactivateRestaurant(id);
+        if (action === 'reject') await adminRejectRestaurant(id);
       });
     });
   } catch (err) {
@@ -2668,6 +2672,19 @@ async function adminDeactivateRestaurant(id) {
     return;
   }
   showNotification('Restaurante desactivado', 'warning', 3000);
+  adminLoadRestaurants();
+}
+
+async function adminRejectRestaurant(id) {
+  if (!confirm('¿Rechazar esta solicitud de restaurante? Esta acción eliminará la solicitud.')) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/restaurants/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  const js = await res.json().catch(() => ({}));
+  if (!res.ok || js.ok === false) {
+    alert(js.message || 'No se pudo rechazar la solicitud');
+    return;
+  }
+  showNotification('Solicitud rechazada', 'warning', 3000);
   adminLoadRestaurants();
 }
 
