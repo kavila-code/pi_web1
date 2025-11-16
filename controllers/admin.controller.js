@@ -195,14 +195,15 @@ const getOrders = async (req, res) => {
 // Obtener lista de restaurantes (admin) con filtros status/search
 const getRestaurants = async (req, res) => {
   try {
-    const status = (req.query.status || 'all').toLowerCase(); // 'all' | 'active' | 'pending'
+    const status = (req.query.status || 'all').toLowerCase(); // 'all' | 'active' | 'pending' | 'rejected'
     const search = (req.query.search || '').trim();
 
     const params = [];
     let where = '1=1';
 
-    if (status === 'active') where += ' AND r.is_active = true';
-    else if (status === 'pending') where += ' AND r.is_active = false';
+    if (status === 'active') where += " AND r.status = 'active'";
+    else if (status === 'pending') where += " AND r.status = 'pending'";
+    else if (status === 'rejected') where += " AND r.status = 'rejected'";
 
     if (search) {
       params.push(`%${search}%`);
@@ -220,6 +221,7 @@ const getRestaurants = async (req, res) => {
         r.email,
         r.logo_url,
         r.is_active,
+        r.status,
         r.is_open,
         COALESCE(AVG(o.rating),0)::numeric(10,2) AS avg_rating,
         COUNT(o.id)::int AS total_orders
@@ -243,7 +245,7 @@ const getRestaurants = async (req, res) => {
 const approveRestaurant = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rows } = await req.db.query('UPDATE restaurants SET is_active = true WHERE id = $1 RETURNING *', [id]);
+    const { rows } = await req.db.query("UPDATE restaurants SET is_active = true, status = 'active' WHERE id = $1 RETURNING *", [id]);
     if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
     return res.json({ ok: true, message: 'Restaurante aprobado', restaurant: rows[0] });
   } catch (error) {
@@ -256,12 +258,25 @@ const approveRestaurant = async (req, res) => {
 const deactivateRestaurant = async (req, res) => {
   try {
     const { id } = req.params;
-    const { rows } = await req.db.query('UPDATE restaurants SET is_active = false WHERE id = $1 RETURNING *', [id]);
+    const { rows } = await req.db.query("UPDATE restaurants SET is_active = false, status = 'inactive' WHERE id = $1 RETURNING *", [id]);
     if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
     return res.json({ ok: true, message: 'Restaurante desactivado', restaurant: rows[0] });
   } catch (error) {
     console.error('Error deactivateRestaurant:', error);
     return res.status(500).json({ ok: false, message: 'No se pudo desactivar el restaurante' });
+  }
+};
+
+// Rechazar (marcar como rejected) restaurante
+const rejectRestaurant = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await req.db.query("UPDATE restaurants SET is_active = false, status = 'rejected' WHERE id = $1 RETURNING *", [id]);
+    if (!rows.length) return res.status(404).json({ ok: false, message: 'Restaurante no encontrado' });
+    return res.json({ ok: true, message: 'Solicitud rechazada', restaurant: rows[0] });
+  } catch (error) {
+    console.error('Error rejectRestaurant:', error);
+    return res.status(500).json({ ok: false, message: 'No se pudo rechazar el restaurante' });
   }
 };
 
@@ -883,6 +898,7 @@ export const AdminController = {
   getPopularRestaurantsToday,
   approveRestaurant,
   deactivateRestaurant,
+  rejectRestaurant,
   getEcosystemModel,
   getQueueMetrics,
   getLogisticGrowth,

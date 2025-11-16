@@ -2593,13 +2593,28 @@ async function adminLoadRestaurants() {
 
     const rows = data.map(r => {
       const logo = normalizeLogoUrl(r.logo_url);
-      const stateBadge = r.is_active ? '<span class="badge bg-success">Aceptado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
-      const actions = r.is_active
-        ? `<button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>`
-        : `
+      const stateBadge = (function(){
+        switch((r.status||'').toLowerCase()){
+          case 'active': return '<span class="badge bg-success">Aceptado</span>';
+          case 'pending': return '<span class="badge bg-warning text-dark">Pendiente</span>';
+          case 'rejected': return '<span class="badge bg-danger">Rechazado</span>';
+          case 'inactive': return '<span class="badge bg-secondary">Inactivo</span>';
+          default: return r.is_active ? '<span class="badge bg-success">Aceptado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
+        }
+      })();
+      const actions = (function(){
+        const st = (r.status||'').toLowerCase();
+        if (st === 'active') {
+          return `<button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>`;
+        }
+        if (st === 'pending') {
+          return `
             <button class="btn btn-sm btn-success" data-action="approve" data-id="${r.id}"><i class="bi bi-check2-circle"></i> Aprobar</button>
-            <button class="btn btn-sm btn-outline-secondary" data-action="reject" data-id="${r.id}"><i class="bi bi-x-circle"></i> Rechazar</button>
-          `;
+            <button class="btn btn-sm btn-outline-secondary" data-action="reject" data-id="${r.id}"><i class="bi bi-x-circle"></i> Rechazar</button>`;
+        }
+        // rejected/inactive: sin acciones por ahora
+        return '';
+      })();
       return `
         <tr>
           <td style="width:64px">
@@ -2676,9 +2691,9 @@ async function adminDeactivateRestaurant(id) {
 }
 
 async function adminRejectRestaurant(id) {
-  if (!confirm('¿Rechazar esta solicitud de restaurante? Esta acción eliminará la solicitud.')) return;
+  if (!confirm('¿Rechazar esta solicitud de restaurante?')) return;
   const token = localStorage.getItem('token');
-  const res = await fetch(`/api/v1/restaurants/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`/api/v1/admin/restaurants/${id}/reject`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
   const js = await res.json().catch(() => ({}));
   if (!res.ok || js.ok === false) {
     alert(js.message || 'No se pudo rechazar la solicitud');

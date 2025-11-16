@@ -134,6 +134,7 @@ export const applyRestaurant = async (req, res) => {
       delivery_fee: req.body.delivery_fee || 0,
       rating: req.body.rating || 0,
       is_active: false, // dejar inactivo hasta revisión
+      status: 'pending',
     };
 
     if (!restaurantData.name || !restaurantData.address || !restaurantData.phone) {
@@ -169,6 +170,7 @@ export const updateRestaurant = async (req, res) => {
       delivery_fee: req.body.delivery_fee,
       rating: req.body.rating,
       is_active: req.body.is_active,
+      status: req.body.status,
     };
 
     // Remover campos undefined

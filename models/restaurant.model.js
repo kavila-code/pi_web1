@@ -90,15 +90,19 @@ const getById = async (id) => {
 
 // Crear un nuevo restaurante (admin)
 const create = async (restaurantData) => {
+  const statusValue = restaurantData.status
+    ? restaurantData.status
+    : (restaurantData.is_active ? 'active' : 'pending');
+
   const query = {
     text: `
       INSERT INTO restaurants (
         name, description, address, phone, email,
         logo_url, cover_image_url, category,
         delivery_time_min, delivery_time_max,
-          delivery_cost, minimum_order, opening_hours, is_active
+        delivery_cost, minimum_order, opening_hours, is_active, status
       )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *
     `,
     values: [
@@ -115,13 +119,14 @@ const create = async (restaurantData) => {
       restaurantData.delivery_cost || 0,
       restaurantData.minimum_order || 0,
       restaurantData.opening_hours || null,
-        restaurantData.is_active !== undefined ? restaurantData.is_active : true,
+      restaurantData.is_active !== undefined ? restaurantData.is_active : true,
+      statusValue,
     ],
   };
 
   // Debug: verificar bandera is_active en creación
   try {
-    console.log('[RestaurantModel.create] is_active:', restaurantData.is_active, 'values:', query.values);
+    console.log('[RestaurantModel.create] is_active:', restaurantData.is_active, 'status:', statusValue);
   } catch {}
 
   const { rows } = await db.query(query);
@@ -148,8 +153,9 @@ const update = async (id, restaurantData) => {
         minimum_order = COALESCE($12, minimum_order),
         is_active = COALESCE($13, is_active),
         is_open = COALESCE($14, is_open),
-        opening_hours = COALESCE($15, opening_hours)
-      WHERE id = $16
+        opening_hours = COALESCE($15, opening_hours),
+        status = COALESCE($16, status)
+      WHERE id = $17
       RETURNING *
     `,
     values: [
@@ -168,6 +174,7 @@ const update = async (id, restaurantData) => {
       restaurantData.is_active,
       restaurantData.is_open,
       restaurantData.opening_hours,
+      restaurantData.status,
       id,
     ],
   };
@@ -179,7 +186,7 @@ const update = async (id, restaurantData) => {
 // Eliminar (desactivar) un restaurante (admin)
 const remove = async (id) => {
   const query = {
-    text: 'UPDATE restaurants SET is_active = false WHERE id = $1 RETURNING *',
+    text: 'UPDATE restaurants SET is_active = false, status = COALESCE(status,\'inactive\') WHERE id = $1 RETURNING *',
     values: [id],
   };
 
