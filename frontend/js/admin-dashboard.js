@@ -2605,7 +2605,10 @@ async function adminLoadRestaurants() {
       const actions = (function(){
         const st = (r.status||'').toLowerCase();
         if (st === 'active') {
-          return `<button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>`;
+          return `
+            <button class="btn btn-sm btn-outline-danger" data-action="deactivate" data-id="${r.id}"><i class="bi bi-slash-circle"></i> Desactivar</button>
+            <button class="btn btn-sm btn-outline-secondary" data-action="delete" data-id="${r.id}"><i class="bi bi-trash"></i> Eliminar</button>
+          `;
         }
         if (st === 'pending') {
           return `
@@ -2649,6 +2652,7 @@ async function adminLoadRestaurants() {
         if (action === 'approve') await adminApproveRestaurant(id);
         if (action === 'deactivate') await adminDeactivateRestaurant(id);
         if (action === 'reject') await adminRejectRestaurant(id);
+        if (action === 'delete') await adminDeleteRestaurant(id);
       });
     });
   } catch (err) {
@@ -2700,6 +2704,19 @@ async function adminRejectRestaurant(id) {
     return;
   }
   showNotification('Solicitud rechazada', 'warning', 3000);
+  adminLoadRestaurants();
+}
+
+async function adminDeleteRestaurant(id) {
+  if (!confirm('¿Eliminar este restaurante? Esto lo removerá del listado (acción reversible si aún conserva datos).')) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/restaurants/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  const js = await res.json().catch(() => ({}));
+  if (!res.ok || js.ok === false) {
+    alert(js.message || 'No se pudo eliminar');
+    return;
+  }
+  showNotification('Restaurante eliminado', 'secondary', 3000);
   adminLoadRestaurants();
 }
 
