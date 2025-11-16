@@ -20,7 +20,7 @@ function openRestaurantRegistration(event) {
     <div class="modal fade" id="restaurantRegisterModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header bg-warning text-white">
+          <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red));">
             <h5 class="modal-title">
               <i class="bi bi-shop"></i> Registra tu Restaurante
             </h5>
@@ -28,7 +28,7 @@ function openRestaurantRegistration(event) {
           </div>
           <div class="modal-body">
             <div class="text-center mb-3">
-              <i class="bi bi-shop-window" style="font-size: 3rem; color: var(--orange-accent);"></i>
+              <i class="bi bi-shop-window" style="font-size: 3rem; color: var(--primary-red);"></i>
             </div>
             <h6 class="text-center mb-3">¡Únete a DomiTuluá!</h6>
             <p class="text-center">
@@ -44,7 +44,7 @@ function openRestaurantRegistration(event) {
               </ul>
             </div>
             <div class="d-grid gap-2 mt-3">
-              <a href="/public/register-restaurant.html" class="btn btn-warning btn-lg">
+              <a href="/public/register-restaurant.html" class="btn btn-lg text-white" style="background: linear-gradient(135deg, var(--primary-red), var(--deep-red)); border: none;">
                 <i class="bi bi-pencil-square"></i> Registrar mi restaurante
               </a>
               <p class="text-muted small text-center mb-0">
