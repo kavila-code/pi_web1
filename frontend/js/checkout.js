@@ -31,19 +31,61 @@ function loadUserData() {
 // Cargar carrito
 function loadCart() {
   // Usar cart_items_v1 para compatibilidad
-  const rawCart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
-  
-  // Convertir formato cart_items_v1 a formato esperado por checkout
-  cart = rawCart.map(item => ({
-    product_id: item.id || item.product_id,
-    product_name: item.name || item.product_name || 'Item',
-    product_price: item.price || item.product_price || 0,
-    product_image: item.image || item.product_image || '',
-    quantity: item.qty || item.quantity || 1,
-    special_instructions: item.special_instructions || null,
-    restaurant_id: item.restaurant_id,
-    restaurant_name: item.restaurant_name
-  }));
+  const INT32_MAX = 2147483647;
+  let rawCart = [];
+  try {
+    rawCart = JSON.parse(localStorage.getItem("cart_items_v1") || "[]");
+    if (!Array.isArray(rawCart)) rawCart = [];
+  } catch (_) { rawCart = []; }
+
+  // Limpieza y normalización preventiva (eliminar/sanitizar IDs fuera de rango, cantidades inválidas, etc.)
+  let mutated = false;
+  const cleaned = [];
+  for (const it of rawCart) {
+    if (!it) { mutated = true; continue; }
+    let pid = it.product_id || it.id;
+    if (pid == null) { mutated = true; continue; }
+    const num = Number(pid);
+    if (!Number.isInteger(num) || num <= 0) { mutated = true; continue; }
+    let finalPid = num;
+    if (num > INT32_MAX) {
+      // Si proviene de Date.now() (ms), intentar reducir a segundos
+      const seconds = Math.floor(num / 1000);
+      if (seconds > 0 && seconds <= INT32_MAX) {
+        finalPid = seconds;
+      } else {
+        mutated = true; continue; // imposible sanear
+      }
+      mutated = true;
+    }
+    const qty = Number(it.qty || it.quantity || 1);
+    if (!Number.isInteger(qty) || qty <= 0) { mutated = true; continue; }
+    cleaned.push({
+      product_id: finalPid,
+      product_name: it.name || it.product_name || 'Item',
+      product_price: Number(it.price || it.product_price || 0) || 0,
+      product_image: it.image || it.product_image || '',
+      quantity: qty,
+      special_instructions: it.special_instructions || null,
+      restaurant_id: it.restaurant_id || null,
+      restaurant_name: it.restaurant_name || null
+    });
+  }
+
+  if (mutated) {
+    try { localStorage.setItem('cart_items_v1', JSON.stringify(cleaned.map(c => ({
+      id: c.product_id,
+      name: c.product_name,
+      price: c.product_price,
+      image: c.product_image,
+      qty: c.quantity,
+      special_instructions: c.special_instructions,
+      restaurant_id: c.restaurant_id,
+      restaurant_name: c.restaurant_name
+    })))); } catch (_) {}
+  }
+
+  cart = cleaned;
 
   if (cart.length === 0) {
     alert("Tu carrito está vacío");
