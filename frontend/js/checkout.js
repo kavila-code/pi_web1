@@ -60,7 +60,10 @@ async function resolveRestaurantFromFirstItem() {
   try {
     const first = cart[0];
     if (!first || !first.product_id) return false;
-    const res = await fetch(`http://localhost:3000/api/v1/products/${first.product_id}`);
+    // If product_id is obviously synthetic (e.g., generated with Date.now()), avoid querying the API
+    const idNum = Number(first.product_id);
+    if (!Number.isSafeInteger(idNum) || idNum > 2147483647) return false;
+    const res = await fetch(`/api/v1/products/${first.product_id}`);
     const data = await res.json();
     if (!data || !data.ok || !data.data) return false;
     const prod = data.data;

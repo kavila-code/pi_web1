@@ -35,6 +35,15 @@ export const getProductsByRestaurant = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
+    // Validar que el id sea numérico para evitar pasar strings a la DB
+    if (!/^[0-9]+$/.test(String(id))) {
+      return res.status(400).json({ ok: false, message: 'ID de producto inválido' });
+    }
+    // Evitar overflow en PSQL (int32). Si el id es mayor al máximo permitido, rechazamos.
+    const nId = Number(id);
+    if (!Number.isSafeInteger(nId) || nId > 2147483647) {
+      return res.status(400).json({ ok: false, message: 'ID de producto fuera de rango' });
+    }
 
     const product = await ProductModel.getById(id);
 

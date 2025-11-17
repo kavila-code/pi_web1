@@ -46,6 +46,14 @@ export const getRecommended = async (req, res) => {
 export const getRestaurantById = async (req, res) => {
   try {
     const { id } = req.params;
+    // Evita pasar valores no numéricos a la consulta (sintaxis integer inválida)
+    if (!/^[0-9]+$/.test(String(id))) {
+      return res.status(400).json({ ok: false, message: 'ID de restaurante inválido' });
+    }
+    const nId = Number(id);
+    if (!Number.isSafeInteger(nId) || nId > 2147483647) {
+      return res.status(400).json({ ok: false, message: 'ID de restaurante fuera de rango' });
+    }
 
     const restaurant = await RestaurantModel.getById(id);
 
