@@ -243,8 +243,15 @@ function addItemToCart(item) {
 
     // Si cart.js está cargado (window.cartAPI disponible), usar su API
     if (window.cartAPI && window.cartAPI.addToCart) {
+      // Usar id real del producto si existe; evitar Date.now() que desborda INT
+      let safeId = item.product_id || item.id || null;
+      if (!safeId) {
+        // usar timestamp en segundos (< 2147483647 hasta año 2038) como fallback temporal
+        safeId = Math.floor(Date.now() / 1000);
+      }
       const cartItem = {
-        id: item.product_id || item.id || Date.now(),
+        id: safeId,
+        product_id: safeId,
         name: item.product_name || item.name || 'Item',
         price: Number(item.product_price || item.price || 0),
         image: item.product_image || item.image || '',
@@ -267,7 +274,10 @@ function addItemToCart(item) {
 
     // Normalize price to number
     const price = Number(item.product_price || item.price || 0);
-    const itemId = item.product_id || item.id || Date.now();
+    let itemId = item.product_id || item.id;
+    if (!itemId) {
+      itemId = Math.floor(Date.now() / 1000); // segundos: seguro dentro de INT32
+    }
 
     // Try to find by id
     const idx = cur.findIndex(c => c.id === itemId);
@@ -276,6 +286,7 @@ function addItemToCart(item) {
     } else {
       cur.push({
         id: itemId,
+        product_id: item.product_id || itemId,
         name: item.product_name || item.name || 'Item',
         price: price,
         image: item.product_image || item.image || '',
@@ -516,6 +527,7 @@ function openPreviewFromCard(card) {
   // Mostrar restaurante si existe en el card
   const menuItem = card.closest('.menu-item');
   const restId = menuItem ? menuItem.getAttribute('data-restaurant-id') : null;
+  const prodId = menuItem ? menuItem.getAttribute('data-product-id') : null;
   let restName = '';
   if (restId) {
     // Buscar nombre del restaurante en la página (por id) o usar un mapeo
@@ -541,6 +553,7 @@ function openPreviewFromCard(card) {
   overlay.dataset.price = previewPrice.textContent;
   overlay.dataset.restaurantId = restId || '';
   overlay.dataset.restaurantName = restName || '';
+  overlay.dataset.productId = prodId || '';
 
   overlay.classList.add('active');
   // prevent body scroll while modal is open
@@ -609,7 +622,9 @@ function setupMenuPreviews() {
             };
             restName = restMap[restId] || 'Restaurante';
           }
-          const item = { product_name: title, product_price: price, product_image: img, quantity: 1, restaurant_id: restId || null, restaurant_name: restName || null };
+          const productId = menuItemEl ? menuItemEl.getAttribute('data-product-id') : null;
+          const parsedPid = productId ? parseInt(productId, 10) : null;
+          const item = { product_id: parsedPid || null, product_name: title, product_price: price, product_image: img, quantity: 1, restaurant_id: restId || null, restaurant_name: restName || null };
           addItemToCart(item);
           showClaimToast('Agregado al carrito');
         } catch (err) {

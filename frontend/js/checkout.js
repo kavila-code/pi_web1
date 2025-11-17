@@ -227,13 +227,34 @@ async function placeOrder() {
   }
 
   // Preparar datos del pedido
+  // Sanitizar product_ids: eliminar/sustituir IDs fuera de rango INT32 para evitar errores en PostgreSQL
+  const INT32_MAX = 2147483647;
+  const sanitizedCart = cart.map(it => {
+    let pid = it.product_id;
+    if (pid == null) return it; // se manejará después si falta
+    const num = Number(pid);
+    if (!Number.isInteger(num) || num <= 0) {
+      // invalid -> marcar como null para forzar validación backend
+      return { ...it, product_id: null };
+    }
+    if (num > INT32_MAX) {
+      // Reducir a segundos si viene de Date.now()
+      const seconds = Math.floor(num / 1000);
+      if (seconds > 0 && seconds <= INT32_MAX) {
+        return { ...it, product_id: seconds };
+      }
+      return { ...it, product_id: null };
+    }
+    return it;
+  });
+
   const orderData = {
     restaurant_id: cart[0]?.restaurant_id,
     delivery_address: address,
     delivery_phone: phone,
     delivery_notes: notes || null,
     payment_method: selectedPayment,
-    items: cart.map((item) => ({
+    items: sanitizedCart.map((item) => ({
       product_id: item.product_id,
       quantity: item.quantity,
       special_instructions: item.special_instructions || null,
