@@ -248,7 +248,9 @@ function addItemToCart(item) {
         name: item.product_name || item.name || 'Item',
         price: Number(item.product_price || item.price || 0),
         image: item.product_image || item.image || '',
-        qty: item.quantity || item.qty || 1
+        qty: item.quantity || item.qty || 1,
+        restaurant_id: item.restaurant_id || item.restaurantId || item.restaurantID || null,
+        restaurant_name: item.restaurant_name || item.restaurantName || null
       };
       window.cartAPI.addToCart(cartItem);
       
@@ -277,7 +279,21 @@ function addItemToCart(item) {
         name: item.product_name || item.name || 'Item',
         price: price,
         image: item.product_image || item.image || '',
-        qty: item.quantity || item.qty || 1
+        qty: item.quantity || item.qty || 1,
+        restaurant_id: item.restaurant_id || (function(){
+          try {
+            const overlay = document.getElementById('menuPreviewOverlay');
+            if (overlay && overlay.dataset && overlay.dataset.restaurantId) return overlay.dataset.restaurantId || null;
+          } catch(_) {}
+          return item.restaurantId || null;
+        })(),
+        restaurant_name: item.restaurant_name || (function(){
+          try {
+            const overlay = document.getElementById('menuPreviewOverlay');
+            if (overlay && overlay.dataset && overlay.dataset.restaurantName) return overlay.dataset.restaurantName || null;
+          } catch(_) {}
+          return item.restaurantName || null;
+        })()
       });
     }
 
@@ -579,7 +595,21 @@ function setupMenuPreviews() {
           const priceText = priceEl ? priceEl.textContent.trim() : '0';
           const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(/\./g,'').replace(/,/g,'.')) || 0;
           const img = imgEl ? imgEl.src : '';
-          const item = { product_name: title, product_price: price, product_image: img, quantity: 1 };
+          // Obtener restaurante desde atributo data-restaurant-id del contenedor .menu-item
+          const menuItemEl = card.closest('.menu-item');
+          const restId = menuItemEl ? menuItemEl.getAttribute('data-restaurant-id') : null;
+          // Mapeo simple (mismo que en openPreviewFromCard) para nombre si existe
+          let restName = '';
+          if (restId) {
+            const restMap = {
+              '1': 'La Bella Italia',
+              '2': 'Burger Master',
+              '3': 'Sakura Sushi',
+              '4': 'Otro Restaurante'
+            };
+            restName = restMap[restId] || 'Restaurante';
+          }
+          const item = { product_name: title, product_price: price, product_image: img, quantity: 1, restaurant_id: restId || null, restaurant_name: restName || null };
           addItemToCart(item);
           showClaimToast('Agregado al carrito');
         } catch (err) {
