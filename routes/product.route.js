@@ -10,6 +10,7 @@ import {
   createMyProduct,
   updateMyProduct,
   deleteMyProduct,
+  getFeaturedProducts,
 } from '../controllers/product.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { adminMiddleware } from '../middlewares/admin.middleware.js';
@@ -20,8 +21,10 @@ const router = Router();
 // Rutas públicas (sin autenticación)
 router.get('/restaurants/:restaurantId/products', getProductsByRestaurant);
 router.get('/restaurants/:restaurantId/products/categories', getCategoriesByRestaurant);
-router.get('/products/:id', getProductById);
+// Importante: rutas específicas primero para evitar colisiones con ":id"
+router.get('/products/featured', getFeaturedProducts);
 router.post('/products/batch', getProductsByIds); // Para carrito
+router.get('/products/:id', getProductById);
 
 // Rutas de propietarios de restaurantes (autenticados)
 router.post('/my-restaurants/:restaurantId/products', authMiddleware, uploadProductImage, createMyProduct);

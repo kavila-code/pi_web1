@@ -190,7 +190,7 @@
         <!-- Grid de productos -->
         <div class="row menu-grid">
           <!-- Pizza -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza" data-product-id="1" data-restaurant-id="1">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -213,7 +213,7 @@
           </div>
 
           <!-- Hamburguesa -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="8" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -236,7 +236,7 @@
           </div>
 
           <!-- Burger BBQ Bacon -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="9" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -259,7 +259,7 @@
           </div>
 
           <!-- Burger Vegetariana -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="10" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -281,7 +281,7 @@
           </div>
 
           <!-- Papas Fritas Grandes -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="11" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -303,7 +303,7 @@
           </div>
 
           <!-- Aros de Cebolla -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="12" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -325,7 +325,7 @@
           </div>
 
           <!-- Nuggets de Pollo -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="14" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -347,7 +347,7 @@
           </div>
 
           <!-- Malteada de Chocolate -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink" data-product-id="13" data-restaurant-id="2">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -368,8 +368,8 @@
             </div>
           </div>
 
-          <!-- Sushi -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="sushi">
+          <!-- Sushi (Rollo California) -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="sushi" data-product-id="17" data-restaurant-id="3">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -390,8 +390,8 @@
             </div>
           </div>
 
-          <!-- Más productos... -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="dessert">
+          <!-- Más productos... (Cheesecake mapeado a Tiramisu id:7/rest:1) -->
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="dessert" data-product-id="7" data-restaurant-id="1">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -412,7 +412,7 @@
             </div>
           </div>
 
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink" data-product-id="21" data-restaurant-id="3">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -433,7 +433,7 @@
             </div>
           </div>
 
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza">
+          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza" data-product-id="2" data-restaurant-id="1">
             <div class="menu-card">
               <div class="menu-image">
                 <img
@@ -586,49 +586,64 @@
     </section>
 
     <script>
-      // Agregar productos del restaurante 3 (Sushi) a la grilla de "Nuestro Menú"
-      document.addEventListener('DOMContentLoaded', function() {
+      // Cargar productos destacados desde la API con fallback al contenido estático
+      document.addEventListener('DOMContentLoaded', async function() {
         const grid = document.querySelector('.menu-section .menu-grid');
-        if (!grid || !window.guessFoodImage || !window.guessFoodImageCandidates) return;
-        const items = [
-          { name: 'Sushi Variado (12 piezas)', price: 42000, category: 'sushi' },
-          { name: 'Sashimi de Salmón', price: 38000, category: 'sushi' },
-          { name: 'Rollo California', price: 28000, category: 'sushi' },
-          { name: 'Rollo Philadelphia', price: 30000, category: 'sushi' },
-          { name: 'Tempura de Camarón', price: 26000, category: 'sushi' },
-          { name: 'Edamame', price: 12000, category: 'sushi' },
-          { name: 'Té Verde', price: 8000, category: 'drink' },
-        ];
-        const frag = document.createDocumentFragment();
-        items.forEach(it => {
-          const div = document.createElement('div');
-          div.className = 'col-lg-4 col-md-6 mb-4 menu-item';
-          div.setAttribute('data-category', it.category || 'sushi');
-          const img = (window.guessFoodImage && window.guessFoodImage(it.name)) || '/imagenes/comida/default.jpg';
-          const candidates = (window.guessFoodImageCandidates && window.guessFoodImageCandidates(it.name)) || [];
-          div.innerHTML = `
-            <div class="menu-card">
-              <div class="menu-image">
-                <img src="${img}" alt="${it.name}" data-candidates='${JSON.stringify(candidates)}' data-idx="0" onerror="window.tryNextFoodImage && window.tryNextFoodImage(this)">
-              </div>
-              <div class="menu-content">
-                <h4>${it.name}</h4>
-                <p>Especialidad fresca del restaurante</p>
-                <div class="menu-footer">
-                  <span class="price">$${(it.price||0).toLocaleString('es-CO')}</span>
-                  <button class="btn-add-cart" title="Agregar">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
+        if (!grid) return;
+
+        const originalHTML = grid.innerHTML; // fallback
+        // Placeholder simple
+        const placeholder = document.createElement('div');
+        placeholder.textContent = 'Cargando menú...';
+        placeholder.style.padding = '8px';
+        grid.prepend(placeholder);
+
+        try {
+          const res = await fetch('/api/v1/products/featured?limit=12');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+          if (!json.ok || !Array.isArray(json.data) || json.data.length === 0) throw new Error('Respuesta inválida');
+
+          const items = json.data;
+          const frag = document.createDocumentFragment();
+          grid.innerHTML = '';
+
+          items.forEach(p => {
+            const name = p.name;
+            const desc = p.description || 'Especialidad del restaurante';
+            const price = Number(p.price || 0);
+            const img = p.image_url || (window.guessFoodImage && window.guessFoodImage(name)) || '/imagenes/comida/default.jpg';
+            const candidates = (window.guessFoodImageCandidates && window.guessFoodImageCandidates(name)) || [];
+
+            const div = document.createElement('div');
+            div.className = 'col-lg-4 col-md-6 mb-4 menu-item';
+            if (p.category) div.setAttribute('data-category', p.category);
+            if (p.id) div.setAttribute('data-product-id', p.id);
+            if (p.restaurant_id) div.setAttribute('data-restaurant-id', p.restaurant_id);
+            div.innerHTML = `
+              <div class="menu-card">
+                <div class="menu-image">
+                  <img src="${img}" alt="${name}" data-candidates='${JSON.stringify(candidates)}' data-idx="0" onerror="window.tryNextFoodImage && window.tryNextFoodImage(this)">
                 </div>
-              </div>
-            </div>`;
-          frag.appendChild(div);
-        });
-        grid.appendChild(frag);
-        
-        // Configurar previsualización para las nuevas tarjetas
-        if (typeof setupMenuPreviews === 'function') {
-          setupMenuPreviews();
+                <div class="menu-content">
+                  <h4>${name}</h4>
+                  <p>${desc}</p>
+                  <div class="menu-footer">
+                    <span class="price">$${price.toLocaleString('es-CO')}</span>
+                    <button class="btn-add-cart" title="Agregar"><i class="bi bi-cart-plus"></i></button>
+                  </div>
+                </div>
+              </div>`;
+            frag.appendChild(div);
+          });
+          grid.appendChild(frag);
+
+          if (typeof setupMenuPreviews === 'function') {
+            setupMenuPreviews();
+          }
+        } catch (e) {
+          console.warn('Fallo al cargar destacados, usando fallback:', e);
+          grid.innerHTML = originalHTML;
         }
       });
     </script>

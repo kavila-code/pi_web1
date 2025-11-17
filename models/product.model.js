@@ -182,3 +182,34 @@ export const ProductModel = {
   remove,
   getCategoriesByRestaurant,
 };
+
+// Obtener productos destacados (global, activos)
+const getFeatured = async (limit = 12) => {
+  const query = {
+    text: `
+      SELECT 
+        p.id,
+        p.restaurant_id,
+        p.name,
+        p.description,
+        p.category,
+        p.price,
+        p.image_url,
+        r.name AS restaurant_name
+      FROM products p
+      JOIN restaurants r ON r.id = p.restaurant_id
+      WHERE p.is_available = true
+        AND r.is_active = true
+        AND COALESCE(r.status, 'active') = 'active'
+      ORDER BY p.id DESC
+      LIMIT $1
+    `,
+    values: [limit],
+  };
+
+  const { rows } = await db.query(query);
+  return rows;
+};
+
+// Extender export con getFeatured
+ProductModel.getFeatured = getFeatured;

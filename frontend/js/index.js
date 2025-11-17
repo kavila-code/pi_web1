@@ -412,6 +412,7 @@ function ensurePreviewModal() {
       </div>
       <div class="preview-body">
         <h4 class="preview-title"></h4>
+        <div class="preview-restaurant" style="display:none"></div>
         <p class="preview-desc"></p>
         <div class="preview-price"></div>
         <div class="preview-actions">
@@ -437,7 +438,6 @@ function ensurePreviewModal() {
 
   // Actions
   overlay.querySelector('.btn-preview-add').addEventListener('click', function () {
-    // En la homepage siempre mostrar el modal indicando que no estás autenticado
     if (IS_HOMEPAGE) {
       try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
       try {
@@ -457,7 +457,6 @@ function ensurePreviewModal() {
     closePreview();
   });
   overlay.querySelector('.btn-preview-order').addEventListener('click', function () {
-    // En la homepage siempre mostrar el modal indicando que no estás autenticado
     if (IS_HOMEPAGE) {
       try { sessionStorage.setItem('afterLoginRedirect', window.location.href); } catch (e) {}
       try {
@@ -472,7 +471,6 @@ function ensurePreviewModal() {
       return;
     }
 
-    // Add to cart and show a confirmation — keep user on the preview modal flow
     addToCart();
     showClaimToast('Pedido agregado. Ve al carrito para completar.');
     closePreview();
@@ -483,14 +481,15 @@ function openPreviewFromCard(card) {
   ensurePreviewModal();
   const overlay = document.getElementById('menuPreviewOverlay');
   const img = card.querySelector('.menu-image img');
-  const title = card.querySelector('.menu-content h4');
-  const desc = card.querySelector('.menu-content p');
-  const price = card.querySelector('.menu-footer .price');
+  const title = card.querySelector('.menu-content h4, .menu-body .menu-title');
+  const desc = card.querySelector('.menu-content p, .menu-body .menu-description');
+  const price = card.querySelector('.menu-footer .price, .menu-footer .menu-price');
 
   const previewImg = overlay.querySelector('.preview-image img');
   const previewTitle = overlay.querySelector('.preview-title');
   const previewDesc = overlay.querySelector('.preview-desc');
   const previewPrice = overlay.querySelector('.preview-price');
+  const previewRestaurant = overlay.querySelector('.preview-restaurant');
 
   previewImg.src = img ? img.src : '';
   previewImg.alt = title ? title.textContent.trim() : 'Producto';
@@ -498,11 +497,34 @@ function openPreviewFromCard(card) {
   previewDesc.textContent = desc ? desc.textContent.trim() : '';
   previewPrice.textContent = price ? price.textContent.trim() : '';
 
+  // Mostrar restaurante si existe en el card
+  const menuItem = card.closest('.menu-item');
+  const restId = menuItem ? menuItem.getAttribute('data-restaurant-id') : null;
+  let restName = '';
+  if (restId) {
+    // Buscar nombre del restaurante en la página (por id) o usar un mapeo
+    // Aquí puedes usar un mapeo estático o buscar en el DOM
+    const restMap = {
+      '1': 'La Bella Italia',
+      '2': 'Burger Master',
+      '3': 'Sakura Sushi',
+      '4': 'Otro Restaurante'
+    };
+    restName = restMap[restId] || 'Restaurante';
+    previewRestaurant.innerHTML = `<span class="preview-restaurant-label">Restaurante:</span> <a href="/public/restaurant-menu.html?id=${restId}" class="preview-restaurant-link">${restName}</a>`;
+    previewRestaurant.style.display = '';
+  } else {
+    previewRestaurant.innerHTML = '';
+    previewRestaurant.style.display = 'none';
+  }
+
   // Store values on overlay dataset so action buttons can read them
   overlay.dataset.img = previewImg.src;
   overlay.dataset.title = previewTitle.textContent;
   overlay.dataset.desc = previewDesc.textContent;
   overlay.dataset.price = previewPrice.textContent;
+  overlay.dataset.restaurantId = restId || '';
+  overlay.dataset.restaurantName = restName || '';
 
   overlay.classList.add('active');
   // prevent body scroll while modal is open

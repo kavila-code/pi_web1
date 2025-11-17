@@ -403,3 +403,15 @@ export const deleteMyProduct = async (req, res) => {
     });
   }
 };
+
+// Obtener productos destacados (global)
+export const getFeaturedProducts = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit || '12');
+    const featured = await ProductModel.getFeatured(isNaN(limit) ? 12 : limit);
+    return res.status(200).json({ ok: true, data: featured, count: featured.length });
+  } catch (error) {
+    console.error('Error al obtener productos destacados:', error);
+    return res.status(500).json({ ok: false, message: 'Error al obtener productos destacados', error: error.message });
+  }
+};
