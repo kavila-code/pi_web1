@@ -200,7 +200,8 @@ const getAvailableForDelivery = async (filters = {}) => {
       JOIN restaurants r ON o.restaurant_id = r.id
       JOIN users u ON o.customer_id = u.uid
       LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE o.status = 'listo' AND o.delivery_person_id IS NULL
+      WHERE o.status IN ('pendiente', 'confirmado', 'preparando', 'listo') 
+        AND o.delivery_person_id IS NULL
       GROUP BY o.id, r.name, r.address, r.logo_url, u.username
       ORDER BY o.created_at ASC
     `,
@@ -454,27 +455,43 @@ const assignDeliveryPerson = async (orderId, deliveryPersonId, assignedBy) => {
   try {
     await client.query('BEGIN');
 
+    // Verificar que el pedido no esté ya asignado (evitar race conditions)
+    const checkQuery = {
+      text: `
+        SELECT id, status, delivery_person_id 
+        FROM orders 
+        WHERE id = $1 
+        FOR UPDATE
+      `,
+      values: [orderId],
+    };
+
+    const { rows: [existingOrder] } = await client.query(checkQuery);
+
+    if (!existingOrder) {
+      throw new Error('Pedido no encontrado');
+    }
+
+    if (existingOrder.delivery_person_id) {
+      throw new Error('Este pedido ya fue asignado a otro domiciliario');
+    }
+
+    if (existingOrder.status === 'cancelado' || existingOrder.status === 'entregado') {
+      throw new Error('Este pedido no está disponible');
+    }
+
+    // Asignar domiciliario y cambiar estado a "en_camino"
     const updateQuery = {
       text: `
         UPDATE orders
-        SET delivery_person_id = $1
-        WHERE id = $2 AND status = 'listo'
+        SET delivery_person_id = $1, status = 'en_camino', picked_up_at = CURRENT_TIMESTAMP
+        WHERE id = $2
         RETURNING *
       `,
       values: [deliveryPersonId, orderId],
     };
 
     const { rows: [order] } = await client.query(updateQuery);
-
-    if (!order) {
-      throw new Error('Pedido no encontrado o no está listo para asignar');
-    }
-
-    // Cambiar estado a "en_camino"
-    await client.query({
-      text: 'UPDATE orders SET status = $1, picked_up_at = CURRENT_TIMESTAMP WHERE id = $2',
-      values: ['en_camino', orderId],
-    });
 
     // Registrar en el historial
     await client.query({

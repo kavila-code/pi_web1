@@ -165,14 +165,18 @@ async function cancelOrder(orderId) {
 
   try {
     const data = await authenticatedFetch(`/api/v1/orders/${orderId}/cancel`, {
-      method: "POST"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({})
     });
 
     if (data && data.ok) {
       showToast("Pedido cancelado exitosamente", "success");
       loadOrders();
     } else {
-      showToast("Error al cancelar el pedido", "error");
+      showToast(data?.message || "Error al cancelar el pedido", "error");
     }
   } catch (error) {
     console.error("Error:", error);

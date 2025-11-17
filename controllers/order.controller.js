@@ -340,14 +340,7 @@ export const cancelOrder = async (req, res) => {
     const { reason } = req.body;
     const userId = req.user.uid;
 
-    if (!reason) {
-      return res.status(400).json({
-        ok: false,
-        message: 'La razón de cancelación es requerida',
-      });
-    }
-
-    const cancelledOrder = await OrderModel.cancel(id, userId, reason);
+    const cancelledOrder = await OrderModel.cancel(id, userId, reason || 'Sin razón especificada');
 
     return res.status(200).json({
       ok: true,
