@@ -221,9 +221,6 @@ function addToCart() {
       product_price: parseFloat((overlay.dataset.price || '').replace(/[^0-9.,]/g, '').replace(/\./g,'').replace(/,/g,'.')) || 0,
       product_image: overlay.dataset.img || '',
       quantity: 1,
-      product_id: overlay.dataset.productId ? Number(overlay.dataset.productId) : undefined,
-      restaurant_id: overlay.dataset.restaurantId ? Number(overlay.dataset.restaurantId) : undefined,
-      restaurant_name: overlay.dataset.restaurantName || undefined,
     };
     addItemToCart(item);
     return;
@@ -251,9 +248,7 @@ function addItemToCart(item) {
         name: item.product_name || item.name || 'Item',
         price: Number(item.product_price || item.price || 0),
         image: item.product_image || item.image || '',
-        qty: item.quantity || item.qty || 1,
-        restaurant_id: item.restaurant_id,
-        restaurant_name: item.restaurant_name
+        qty: item.quantity || item.qty || 1
       };
       window.cartAPI.addToCart(cartItem);
       
@@ -282,9 +277,7 @@ function addItemToCart(item) {
         name: item.product_name || item.name || 'Item',
         price: price,
         image: item.product_image || item.image || '',
-        qty: item.quantity || item.qty || 1,
-        restaurant_id: item.restaurant_id,
-        restaurant_name: item.restaurant_name
+        qty: item.quantity || item.qty || 1
       });
     }
 
@@ -507,7 +500,6 @@ function openPreviewFromCard(card) {
   // Mostrar restaurante si existe en el card
   const menuItem = card.closest('.menu-item');
   const restId = menuItem ? menuItem.getAttribute('data-restaurant-id') : null;
-  const productId = menuItem ? menuItem.getAttribute('data-product-id') : null;
   let restName = '';
   if (restId) {
     // Buscar nombre del restaurante en la página (por id) o usar un mapeo
@@ -533,7 +525,6 @@ function openPreviewFromCard(card) {
   overlay.dataset.price = previewPrice.textContent;
   overlay.dataset.restaurantId = restId || '';
   overlay.dataset.restaurantName = restName || '';
-  overlay.dataset.productId = productId || '';
 
   overlay.classList.add('active');
   // prevent body scroll while modal is open
@@ -588,12 +579,7 @@ function setupMenuPreviews() {
           const priceText = priceEl ? priceEl.textContent.trim() : '0';
           const price = parseFloat(priceText.replace(/[^0-9.,]/g, '').replace(/\./g,'').replace(/,/g,'.')) || 0;
           const img = imgEl ? imgEl.src : '';
-          const mi = card.closest('.menu-item');
-          const pid = mi ? Number(mi.getAttribute('data-product-id')) : undefined;
-          const rid = mi ? Number(mi.getAttribute('data-restaurant-id')) : undefined;
-          const restMap = { '1': 'La Bella Italia', '2': 'Burger Master', '3': 'Sakura Sushi', '4': 'Otro Restaurante' };
-          const rname = mi && mi.getAttribute('data-restaurant-id') ? (restMap[mi.getAttribute('data-restaurant-id')] || 'Restaurante') : undefined;
-          const item = { product_name: title, product_price: price, product_image: img, quantity: 1, product_id: pid, restaurant_id: rid, restaurant_name: rname };
+          const item = { product_name: title, product_price: price, product_image: img, quantity: 1 };
           addItemToCart(item);
           showClaimToast('Agregado al carrito');
         } catch (err) {
