@@ -217,10 +217,18 @@ function addToCart() {
   const overlay = document.getElementById('menuPreviewOverlay');
   if (overlay && overlay.classList.contains('active')) {
     const item = {
+      product_id: (function(){
+        const raw = overlay.dataset.productId;
+        if (!raw) return null;
+        const n = Number(raw);
+        return Number.isInteger(n) && n > 0 ? n : null;
+      })(),
       product_name: overlay.dataset.title || '',
       product_price: parseFloat((overlay.dataset.price || '').replace(/[^0-9.,]/g, '').replace(/\./g,'').replace(/,/g,'.')) || 0,
       product_image: overlay.dataset.img || '',
       quantity: 1,
+      restaurant_id: overlay.dataset.restaurantId || null,
+      restaurant_name: overlay.dataset.restaurantName || null
     };
     addItemToCart(item);
     return;

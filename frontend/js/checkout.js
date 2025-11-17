@@ -296,12 +296,20 @@ async function placeOrder() {
     delivery_phone: phone,
     delivery_notes: notes || null,
     payment_method: selectedPayment,
-    items: sanitizedCart.map((item) => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      special_instructions: item.special_instructions || null,
-    })),
+    items: sanitizedCart
+      .filter(it => it.product_id && Number.isInteger(Number(it.product_id)) && Number(it.product_id) > 0)
+      .map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        special_instructions: item.special_instructions || null,
+      })),
   };
+
+  if (!orderData.items.length) {
+    alert("Tu carrito no tiene productos válidos. Por favor vuelve al menú y agrega productos desde la lista actualizada.");
+    if (loadingOverlay) loadingOverlay.style.display = "none";
+    return;
+  }
 
   if (!orderData.restaurant_id) {
     alert("No se pudo identificar el restaurante del pedido. Regresa al carrito y vuelve a intentar.");
