@@ -36,9 +36,11 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    const products = await ProductModel.getByIds(productIds);
+    // Permitir cantidades >1 del mismo producto: deduplicar IDs para la consulta
+    const uniqueProductIds = [...new Set(productIds)];
+    const products = await ProductModel.getByIds(uniqueProductIds);
 
-    if (products.length !== productIds.length) {
+    if (products.length !== uniqueProductIds.length) {
       return res.status(400).json({
         ok: false,
         message: 'Algunos productos no existen',
