@@ -380,6 +380,7 @@ function addToCart() {
 
     const cartItem = {
       id: selectedProduct.id,
+      product_id: selectedProduct.id, // asegurar campo product_id para validación backend
       name: selectedProduct.name,
       price: selectedProduct.price,
       image: selectedProduct.image_url,
@@ -427,6 +428,7 @@ function addToCart() {
   } else {
     cart.push({
       id: selectedProduct.id,
+      product_id: selectedProduct.id, // mantener product_id para checkout
       name: selectedProduct.name,
       price: selectedProduct.price,
       image: selectedProduct.image_url,
@@ -465,6 +467,7 @@ function quickAddToCart(productId) {
   if (window.cartAPI && window.cartAPI.addToCart) {
     const cartItem = {
       id: product.id,
+      product_id: product.id, // asegurar product_id
       name: product.name,
       price: product.price,
       image: product.image_url,
@@ -495,6 +498,7 @@ function quickAddToCart(productId) {
   } else {
     cart.push({
       id: product.id,
+      product_id: product.id, // mantener product_id
       name: product.name,
       price: product.price,
       image: product.image_url,
