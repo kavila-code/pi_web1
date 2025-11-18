@@ -53,7 +53,6 @@ async function loadDeliveryStats() {
     console.error('Error cargando estadísticas:', e);
   }
 }
-});
 
 // ===== CARGAR PEDIDOS ASIGNADOS =====
 async function loadAssignedOrders() {
