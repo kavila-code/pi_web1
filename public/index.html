@@ -187,271 +187,14 @@
           </button>
         </div>
 
-        <!-- Grid de productos -->
+        <!-- Grid de productos (cargado dinámicamente desde la base de datos) -->
         <div class="row menu-grid">
-          <!-- Pizza -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza" data-product-id="1" data-restaurant-id="1">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/PIZZA-MARGHERITA.jpg"
-                  alt="Pizza Margherita"
-                />
-                <div class="menu-badge">Popular</div>
-              </div>
-              <div class="menu-content">
-                <h4>Pizza Margherita</h4>
-                <p>Deliciosa pizza con tomate, mozzarella fresca y albahaca</p>
-                <div class="menu-footer">
-                  <span class="price">$25.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
+          <!-- Los productos se cargarán automáticamente desde /api/v1/products/featured -->
+          <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando productos...</span>
             </div>
-          </div>
-
-          <!-- Hamburguesa -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="8" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/hamburguesa-clasica.jpg"
-                  alt="Hamburguesa Clásica"
-                />
-                <div class="menu-badge new">Nuevo</div>
-              </div>
-              <div class="menu-content">
-                <h4>Burger Clásica</h4>
-                <p>Carne de res, lechuga, tomate, queso</p>
-                <div class="menu-footer">
-                  <span class="price">$18.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Burger BBQ Bacon -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="9" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/burguer bbq bacon.jpeg"
-                  alt="Burger BBQ Bacon"
-                />
-                <div class="menu-badge">Popular</div>
-              </div>
-              <div class="menu-content">
-                <h4>Burger BBQ Bacon</h4>
-                <p>Carne, tocineta, queso, salsa BBQ</p>
-                <div class="menu-footer">
-                  <span class="price">$22.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Burger Vegetariana -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="10" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/burger vegetariana.jpg"
-                  alt="Burger Vegetariana"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Burger Vegetariana</h4>
-                <p>Hamburguesa de quinoa y vegetales</p>
-                <div class="menu-footer">
-                  <span class="price">$19.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Papas Fritas Grandes -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="11" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/papas fritas grandes.png"
-                  alt="Papas Fritas Grandes"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Papas Fritas Grandes</h4>
-                <p>Papas crujientes con sal</p>
-                <div class="menu-footer">
-                  <span class="price">$8.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Aros de Cebolla -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="12" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/aros de cebolla.jpeg"
-                  alt="Aros de Cebolla"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Aros de Cebolla</h4>
-                <p>Aros de cebolla empanizados</p>
-                <div class="menu-footer">
-                  <span class="price">$9.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Nuggets de Pollo -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="burger" data-product-id="14" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/nuggets de pollo (!0 und).jpg"
-                  alt="Nuggets de Pollo"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Nuggets de Pollo (10 und)</h4>
-                <p>Nuggets de pollo crujientes</p>
-                <div class="menu-footer">
-                  <span class="price">$15.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Malteada de Chocolate -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink" data-product-id="13" data-restaurant-id="2">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/malteada de chocolate.jpg"
-                  alt="Malteada de Chocolate"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Malteada de Chocolate</h4>
-                <p>Cremosa malteada de chocolate</p>
-                <div class="menu-footer">
-                  <span class="price">$7.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sushi (Rollo California) -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="sushi" data-product-id="17" data-restaurant-id="3">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/Sushi%20california%20roll.png"
-                  alt="Sushi Roll"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Sushi California Roll</h4>
-                <p>Rollo de sushi con cangrejo, aguacate y pepino</p>
-                <div class="menu-footer">
-                  <span class="price">$32.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Más productos... (Cheesecake mapeado a Tiramisu id:7/rest:1) -->
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="dessert" data-product-id="7" data-restaurant-id="1">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/cheesecake%20de%20fresa.png"
-                  alt="Cheesecake"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Cheesecake de Fresa</h4>
-                <p>Cremoso cheesecake con salsa de fresas frescas</p>
-                <div class="menu-footer">
-                  <span class="price">$12.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="drink" data-product-id="21" data-restaurant-id="3">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/Smoothie%20Tropical.jpg"
-                  alt="Smoothie"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Smoothie Tropical</h4>
-                <p>Refrescante batido de mango, piña y maracuyá</p>
-                <div class="menu-footer">
-                  <span class="price">$8.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 mb-4 menu-item" data-category="pizza" data-product-id="2" data-restaurant-id="1">
-            <div class="menu-card">
-              <div class="menu-image">
-                <img
-                  src="/imagenes/comida/pizza%20pepperoni.jpg"
-                  alt="Pizza Pepperoni"
-                />
-              </div>
-              <div class="menu-content">
-                <h4>Pizza Pepperoni</h4>
-                <p>Pizza clásica con pepperoni y queso mozzarella</p>
-                <div class="menu-footer">
-                  <span class="price">$28.000</span>
-                  <button class="btn-add-cart">
-                    <i class="bi bi-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <p class="mt-3 text-muted">Cargando menú destacado...</p>
           </div>
         </div>
 
@@ -875,5 +618,78 @@
     <!-- Custom Scripts -->
     <script src="/frontend/js/common.js"></script>
     <script src="/frontend/js/index.js"></script>
+    
+    <!-- Cargar productos destacados dinámicamente desde la base de datos -->
+    <script>
+      document.addEventListener('DOMContentLoaded', async function() {
+        const grid = document.querySelector('.menu-section .menu-grid');
+        if (!grid) return;
+
+        try {
+          const res = await fetch('/api/v1/products/featured?limit=12');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+          if (!json.ok || !Array.isArray(json.data)) throw new Error('Respuesta inválida');
+
+          const items = json.data;
+          
+          if (items.length === 0) {
+            grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No hay productos destacados disponibles en este momento</p></div>';
+            return;
+          }
+
+          const frag = document.createDocumentFragment();
+          grid.innerHTML = '';
+
+          items.forEach(p => {
+            const name = p.name || 'Producto';
+            const desc = p.description || 'Especialidad del restaurante';
+            const price = Number(p.price || 0);
+            const img = p.image_url || (window.guessFoodImage && window.guessFoodImage(name)) || '/imagenes/comida/default.jpg';
+            const candidates = (window.guessFoodImageCandidates && window.guessFoodImageCandidates(name)) || [];
+            const category = (p.category || '').toLowerCase();
+
+            const div = document.createElement('div');
+            div.className = 'col-lg-4 col-md-6 mb-4 menu-item';
+            if (category) div.setAttribute('data-category', category);
+            if (p.id) div.setAttribute('data-product-id', p.id);
+            if (p.restaurant_id) div.setAttribute('data-restaurant-id', p.restaurant_id);
+            
+            div.innerHTML = `
+              <div class="menu-card">
+                <div class="menu-image">
+                  <img src="${img}" alt="${name}" data-candidates='${JSON.stringify(candidates)}' data-idx="0" onerror="window.tryNextFoodImage && window.tryNextFoodImage(this)">
+                </div>
+                <div class="menu-content">
+                  <h4>${name}</h4>
+                  <p>${desc}</p>
+                  <div class="menu-footer">
+                    <span class="price">$${price.toLocaleString('es-CO')}</span>
+                    <button class="btn-add-cart" title="Agregar"><i class="bi bi-cart-plus"></i></button>
+                  </div>
+                </div>
+              </div>`;
+            frag.appendChild(div);
+          });
+          
+          grid.appendChild(frag);
+
+          // Reinicializar manejadores de eventos para los productos cargados dinámicamente
+          if (typeof setupMenuPreviews === 'function') {
+            setupMenuPreviews();
+          }
+          
+          console.log(`✓ Cargados ${items.length} productos destacados desde la base de datos`);
+          
+        } catch (e) {
+          console.error('Error al cargar productos destacados:', e);
+          grid.innerHTML = `
+            <div class="col-12 text-center py-5">
+              <i class="bi bi-exclamation-circle text-muted" style="font-size: 3rem;"></i>
+              <p class="mt-3 text-muted">No se pudieron cargar los productos en este momento</p>
+            </div>`;
+        }
+      });
+    </script>
   </body>
 </html>
