@@ -95,6 +95,7 @@ export const createOrder = async (req, res) => {
     const newOrder = await OrderModel.create(orderData, orderItems);
 
     return res.status(201).json({
+      success: true,
       ok: true,
       message: 'Pedido creado exitosamente',
       data: newOrder,
@@ -170,7 +171,9 @@ export const getAvailableOrders = async (req, res) => {
     const orders = await OrderModel.getAvailableForDelivery();
 
     return res.status(200).json({
+      success: true,
       ok: true,
+      orders: orders,
       data: orders,
       count: orders.length,
     });
@@ -196,7 +199,10 @@ export const getMyDeliveries = async (req, res) => {
     const orders = await OrderModel.getByDeliveryPerson(deliveryPersonId, filters);
 
     return res.status(200).json({
+      success: true,
       ok: true,
+      orders: orders,
+      data: orders,
       data: orders,
       count: orders.length,
     });
@@ -291,6 +297,7 @@ export const updateOrderStatus = async (req, res) => {
     
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
+        success: false,
         ok: false,
         message: 'Estado inválido',
       });
@@ -299,6 +306,7 @@ export const updateOrderStatus = async (req, res) => {
     const updatedOrder = await OrderModel.updateStatus(id, status, userId, notes);
 
     return res.status(200).json({
+      success: true,
       ok: true,
       message: 'Estado actualizado exitosamente',
       data: updatedOrder,
@@ -322,6 +330,7 @@ export const assignDeliveryPerson = async (req, res) => {
     const updatedOrder = await OrderModel.assignDeliveryPerson(id, deliveryPersonId, deliveryPersonId);
 
     return res.status(200).json({
+      success: true,
       ok: true,
       message: 'Pedido asignado exitosamente',
       data: updatedOrder,

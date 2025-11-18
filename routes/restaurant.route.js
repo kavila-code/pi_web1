@@ -10,6 +10,7 @@ import {
   getRecommended,
   getMyRestaurants,
   updateMyRestaurant,
+  getMyRestaurantOrders,
 } from '../controllers/restaurant.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { adminMiddleware } from '../middlewares/admin.middleware.js';
@@ -38,6 +39,7 @@ router.get('/restaurants/:id', getRestaurantById);
 
 // Rutas de usuario autenticado (propietarios de restaurantes)
 router.get('/my-restaurants', authMiddleware, getMyRestaurants);
+router.get('/my-restaurants/orders', authMiddleware, getMyRestaurantOrders);
 router.put('/my-restaurants/:id', authMiddleware, (req, res, next) => {
   if (req.headers['content-type']?.includes('multipart/form-data')) {
     uploadRestaurantLogo(req, res, function(err) {

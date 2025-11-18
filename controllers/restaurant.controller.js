@@ -357,3 +357,62 @@ export const updateMyRestaurant = async (req, res) => {
     });
   }
 };
+
+// Obtener pedidos de mis restaurantes (solo propietario)
+export const getMyRestaurantOrders = async (req, res) => {
+  try {
+    const userId = req.user?.uid;
+    if (!userId) {
+      return res.status(401).json({ ok: false, message: 'No autenticado' });
+    }
+
+    // Obtener restaurantes del usuario
+    const restaurants = await RestaurantModel.getByOwner(userId);
+    
+    if (!restaurants || restaurants.length === 0) {
+      return res.status(200).json({
+        success: true,
+        ok: true,
+        orders: [],
+        data: [],
+        count: 0,
+        message: 'No tienes restaurantes registrados',
+      });
+    }
+
+    // Importar OrderModel aquí para evitar dependencias circulares
+    const { OrderModel } = await import('../models/order.model.js');
+    
+    // Obtener pedidos de todos mis restaurantes
+    const restaurantIds = restaurants.map(r => r.id);
+    let allOrders = [];
+    
+    for (const restaurantId of restaurantIds) {
+      const filters = {
+        status: req.query.status,
+      };
+      const orders = await OrderModel.getByRestaurant(restaurantId, filters);
+      allOrders = [...allOrders, ...orders];
+    }
+    
+    // Ordenar por fecha de creación descendente
+    allOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    return res.status(200).json({
+      success: true,
+      ok: true,
+      orders: allOrders,
+      data: allOrders,
+      count: allOrders.length,
+    });
+  } catch (error) {
+    console.error('Error al obtener pedidos de mis restaurantes:', error);
+    return res.status(500).json({
+      success: false,
+      ok: false,
+      message: 'Error al obtener pedidos',
+      error: error.message,
+    });
+  }
+};
+
