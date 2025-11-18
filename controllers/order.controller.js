@@ -412,7 +412,7 @@ export const getDeliveryEarnings = async (req, res) => {
     const deliveryPersonId = req.user.uid;
 
     // Obtener todos los pedidos entregados por este domiciliario
-    const deliveredOrders = await OrderModel.getByDeliveryPerson(deliveryPersonId, 'entregado');
+    const deliveredOrders = await OrderModel.getByDeliveryPerson(deliveryPersonId, { status: 'entregado' });
 
     // Calcular totales
     const totalEarnings = deliveredOrders.reduce((sum, order) => sum + (parseFloat(order.delivery_fee) || 0), 0);
