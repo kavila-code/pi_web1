@@ -1655,6 +1655,7 @@ if (document.readyState === 'loading') {
     setTimeout(() => {
       try { if (typeof loadAvailableOrders === 'function') loadAvailableOrders(); } catch(e) { console.error('Error loading available orders:', e); }
       try { if (typeof loadMyDeliveries === 'function') loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
+      try { if (typeof loadEarnings === 'function') loadEarnings(); } catch(e) { console.error('Error loading earnings:', e); }
     }, 500); // Esperar 500ms para asegurar que el DOM esté listo
   });
 } else {
@@ -1662,6 +1663,7 @@ if (document.readyState === 'loading') {
   setTimeout(() => {
     try { if (typeof loadAvailableOrders === 'function') loadAvailableOrders(); } catch(e) { console.error('Error loading available orders:', e); }
     try { if (typeof loadMyDeliveries === 'function') loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
+    try { if (typeof loadEarnings === 'function') loadEarnings(); } catch(e) { console.error('Error loading earnings:', e); }
   }, 500);
 }
 
