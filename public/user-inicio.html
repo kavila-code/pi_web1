@@ -23,6 +23,18 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/frontend/foodie.css" />
     <link rel="stylesheet" href="/frontend/user-inicio.css" />
+    <style>
+      /* Estilos para el botón 'Mis Pedidos' en el navbar */
+      .custom-orders-link .header-icon {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+      }
+
+      .custom-orders-link .header-icon.small-icon {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+      }
+    </style>
   </head>
 
   <body class="user-inicio-body">
@@ -60,6 +72,12 @@
             <li class="nav-item" id="myRestaurantsNavItem2" style="display:none;">
               <a class="nav-link" href="/public/my-restaurants.html">
                 <i class="bi bi-shop me-1"></i>Mis Restaurantes
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center custom-orders-link" href="/public/user-dashboard.html#orders">
+                <span class="me-2">Mis Pedidos</span>
+                <span class="header-icon small-icon" aria-hidden="true"><i class="bi bi-bag"></i></span>
               </a>
             </li>
           </ul>
