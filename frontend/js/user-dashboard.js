@@ -1461,3 +1461,206 @@ function initRoleSwitcher() {
 document.addEventListener("DOMContentLoaded", function () {
   initRoleSwitcher();
 });
+
+// ========== FUNCIONES DE PEDIDOS PARA DOMICILIARIOS ==========
+
+// Función para cargar pedidos disponibles
+window.loadAvailableOrders = async function() {
+  const container = document.getElementById("availableOrdersList");
+  if (!container) {
+    console.error('Container availableOrdersList no encontrado');
+    return;
+  }
+  
+  container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando pedidos disponibles...</p></div>';
+
+  try {
+    console.log('[loadAvailableOrders] Iniciando carga...');
+    const token = localStorage.getItem('token');
+    console.log('[loadAvailableOrders] Token:', token ? 'Existe' : 'No existe');
+    
+    const response = await fetch('/api/v1/orders/available', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('[loadAvailableOrders] Response status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[loadAvailableOrders] Datos recibidos:', data);
+      const orders = data.orders || data.data || [];
+      console.log('[loadAvailableOrders] Pedidos encontrados:', orders.length);
+      
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p class="text-muted mt-3">No hay pedidos disponibles en este momento</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = orders.map(order => `
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <h5>Pedido #${order.order_number || order.id}</h5>
+                  <p class="mb-1"><i class="bi bi-shop me-2"></i><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
+                  <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
+                  <p class="mb-1"><i class="bi bi-cash me-2"></i><strong>Total:</strong> $${Number(order.total || 0).toLocaleString('es-CO')}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                  <button class="btn btn-primary" onclick="acceptDelivery(${order.id})">
+                    <i class="bi bi-check-circle me-1"></i>Aceptar Pedido
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    } else {
+      const errorText = await response.text();
+      console.error('[loadAvailableOrders] Error response:', response.status, errorText);
+      throw new Error(`Error al cargar pedidos: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('[loadAvailableOrders] Error completo:', error);
+    container.innerHTML = `
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        No se pudieron cargar los pedidos. ${error.message}
+        <br><small>Verifica que hayas iniciado sesión correctamente.</small>
+      </div>
+    `;
+  }
+};
+
+// Función para cargar mis entregas
+window.loadMyDeliveries = async function() {
+  const container = document.getElementById("myDeliveriesList");
+  if (!container) {
+    console.error('Container myDeliveriesList no encontrado');
+    return;
+  }
+  
+  container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
+
+  try {
+    console.log('[loadMyDeliveries] Iniciando carga...');
+    const response = await fetch('/api/v1/orders/my-deliveries', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    console.log('[loadMyDeliveries] Response status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[loadMyDeliveries] Datos recibidos:', data);
+      const orders = data.orders || data.data || [];
+      console.log('[loadMyDeliveries] Entregas encontradas:', orders.length);
+      
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p class="text-muted mt-3">No has tomado pedidos aún</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = orders.map(order => {
+          const statusBadge = getStatusBadge(order.status);
+          const actionButtons = getActionButtons(order);
+          
+          return `
+            <div class="card mb-3">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-md-7">
+                    <h5>Pedido #${order.order_number || order.id}</h5>
+                    <p class="mb-1"><i class="bi bi-shop me-2"></i><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
+                    <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
+                    <p class="mb-1"><i class="bi bi-cash me-2"></i><strong>Total:</strong> $${Number(order.total || 0).toLocaleString('es-CO')}</p>
+                    <p class="mb-0"><i class="bi bi-clock me-2"></i><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleString('es-ES')}</p>
+                  </div>
+                  <div class="col-md-5 text-end">
+                    ${statusBadge}
+                    <div class="mt-3">
+                      ${actionButtons}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    } else {
+      throw new Error('Error al cargar entregas');
+    }
+  } catch (error) {
+    console.error('[loadMyDeliveries] Error:', error);
+    container.innerHTML = `
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        No se pudieron cargar tus entregas. Intenta de nuevo más tarde.
+      </div>
+    `;
+  }
+};
+
+// Función para obtener badge según estado
+window.getStatusBadge = function(status) {
+  const badges = {
+    'pendiente': '<span class="badge bg-secondary">Pendiente</span>',
+    'confirmado': '<span class="badge bg-info">Confirmado</span>',
+    'preparando': '<span class="badge bg-warning">Preparando</span>',
+    'listo': '<span class="badge bg-primary">Listo para recoger</span>',
+    'en_camino': '<span class="badge bg-info">En camino</span>',
+    'entregado': '<span class="badge bg-success">Entregado</span>',
+    'cancelado': '<span class="badge bg-danger">Cancelado</span>'
+  };
+  return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+};
+
+// Función para obtener botones de acción según estado
+window.getActionButtons = function(order) {
+  if (order.status === 'entregado' || order.status === 'cancelado') {
+    return '';
+  }
+  
+  if (order.status === 'en_camino') {
+    return `
+      <button class="btn btn-success btn-sm" onclick="markAsDelivered(${order.id})">
+        <i class="bi bi-check-circle me-1"></i>Marcar como Entregado
+      </button>
+    `;
+  }
+  
+  // Para estados: pendiente, confirmado, preparando, listo
+  return `
+    <button class="btn btn-primary btn-sm" onclick="markAsPickedUp(${order.id})">
+      <i class="bi bi-box-arrow-right me-1"></i>Marcar como Recogido
+    </button>
+  `;
+};
+
+// Inicializar pedidos de domiciliario cuando la página carga
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      try { if (typeof loadAvailableOrders === 'function') loadAvailableOrders(); } catch(e) { console.error('Error loading available orders:', e); }
+      try { if (typeof loadMyDeliveries === 'function') loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
+    }, 500); // Esperar 500ms para asegurar que el DOM esté listo
+  });
+} else {
+  // DOM ya está listo, ejecutar inmediatamente
+  setTimeout(() => {
+    try { if (typeof loadAvailableOrders === 'function') loadAvailableOrders(); } catch(e) { console.error('Error loading available orders:', e); }
+    try { if (typeof loadMyDeliveries === 'function') loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
+  }, 500);
+}

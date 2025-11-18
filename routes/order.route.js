@@ -24,13 +24,15 @@ router.use(authMiddleware);
 // Rutas para clientes
 router.post('/orders', createOrder); // Crear pedido
 router.get('/orders/my-orders', getMyOrders); // Mis pedidos
+
+// Rutas para domiciliarios (ANTES de /orders/:id para evitar conflictos)
+router.get('/orders/available', getAvailableOrders); // Pedidos disponibles
+router.get('/orders/my-deliveries', getMyDeliveries); // Mis entregas
+
+// Rutas dinámicas (DESPUÉS de las rutas estáticas)
 router.get('/orders/:id', getOrderById); // Ver detalle
 router.post('/orders/:id/cancel', cancelOrder); // Cancelar pedido
 router.post('/orders/:id/review', addReview); // Calificar pedido
-
-// Rutas para domiciliarios
-router.get('/orders/available', getAvailableOrders); // Pedidos disponibles
-router.get('/orders/my-deliveries', getMyDeliveries); // Mis entregas
 router.post('/orders/:id/assign', assignDeliveryPerson); // Aceptar pedido
 router.put('/orders/:id/status', updateOrderStatus); // Actualizar estado
 

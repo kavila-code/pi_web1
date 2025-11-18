@@ -1765,30 +1765,81 @@
         if (!confirm('¿Deseas aceptar este pedido para entrega?')) return;
         
         try {
-          const userStr = localStorage.getItem('user');
-          const user = userStr ? JSON.parse(userStr) : null;
-          
-          const response = await fetch(`/api/v1/orders/${orderId}`, {
-            method: 'PATCH',
+          const response = await fetch(`/api/v1/orders/${orderId}/assign`, {
+            method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-              delivery_user_id: user.id,
-              status: 'assigned'
-            })
+            }
           });
 
-          if (response.ok) {
+          const data = await response.json();
+
+          if (response.ok && (data.success || data.ok)) {
             alert('¡Pedido aceptado! Ahora puedes verlo en "Mis Entregas"');
             if (typeof loadAvailableOrders === 'function') loadAvailableOrders();
+            if (typeof loadMyDeliveries === 'function') loadMyDeliveries();
           } else {
-            alert('Error al aceptar el pedido');
+            alert(data.message || 'Error al aceptar el pedido');
           }
         } catch (error) {
           console.error('Error:', error);
           alert('Error al aceptar el pedido');
+        }
+      };
+
+      // Función para marcar pedido como recogido (en_camino)
+      window.markAsPickedUp = async function(orderId) {
+        if (!confirm('¿Confirmas que has recogido el pedido del restaurante?')) return;
+        
+        try {
+          const response = await fetch(`/api/v1/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ status: 'en_camino' })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && (data.success || data.ok)) {
+            alert('✅ Pedido marcado como "En camino"');
+            if (typeof loadMyDeliveries === 'function') loadMyDeliveries();
+          } else {
+            alert(data.message || 'Error al actualizar el estado');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al actualizar el estado del pedido');
+        }
+      };
+
+      // Función para marcar pedido como entregado
+      window.markAsDelivered = async function(orderId) {
+        if (!confirm('¿Confirmas que has entregado el pedido al cliente?')) return;
+        
+        try {
+          const response = await fetch(`/api/v1/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ status: 'entregado' })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && (data.success || data.ok)) {
+            alert('✅ ¡Pedido entregado exitosamente! Felicidades por tu entrega');
+            if (typeof loadMyDeliveries === 'function') loadMyDeliveries();
+          } else {
+            alert(data.message || 'Error al marcar como entregado');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al marcar el pedido como entregado');
         }
       };
 
@@ -2175,19 +2226,34 @@
         }
 
         // Función para cargar pedidos disponibles
-        async function loadAvailableOrders() {
+        window.loadAvailableOrders = async function() {
           const container = document.getElementById("availableOrdersList");
-          container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
+          if (!container) {
+            console.error('Container availableOrdersList no encontrado');
+            return;
+          }
+          
+          container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando pedidos disponibles...</p></div>';
 
           try {
-            const response = await fetch('/api/v1/orders?status=pending', {
+            console.log('Cargando pedidos disponibles...');
+            const token = localStorage.getItem('token');
+            console.log('Token:', token ? 'Existe' : 'No existe');
+            
+            const response = await fetch('/api/v1/orders/available', {
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
               }
             });
 
+            console.log('Response status:', response.status);
+            
             if (response.ok) {
-              const orders = await response.json();
+              const data = await response.json();
+              console.log('Datos recibidos:', data);
+              const orders = data.orders || data.data || [];
+              console.log('Pedidos encontrados:', orders.length);
+              
               if (orders.length === 0) {
                 container.innerHTML = `
                   <div class="text-center py-5">
@@ -2201,10 +2267,10 @@
                     <div class="card-body">
                       <div class="row align-items-center">
                         <div class="col-md-8">
-                          <h5>Pedido #${order.id}</h5>
+                          <h5>Pedido #${order.order_number || order.id}</h5>
                           <p class="mb-1"><i class="bi bi-shop me-2"></i><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
                           <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
-                          <p class="mb-1"><i class="bi bi-cash me-2"></i><strong>Total:</strong> $${order.total_amount || 0}</p>
+                          <p class="mb-1"><i class="bi bi-cash me-2"></i><strong>Total:</strong> $${Number(order.total || 0).toLocaleString('es-CO')}</p>
                         </div>
                         <div class="col-md-4 text-end">
                           <button class="btn btn-primary" onclick="acceptDelivery(${order.id})">
@@ -2217,62 +2283,72 @@
                 `).join('');
               }
             } else {
-              throw new Error('Error al cargar pedidos');
+              const errorText = await response.text();
+              console.error('Error response:', response.status, errorText);
+              throw new Error(`Error al cargar pedidos: ${response.status}`);
             }
           } catch (error) {
-            console.error('Error:', error);
+            console.error('Error completo:', error);
             container.innerHTML = `
               <div class="alert alert-warning">
                 <i class="bi bi-exclamation-triangle me-2"></i>
-                No se pudieron cargar los pedidos. Intenta de nuevo más tarde.
+                No se pudieron cargar los pedidos. ${error.message}
+                <br><small>Verifica que hayas iniciado sesión correctamente.</small>
               </div>
             `;
           }
         }
 
         // Función para cargar mis entregas
-        async function loadMyDeliveries() {
+        window.loadMyDeliveries = async function() {
           const container = document.getElementById("myDeliveriesList");
           container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
 
           try {
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
-            
-            const response = await fetch(`/api/v1/orders?delivery_user_id=${user.id}`, {
+            const response = await fetch('/api/v1/orders/my-deliveries', {
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
               }
             });
 
             if (response.ok) {
-              const orders = await response.json();
+              const data = await response.json();
+              const orders = data.orders || data.data || [];
+              
               if (orders.length === 0) {
                 container.innerHTML = `
                   <div class="text-center py-5">
                     <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                    <p class="text-muted mt-3">No has realizado entregas aún</p>
+                    <p class="text-muted mt-3">No has tomado pedidos aún</p>
                   </div>
                 `;
               } else {
-                container.innerHTML = orders.map(order => `
-                  <div class="card mb-3">
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-10">
-                          <h5>Pedido #${order.id}</h5>
-                          <p class="mb-1"><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
-                          <p class="mb-1"><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
-                          <p class="mb-1"><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleDateString('es-ES')}</p>
-                        </div>
-                        <div class="col-md-2 text-end">
-                          <span class="badge bg-success">Entregado</span>
-                          <p class="mt-2 mb-0"><strong>$${order.total_amount || 0}</strong></p>
+                container.innerHTML = orders.map(order => {
+                  const statusBadge = getStatusBadge(order.status);
+                  const actionButtons = getActionButtons(order);
+                  
+                  return `
+                    <div class="card mb-3">
+                      <div class="card-body">
+                        <div class="row align-items-center">
+                          <div class="col-md-7">
+                            <h5>Pedido #${order.order_number || order.id}</h5>
+                            <p class="mb-1"><i class="bi bi-shop me-2"></i><strong>Restaurante:</strong> ${order.restaurant_name || 'N/A'}</p>
+                            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i><strong>Destino:</strong> ${order.delivery_address || 'N/A'}</p>
+                            <p class="mb-1"><i class="bi bi-cash me-2"></i><strong>Total:</strong> $${Number(order.total || 0).toLocaleString('es-CO')}</p>
+                            <p class="mb-0"><i class="bi bi-clock me-2"></i><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleString('es-ES')}</p>
+                          </div>
+                          <div class="col-md-5 text-end">
+                            ${statusBadge}
+                            <div class="mt-3">
+                              ${actionButtons}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                `).join('');
+                  `;
+                }).join('');
               }
             } else {
               throw new Error('Error al cargar entregas');
@@ -2286,6 +2362,42 @@
               </div>
             `;
           }
+        }
+
+        // Función para obtener badge según estado
+        window.getStatusBadge = function(status) {
+          const badges = {
+            'pendiente': '<span class="badge bg-secondary">Pendiente</span>',
+            'confirmado': '<span class="badge bg-info">Confirmado</span>',
+            'preparando': '<span class="badge bg-warning">Preparando</span>',
+            'listo': '<span class="badge bg-primary">Listo para recoger</span>',
+            'en_camino': '<span class="badge bg-info">En camino</span>',
+            'entregado': '<span class="badge bg-success">Entregado</span>',
+            'cancelado': '<span class="badge bg-danger">Cancelado</span>'
+          };
+          return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+        }
+
+        // Función para obtener botones de acción según estado
+        window.getActionButtons = function(order) {
+          if (order.status === 'entregado' || order.status === 'cancelado') {
+            return '';
+          }
+          
+          if (order.status === 'en_camino') {
+            return `
+              <button class="btn btn-success btn-sm" onclick="markAsDelivered(${order.id})">
+                <i class="bi bi-check-circle me-1"></i>Marcar como Entregado
+              </button>
+            `;
+          }
+          
+          // Para estados: pendiente, confirmado, preparando, listo
+          return `
+            <button class="btn btn-primary btn-sm" onclick="markAsPickedUp(${order.id})">
+              <i class="bi bi-box-arrow-right me-1"></i>Marcar como Recogido
+            </button>
+          `;
         }
 
         // Función para cargar ganancias
@@ -2332,6 +2444,18 @@
           } catch (error) {
             console.error('Error al cargar ganancias:', error);
           }
+        }
+
+        // Inicializar pedidos de domiciliario cuando la página carga
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            try { loadAvailableOrders(); } catch(e) { console.error('Error loading available orders:', e); }
+            try { loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
+          });
+        } else {
+          // DOM ya está listo, ejecutar inmediatamente
+          try { loadAvailableOrders(); } catch(e) { console.error('Error loading available orders:', e); }
+          try { loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
         }
 
         // Función para mostrar secciones (antigua - mantener compatibilidad)
