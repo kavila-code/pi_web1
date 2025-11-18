@@ -192,10 +192,12 @@ export const getMyDeliveries = async (req, res) => {
   try {
     const deliveryPersonId = req.user.uid;
 
-    const filters = {
-      status: req.query.status,
-    };
 
+    // Si no se pasa status, no filtrar (historial completo)
+    let filters = {};
+    if (req.query.status) {
+      filters.status = req.query.status;
+    }
     const orders = await OrderModel.getByDeliveryPerson(deliveryPersonId, filters);
 
     return res.status(200).json({
