@@ -406,6 +406,61 @@ export const addReview = async (req, res) => {
   }
 };
 
+// Obtener ganancias del domiciliario
+export const getDeliveryEarnings = async (req, res) => {
+  try {
+    const deliveryPersonId = req.user.uid;
+
+    // Obtener todos los pedidos entregados por este domiciliario
+    const deliveredOrders = await OrderModel.getByDeliveryPerson(deliveryPersonId, 'entregado');
+
+    // Calcular totales
+    const totalEarnings = deliveredOrders.reduce((sum, order) => sum + (parseFloat(order.delivery_fee) || 0), 0);
+    
+    // Calcular ganancias del mes actual
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    const monthOrders = deliveredOrders.filter(order => {
+      const orderDate = new Date(order.created_at);
+      return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+    });
+    
+    const monthEarnings = monthOrders.reduce((sum, order) => sum + (parseFloat(order.delivery_fee) || 0), 0);
+    
+    // Formatear pedidos para el detalle
+    const earningsDetail = deliveredOrders.map(order => ({
+      id: order.id,
+      order_number: order.order_number,
+      created_at: order.created_at,
+      delivered_at: order.updated_at,
+      delivery_fee: parseFloat(order.delivery_fee) || 0,
+      status: 'entregado'
+    }));
+
+    return res.status(200).json({
+      success: true,
+      ok: true,
+      data: {
+        totalEarnings,
+        monthEarnings,
+        completedDeliveries: deliveredOrders.length,
+        monthDeliveries: monthOrders.length,
+        details: earningsDetail
+      }
+    });
+  } catch (error) {
+    console.error('Error al obtener ganancias:', error);
+    return res.status(500).json({
+      success: false,
+      ok: false,
+      message: 'Error al obtener ganancias',
+      error: error.message,
+    });
+  }
+};
+
 // Obtener estadísticas de pedidos (admin)
 export const getOrderStats = async (req, res) => {
   try {

@@ -2402,48 +2402,12 @@
 
         // Función para cargar ganancias
         async function loadEarnings() {
-          try {
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
-            
-            const response = await fetch(`/api/v1/orders?delivery_user_id=${user.id}&status=delivered`, {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
-            });
-
-            if (response.ok) {
-              const orders = await response.json();
-              
-              // Calcular totales
-              const totalEarnings = orders.reduce((sum, order) => sum + (order.delivery_fee || 3000), 0);
-              const thisMonth = new Date().getMonth();
-              const monthOrders = orders.filter(o => new Date(o.created_at).getMonth() === thisMonth);
-              const monthEarnings = monthOrders.reduce((sum, order) => sum + (order.delivery_fee || 3000), 0);
-              
-              // Actualizar tarjetas
-              document.getElementById('totalEarnings').textContent = `$${totalEarnings.toLocaleString()}`;
-              document.getElementById('monthEarnings').textContent = `$${monthEarnings.toLocaleString()}`;
-              document.getElementById('completedDeliveries').textContent = orders.length;
-              
-              // Llenar tabla
-              const tbody = document.getElementById('earningsTableBody');
-              if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay datos de ganancias aún</td></tr>';
-              } else {
-                tbody.innerHTML = orders.map(order => `
-                  <tr>
-                    <td>${new Date(order.created_at).toLocaleDateString('es-ES')}</td>
-                    <td>#${order.id}</td>
-                    <td>$${(order.delivery_fee || 3000).toLocaleString()}</td>
-                    <td><span class="badge bg-success">Pagado</span></td>
-                  </tr>
-                `).join('');
-              }
-            }
-          } catch (error) {
-            console.error('Error al cargar ganancias:', error);
+          // Esta función ahora está definida en frontend/js/user-dashboard.js
+          // Llamar a la versión global si existe
+          if (typeof window.loadEarnings === 'function') {
+            return window.loadEarnings();
           }
+          console.error('loadEarnings no está definida en el archivo externo');
         }
 
         // Inicializar pedidos de domiciliario cuando la página carga

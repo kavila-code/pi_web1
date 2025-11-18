@@ -1664,3 +1664,102 @@ if (document.readyState === 'loading') {
     try { if (typeof loadMyDeliveries === 'function') loadMyDeliveries(); } catch(e) { console.error('Error loading my deliveries:', e); }
   }, 500);
 }
+
+// ===== FUNCIÓN PARA CARGAR GANANCIAS DEL DOMICILIARIO =====
+window.loadEarnings = async function() {
+  console.log('[loadEarnings] Iniciando carga de ganancias...');
+  
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('[loadEarnings] No hay token de autenticación');
+      return;
+    }
+
+    const response = await fetch('/api/v1/orders/my-earnings', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    });
+
+    console.log('[loadEarnings] Response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('[loadEarnings] Datos recibidos:', result);
+
+    if (result.success && result.data) {
+      const { totalEarnings, monthEarnings, completedDeliveries, details } = result.data;
+
+      // Actualizar tarjetas de resumen
+      const totalElem = document.getElementById('totalEarnings');
+      const monthElem = document.getElementById('monthEarnings');
+      const deliveriesElem = document.getElementById('completedDeliveries');
+
+      if (totalElem) totalElem.textContent = `$${totalEarnings.toLocaleString('es-CO')}`;
+      if (monthElem) monthElem.textContent = `$${monthEarnings.toLocaleString('es-CO')}`;
+      if (deliveriesElem) deliveriesElem.textContent = completedDeliveries;
+
+      // Actualizar tabla de detalles
+      const tbody = document.getElementById('earningsTableBody');
+      if (tbody) {
+        if (!details || details.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="text-center text-muted">
+                <i class="bi bi-info-circle me-2"></i>
+                No hay datos de ganancias aún. Completa entregas para ver tus ganancias.
+              </td>
+            </tr>
+          `;
+        } else {
+          tbody.innerHTML = details.map(order => `
+            <tr>
+              <td>${new Date(order.created_at).toLocaleDateString('es-CO', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              })}</td>
+              <td>
+                <span class="badge bg-secondary">#${order.order_number || order.id}</span>
+              </td>
+              <td class="text-success fw-bold">$${order.delivery_fee.toLocaleString('es-CO')}</td>
+              <td>
+                <span class="badge bg-success">
+                  <i class="bi bi-check-circle me-1"></i>Pagado
+                </span>
+              </td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      console.log('[loadEarnings] Ganancias cargadas exitosamente');
+    } else {
+      throw new Error('Formato de respuesta inválido');
+    }
+  } catch (error) {
+    console.error('[loadEarnings] Error:', error);
+    
+    // Mostrar mensaje de error en las tarjetas
+    const tbody = document.getElementById('earningsTableBody');
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center">
+            <div class="alert alert-warning mb-0">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Error al cargar ganancias: ${error.message}
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+  }
+};

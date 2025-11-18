@@ -5,6 +5,7 @@ import {
   getRestaurantOrders,
   getAvailableOrders,
   getMyDeliveries,
+  getDeliveryEarnings,
   getAllOrders,
   getOrderById,
   updateOrderStatus,
@@ -28,6 +29,7 @@ router.get('/orders/my-orders', getMyOrders); // Mis pedidos
 // Rutas para domiciliarios (ANTES de /orders/:id para evitar conflictos)
 router.get('/orders/available', getAvailableOrders); // Pedidos disponibles
 router.get('/orders/my-deliveries', getMyDeliveries); // Mis entregas
+router.get('/orders/my-earnings', getDeliveryEarnings); // Mis ganancias
 
 // Rutas dinámicas (DESPUÉS de las rutas estáticas)
 router.get('/orders/:id', getOrderById); // Ver detalle
