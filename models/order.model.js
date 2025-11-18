@@ -238,15 +238,13 @@ const getByDeliveryPerson = async (deliveryPersonId, filters = {}) => {
   const params = [deliveryPersonId];
   let paramCount = 2;
 
-  // Filtro por estado
+  // Filtro por estado (si se pasa explícitamente)
   if (filters.status) {
     query += ` AND o.status = $${paramCount}`;
     params.push(filters.status);
     paramCount++;
-  } else {
-    // Por defecto, mostrar solo pedidos activos
-    query += ` AND o.status IN ('listo', 'en_camino')`;
   }
+  // Si no se pasa filtro, NO limitar por estado (historial completo)
 
   query += ` GROUP BY o.id, r.name, r.address, r.phone, r.logo_url, u.username, u.email`;
   query += ` ORDER BY o.created_at DESC`;
