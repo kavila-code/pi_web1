@@ -14,14 +14,21 @@ export const getDeliveryStats = async (req, res) => {
 
     for (const order of orders) {
       total++;
-      const created = order.created_at ? order.created_at.toISOString ? order.created_at.toISOString() : order.created_at : '';
-      const isToday = created.startsWith(todayStr);
-      if (order.status === 'en_camino' || order.status === 'aceptado' || order.status === 'listo' || order.status === 'confirmado' || order.status === 'preparando' || order.status === 'pendiente') {
+      // Entregas en proceso: no entregados ni cancelados
+      if ([
+        'en_camino', 'aceptado', 'listo', 'confirmado', 'preparando', 'pendiente'
+      ].includes(order.status)) {
         inProcess++;
       }
-      if (order.status === 'entregado' && isToday) {
-        todayCount++;
-        earningsToday += Number(order.delivery_fee || 0);
+      // Entregas y ganancias del día: usar delivered_at
+      if (order.status === 'entregado' && order.delivered_at) {
+        const deliveredDate = (order.delivered_at instanceof Date)
+          ? order.delivered_at.toISOString().slice(0, 10)
+          : String(order.delivered_at).slice(0, 10);
+        if (deliveredDate === todayStr) {
+          todayCount++;
+          earningsToday += Number(order.delivery_fee || 0);
+        }
       }
     }
 
