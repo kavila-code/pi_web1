@@ -1,5 +1,6 @@
-// ...existing code...
-router.get('/orders/my-stats', getDeliveryStats); // Estadísticas domiciliario
+
+
+
 import { Router } from 'express';
 import {
   createOrder,
@@ -15,6 +16,7 @@ import {
   cancelOrder,
   addReview,
   getOrderStats,
+  getDeliveryStats
 } from '../controllers/order.controller.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import { adminMiddleware } from '../middlewares/admin.middleware.js';
@@ -32,6 +34,7 @@ router.get('/orders/my-orders', getMyOrders); // Mis pedidos
 router.get('/orders/available', getAvailableOrders); // Pedidos disponibles
 router.get('/orders/my-deliveries', getMyDeliveries); // Mis entregas
 router.get('/orders/my-earnings', getDeliveryEarnings); // Mis ganancias
+router.get('/orders/my-stats', getDeliveryStats); // Estadísticas domiciliario
 
 // Rutas dinámicas (DESPUÉS de las rutas estáticas)
 router.get('/orders/:id', getOrderById); // Ver detalle
@@ -43,6 +46,9 @@ router.put('/orders/:id/status', updateOrderStatus); // Actualizar estado
 // Rutas para admin
 router.get('/admin/orders', adminMiddleware, getAllOrders); // Todos los pedidos
 router.get('/admin/orders/stats', adminMiddleware, getOrderStats); // Estadísticas
+
 router.get('/admin/restaurants/:restaurantId/orders', adminMiddleware, getRestaurantOrders); // Por restaurante
 
 export default router;
+
+
