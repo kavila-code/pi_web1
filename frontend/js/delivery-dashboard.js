@@ -34,6 +34,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadMyDocuments();
   loadAssignedOrders();
   loadAvailableOrders();
+  loadDeliveryStats();
+});
+
+// ===== CARGAR ESTADÍSTICAS DEL DOMICILIARIO =====
+async function loadDeliveryStats() {
+  try {
+    const res = await fetch('/api/v1/orders/my-stats', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    const data = await res.json();
+    if (!data.success || !data.data) return;
+    document.getElementById('statTotal').textContent = data.data.total;
+    document.getElementById('statToday').textContent = data.data.today;
+    document.getElementById('statActive').textContent = data.data.inProcess;
+    document.getElementById('statEarnings').textContent = `$${data.data.earningsToday.toLocaleString('es-CO')}`;
+  } catch (e) {
+    console.error('Error cargando estadísticas:', e);
+  }
+}
 });
 
 // ===== CARGAR PEDIDOS ASIGNADOS =====

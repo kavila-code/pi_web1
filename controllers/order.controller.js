@@ -1,3 +1,44 @@
+// Estadísticas para el dashboard del domiciliario
+export const getDeliveryStats = async (req, res) => {
+  try {
+    const deliveryPersonId = req.user.uid;
+    // Pedidos asignados
+    const orders = await OrderModel.getByDeliveryPerson(deliveryPersonId);
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+
+    let total = 0;
+    let todayCount = 0;
+    let earningsToday = 0;
+    let inProcess = 0;
+
+    for (const order of orders) {
+      total++;
+      const created = order.created_at ? order.created_at.toISOString ? order.created_at.toISOString() : order.created_at : '';
+      const isToday = created.startsWith(todayStr);
+      if (order.status === 'en_camino' || order.status === 'aceptado' || order.status === 'listo' || order.status === 'confirmado' || order.status === 'preparando' || order.status === 'pendiente') {
+        inProcess++;
+      }
+      if (order.status === 'entregado' && isToday) {
+        todayCount++;
+        earningsToday += Number(order.delivery_fee || 0);
+      }
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        total,
+        today: todayCount,
+        inProcess,
+        earningsToday
+      }
+    });
+  } catch (error) {
+    console.error('Error en getDeliveryStats:', error);
+    return res.status(500).json({ success: false, message: 'Error al obtener estadísticas', error: error.message });
+  }
+};
 import { OrderModel } from '../models/order.model.js';
 import { ProductModel } from '../models/product.model.js';
 
