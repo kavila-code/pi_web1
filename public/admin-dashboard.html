@@ -569,8 +569,70 @@
               </section>
 
               <section id="orders-section" class="content-section">
-                <div class="alert alert-info">
-                  Gestión de pedidos próximamente.
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <h4 class="mb-0"><i class="bi bi-bag me-2"></i>Gestión de Pedidos</h4>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <select id="ordersStatusFilter" class="form-select form-select-sm" style="width:auto">
+                      <option value="all" selected>Estado: Todos</option>
+                      <option value="pendiente">Pendiente</option>
+                      <option value="confirmado">Confirmado</option>
+                      <option value="preparando">Preparando</option>
+                      <option value="listo">Listo</option>
+                      <option value="en_camino">En Camino</option>
+                      <option value="entregado">Entregado</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                    <input id="ordersSearch" class="form-control form-control-sm" style="width:220px" placeholder="Buscar por cliente o restaurante...">
+                    <button id="ordersRefresh" class="btn btn-sm btn-outline-secondary" title="Refrescar"><i class="bi bi-arrow-repeat"></i></button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-body">
+                    <div id="ordersLoading" class="text-center py-4 d-none">
+                      <div class="spinner-border" role="status"><span class="visualmente-hidden">Cargando...</span></div>
+                      <div class="mt-2">Cargando pedidos...</div>
+                    </div>
+                    <div id="ordersEmpty" class="alert alert-secondary d-none">No hay pedidos para mostrar.</div>
+                    <div class="table-responsive">
+                      <table class="table align-middle">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Restaurante</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th>Creado</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                          <tr><td colspan="7" class="text-center text-muted">Usa los filtros para cargar pedidos</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div id="ordersPagination" class="d-flex justify-content-between align-items-center mt-2">
+                      <div><span id="ordersCount">Total: 0 pedidos</span></div>
+                      <div class="d-flex gap-1" id="ordersPages"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modal Detalles Pedido -->
+                <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+                  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>Detalle Pedido</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                      </div>
+                      <div class="modal-body" id="orderDetailsBody">
+                        <div class="text-center text-muted">Cargando...</div>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -1047,5 +1109,6 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="/frontend/js/common.js"></script>
         <script src="/frontend/js/admin-dashboard.js?v=20251115"></script>
+        <script src="/frontend/js/admin-orders-refresh.js"></script>
       </body>
     </html>

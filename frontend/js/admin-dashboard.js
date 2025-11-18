@@ -165,6 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Inicializar sección de Restaurantes si existe en el DOM
   initAdminRestaurantsSection();
+  // Inicializar sección de Pedidos (Admin)
+  initAdminOrdersSection();
 });
 
 // ===== Gestión de Restaurantes (Admin) =====
@@ -1155,10 +1157,10 @@ function refreshDashboardData() {
   loadQueueMetrics();
   // Logístico
   loadLogisticGrowth();
-  // Incidencias
-  loadIncidentsDashboard();
-  // Predicciones combinadas
-  loadSystemPredictions();
+  // Incidencias - DESACTIVADO (endpoint no existe)
+  // loadIncidentsDashboard();
+  // Predicciones combinadas - DESACTIVADO (endpoint no existe)
+  // loadSystemPredictions();
   // Alertas operativas
   loadOperationalAlerts();
   // Gráficos principales
@@ -3385,6 +3387,211 @@ async function deleteUser(userId) {
   } catch (error) {
     console.error('Error:', error);
     alert('Error al eliminar el usuario');
+  }
+}
+
+// ===================== Gestión de Pedidos (Admin) =====================
+function initAdminOrdersSection() {
+  if (window._ordersInit) return;
+  window._ordersInit = true;
+  const tbody = document.getElementById('ordersTableBody');
+  const loading = document.getElementById('ordersLoading');
+  const empty = document.getElementById('ordersEmpty');
+  if (!tbody || !loading || !empty) return;
+
+  const statusSelect = document.getElementById('ordersStatusFilter');
+  const searchInput = document.getElementById('ordersSearch');
+  const refreshBtn = document.getElementById('ordersRefresh');
+
+  const triggerLoad = () => adminLoadOrders({
+    status: statusSelect ? statusSelect.value : 'all',
+    search: searchInput ? searchInput.value.trim() : ''
+  });
+
+  if (statusSelect) statusSelect.addEventListener('change', triggerLoad);
+  if (refreshBtn) refreshBtn.addEventListener('click', triggerLoad);
+  if (searchInput) {
+    let t; searchInput.addEventListener('input', () => { clearTimeout(t); t = setTimeout(triggerLoad, 300); });
+  }
+
+  // Delegación de acciones sobre pedidos
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-order-action][data-id]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const action = btn.getAttribute('data-order-action');
+    try {
+      if (action === 'advance') await adminAdvanceOrderStatus(id, btn.getAttribute('data-current'));
+      else if (action === 'cancel') await adminCancelOrder(id);
+      else if (action === 'details') await adminShowOrderDetails(id);
+      triggerLoad();
+    } catch (err) {
+      console.error('Acción pedido falló:', err);
+      alert(err.message || 'Acción fallida');
+    }
+  });
+
+  // Cargar automáticamente al abrir la sección
+  setTimeout(() => triggerLoad(), 50);
+}
+
+function getNextOrderStatus(current) {
+  const flow = ['pendiente','confirmado','preparando','listo','en_camino','entregado'];
+  const idx = flow.indexOf(current);
+  if (idx === -1 || idx === flow.length - 1) return null;
+  return flow[idx + 1];
+}
+
+async function adminLoadOrders({ status = 'all', search = '' } = {}) {
+  const tbody = document.getElementById('ordersTableBody');
+  const loading = document.getElementById('ordersLoading');
+  const empty = document.getElementById('ordersEmpty');
+  if (!tbody || !loading || !empty) return;
+  const token = localStorage.getItem('token');
+  loading.classList.remove('d-none');
+  empty.classList.add('d-none');
+  tbody.innerHTML = '';
+  try {
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.set('status', status);
+    if (search) params.set('search', search);
+    params.set('_ts', Date.now());
+    const res = await fetch(`/api/v1/admin/orders?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store'
+    });
+    if (!res.ok) { if (handleAuthError(res)) return; throw new Error('No se pudo cargar pedidos'); }
+    const json = await res.json();
+    const rows = json.orders || json.data || [];
+    if (!rows.length) { empty.classList.remove('d-none'); return; }
+    tbody.innerHTML = rows.map(renderAdminOrderRow).join('');
+    const countEl = document.getElementById('ordersCount');
+    if (countEl) countEl.textContent = `Total: ${rows.length} pedidos`;
+  } catch (err) {
+    console.error('adminLoadOrders error:', err);
+    empty.classList.remove('d-none');
+    empty.textContent = 'Error cargando pedidos';
+  } finally {
+    loading.classList.add('d-none');
+  }
+}
+
+function renderAdminOrderRow(o) {
+  const next = getNextOrderStatus(o.status);
+  const total = Number(o.total || 0).toLocaleString('es-CO');
+  const created = o.created_at ? new Date(o.created_at).toLocaleString('es-CO') : '—';
+  const badgeClass = {
+    pendiente:'warning', confirmado:'info', preparando:'primary', listo:'success', en_camino:'primary', entregado:'success', cancelado:'danger'
+  }[o.status] || 'secondary';
+  return `
+    <tr>
+      <td>${o.id}</td>
+      <td>${o.customer_name || o.customer_email || o.customer_id || '—'}</td>
+      <td>${o.restaurant_name || o.restaurant_id || '—'}</td>
+      <td><span class="badge bg-${badgeClass}">${o.status}</span></td>
+      <td class="fw-semibold">$${total}</td>
+      <td class="small text-muted">${created}</td>
+      <td class="d-flex gap-1 flex-wrap">
+        <button class="btn btn-sm btn-outline-primary" data-order-action="details" data-id="${o.id}" title="Detalles"><i class="bi bi-eye"></i></button>
+        ${next ? `<button class="btn btn-sm btn-success" data-order-action="advance" data-id="${o.id}" data-current="${o.status}" title="Avanzar a ${next}"><i class="bi bi-arrow-right-circle"></i></button>` : ''}
+        ${(o.status !== 'entregado' && o.status !== 'cancelado') ? `<button class="btn btn-sm btn-outline-danger" data-order-action="cancel" data-id="${o.id}" title="Cancelar"><i class="bi bi-x-circle"></i></button>` : ''}
+      </td>
+    </tr>`;
+}
+
+async function adminAdvanceOrderStatus(id, current) {
+  const next = getNextOrderStatus(current);
+  if (!next) { alert('No se puede avanzar este estado'); return; }
+  if (!confirm(`Avanzar pedido #${id} de '${current}' a '${next}'?`)) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/orders/${id}/status`, {
+    method:'PUT',
+    headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+    body: JSON.stringify({ status: next, notes: 'Avanzado manualmente por admin' })
+  });
+  const json = await res.json();
+  if (!json.ok && !json.success) throw new Error(json.message || 'Error al actualizar estado');
+}
+
+async function adminCancelOrder(id) {
+  if (!confirm(`¿Cancelar definitivamente el pedido #${id}?`)) return;
+  const token = localStorage.getItem('token');
+  const res = await fetch(`/api/v1/orders/${id}/status`, {
+    method:'PUT',
+    headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` },
+    body: JSON.stringify({ status: 'cancelado', notes: 'Cancelado por admin' })
+  });
+  const json = await res.json();
+  if (!json.ok && !json.success) throw new Error(json.message || 'Error al cancelar pedido');
+}
+
+async function adminShowOrderDetails(id) {
+  const modalEl = document.getElementById('orderDetailsModal');
+  const modalBody = document.getElementById('orderDetailsBody');
+  if (!modalBody) return;
+  
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+  
+  modalBody.innerHTML = '<div class="text-center py-4"><div class="spinner-border" role="status"></div><div class="mt-2 text-muted">Cargando...</div></div>';
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(`/api/v1/orders/${id}`, { headers:{ Authorization:`Bearer ${token}` } });
+    if (!res.ok) throw new Error('No se pudo cargar detalle');
+    const json = await res.json();
+    const o = json.data || json.order || {};
+    const itemsHtml = (o.items || []).map(i => `<tr><td>${i.quantity}x ${i.product_name}</td><td>$${Number(i.subtotal||0).toLocaleString('es-CO')}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted">Sin items</td></tr>';
+    modalBody.innerHTML = `
+      <div class="mb-3">
+        <h6 class="fw-semibold mb-1">Pedido #${o.id} <span class="badge bg-info">${o.status}</span></h6>
+        <div class="small text-muted">Creado: ${o.created_at ? new Date(o.created_at).toLocaleString('es-CO') : '—'}</div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="border rounded p-2 h-100">
+            <h6 class="text-uppercase small fw-bold">Cliente</h6>
+            <div>${o.customer_name || 'Sin nombre'}</div>
+            <div class="small text-muted">${o.customer_email || ''}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-2 h-100">
+            <h6 class="text-uppercase small fw-bold">Restaurante</h6>
+            <div>${o.restaurant_name || 'Sin nombre'}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-2 h-100">
+            <h6 class="text-uppercase small fw-bold">Entrega</h6>
+            <div class="small"><i class="bi bi-geo-alt me-1"></i>${o.delivery_address || '—'}</div>
+            <div class="small"><i class="bi bi-telephone me-1"></i>${o.delivery_phone || '—'}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-2 h-100">
+            <h6 class="text-uppercase small fw-bold">Domiciliario</h6>
+            <div>${o.delivery_person_name || 'Sin asignar'}</div>
+          </div>
+        </div>
+        <div class="col-12">
+          <h6 class="text-uppercase small fw-bold">Items</h6>
+          <table class="table table-sm mb-0">
+            <tbody>${itemsHtml}</tbody>
+          </table>
+        </div>
+        <div class="col-12">
+          <div class="border-top pt-2">
+            <div class="d-flex justify-content-between mb-1"><span>Subtotal:</span><span>$${Number(o.subtotal||0).toLocaleString('es-CO')}</span></div>
+            <div class="d-flex justify-content-between mb-1"><span>Domicilio:</span><span>$${Number(o.delivery_fee||0).toLocaleString('es-CO')}</span></div>
+            <div class="d-flex justify-content-between mb-1"><span>Impuestos:</span><span>$${Number(o.tax_amount||0).toLocaleString('es-CO')}</span></div>
+            <div class="d-flex justify-content-between fw-bold fs-5 border-top pt-2"><span>Total:</span><span class="text-success">$${Number(o.total||0).toLocaleString('es-CO')}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch(err) {
+    console.error('Error cargando detalles:', err);
+    modalBody.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
   }
 }
 

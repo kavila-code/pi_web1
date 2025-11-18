@@ -1,4 +1,5 @@
 import { UserModel } from '../models/user.model.js';
+import { OrderModel } from '../models/order.model.js';
 
 // Obtener estadísticas del dashboard
 const getDashboardStats = async (req, res) => {
@@ -159,36 +160,25 @@ const getUserById = async (req, res) => {
 // Obtener lista de pedidos
 const getOrders = async (req, res) => {
   try {
-    // Datos mock para pedidos
-    const orders = [
-      {
-        id: 12345,
-        user: 'Juan Pérez',
-        restaurant: 'Pizza Palace',
-        items: 'Pizza Margherita x2',
-        total: 24.99,
-        status: 'delivered',
-        created_at: '2024-10-05 14:30'
-      },
-      {
-        id: 12344,
-        user: 'María González',
-        restaurant: 'Burger House',
-        items: 'Hamburguesa Clásica x1, Papas x1',
-        total: 18.50,
-        status: 'preparing',
-        created_at: '2024-10-05 13:45'
-      }
-    ];
+    // Obtener pedidos reales de la base de datos
+    const filters = {
+      status: req.query.status,
+      restaurant_id: req.query.restaurant_id,
+      start_date: req.query.start_date,
+      end_date: req.query.end_date,
+      search: req.query.search
+    };
+    
+    const orders = await OrderModel.getAll(filters);
 
     return res.json({
       ok: true,
-      orders,
+      data: orders,
       total: orders.length
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ ok: false, msg: 'Server error' });
+    console.error('Error al obtener pedidos:', error);
+    return res.status(500).json({ ok: false, msg: 'Error al obtener pedidos' });
   }
 };
 

@@ -1,13 +1,18 @@
 import { db } from '../database/connection.database.js';
 
-// Generar número de orden único
-const generateOrderNumber = () => {
+// Generar número de orden único (LONGITUD MÁXIMA: 20 chars según schema VARCHAR(20))
+// Formato: ORD-YYYYMMDDHHMMSSRR (4 + 8 + 6 + 2 = 20)
+// Eliminamos milisegundos y reducimos aleatorio a 2 dígitos para cumplir límite.
+const generateOrderNumber = async () => {
   const date = new Date();
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-  return `ORD-${year}${month}${day}-${random}`;
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+  return `ORD-${year}${month}${day}${hour}${minute}${second}${random}`;
 };
 
 // Crear un nuevo pedido
@@ -18,7 +23,7 @@ const create = async (orderData, items) => {
     await client.query('BEGIN');
 
     // Generar número de orden único
-    const orderNumber = generateOrderNumber();
+    const orderNumber = await generateOrderNumber();
 
     // Insertar el pedido
     const orderQuery = {
